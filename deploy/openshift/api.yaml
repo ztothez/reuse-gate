@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reuse-gate
+  labels: {app: reuse-gate}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: reuse-gate}
+  template:
+    metadata:
+      labels: {app: reuse-gate}
+    spec:
+      containers:
+        - name: api
+          image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: {path: /health, port: 8080}
+          livenessProbe:
+            httpGet: {path: /health, port: 8080}
+            initialDelaySeconds: 10
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reuse-gate
+spec:
+  selector: {app: reuse-gate}
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: reuse-gate
+spec:
+  to: {kind: Service, name: reuse-gate}
+  port: {targetPort: 80}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
