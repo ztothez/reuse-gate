@@ -1,4 +1,5 @@
 """The /speak endpoint: right call to ElevenLabs, protected credits, and no key in any error."""
+import hashlib
 import io
 import json
 import os
@@ -33,7 +34,7 @@ class SpeakBase(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
-        env = patch.dict(os.environ, {"ElevenLabs_API_KEY": KEY, "LLM_CACHE_DIR": tmp.name}, clear=True)
+        env = patch.dict(os.environ, {"ELEVENLABS_API_KEY": KEY, "LLM_CACHE_DIR": tmp.name}, clear=True)
         env.start()
         self.addCleanup(env.stop)
         calls = patch.object(speech, "_calls", 0)
@@ -59,6 +60,35 @@ class SpeakTest(SpeakBase):
         self.assertEqual(spy.call_count, 1)
         self.assertEqual(speech._calls, 1)
 
+    def test_audio_is_cached_on_disk_by_the_sha256_of_the_text(self):
+        with patch("urllib.request.urlopen", return_value=audio_reply()):
+            speech.speak("Hello there")
+        name = hashlib.sha256("Hello there".encode()).hexdigest() + ".mp3"
+        files = [p.name for p in (Path(os.environ["LLM_CACHE_DIR"]) / "speech").iterdir()]
+        self.assertEqual(files, [name])
+
+    def test_cache_key_is_the_text_alone(self):
+        with patch("urllib.request.urlopen", return_value=audio_reply()) as spy:
+            speech.speak("Hello there")
+            with patch.dict(os.environ, {"ELEVENLABS_VOICE_ID": "other"}):
+                speech.speak("Hello there")
+        self.assertEqual(spy.call_count, 1)
+
+    def test_key_comes_only_from_the_specified_variable(self):
+        for name in ("ElevenLabs_API_KEY", "XI_API_KEY", "LLM_API_KEY"):
+            with self.subTest(name), patch.dict(os.environ, {"ELEVENLABS_API_KEY": "", name: KEY}):
+                self.assertRefused(503, "Hello")
+
+    def test_key_is_never_in_the_front_end_or_in_tracked_config(self):
+        root = Path(__file__).parent
+        for path in (root / "FrontEnd/src").rglob("*"):
+            if path.is_file() and path.suffix in {".ts", ".tsx", ".json"}:
+                text = path.read_text(encoding="utf-8").lower()
+                self.assertNotIn("xi-api-key", text, path)
+                self.assertNotIn("elevenlabs_api_key", text, path)
+                self.assertNotIn("api.elevenlabs.io", text, path)
+        self.assertRegex((root / "env.example").read_text(encoding="utf-8"), r"(?m)^ELEVENLABS_API_KEY=$")
+
     def test_voice_and_model_can_be_set(self):
         with patch.dict(os.environ, {"ELEVENLABS_VOICE_ID": "voice1", "ELEVENLABS_MODEL": "model1"}), patch("urllib.request.urlopen", return_value=audio_reply()) as spy:
             speech.speak("Hello")
@@ -78,7 +108,7 @@ class SpeakTest(SpeakBase):
                 self.assertRefused(400, text)
 
     def test_missing_key_is_a_clear_503(self):
-        with patch.dict(os.environ, {"ElevenLabs_API_KEY": ""}):
+        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": ""}):
             self.assertRefused(503, "Hello")
 
     def test_budget_stops_paid_calls_but_not_cached_audio(self):
@@ -156,7 +186,7 @@ class SpeakApiTest(SpeakBase):
                 code, headers, body = self.post(data)
                 self.assertEqual(code, status)
                 self.assertIn("error", json.loads(body))
-        with patch.dict(os.environ, {"ElevenLabs_API_KEY": ""}):
+        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": ""}):
             self.assertEqual(self.post(b'{"text": "Hello"}')[0], 503)
 
 

@@ -168,8 +168,8 @@ The Listen button on the explanation reads the decision aloud through ElevenLabs
 The server writes the spoken script (`ai.speech`): the decision and its reasons, without table ids. This is a model-free text to speech
 step, and it changes nothing about the decision.
 
-Set `ElevenLabs_API_KEY` in `.env`. `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL` and `SPEAK_MAX_CALLS` are optional. The API has no login, so
-credits are protected by a 1000-character limit, a budget of 50 paid calls per server process, and an on-disk audio cache. Without a key, or
+Set `ELEVENLABS_API_KEY` in `.env`. The key is read only from that variable and is never in the repo or the front end. `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL` and `SPEAK_MAX_CALLS` are optional. The API has no login, so
+credits are protected by a 1000-character limit, a budget of 50 paid calls per server process, and an on-disk audio cache keyed by the sha256 of the text. Clear `.llm_cache/speech` after changing the voice or model. Without a key, or
 if the service fails, the button shows a short message and the rest of the page keeps working. The button is hidden in demo mode.
 
 ### Clarification loop

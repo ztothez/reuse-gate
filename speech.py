@@ -1,7 +1,8 @@
 """ElevenLabs text to speech for the Listen button.
 
 The API has no login, so this caps text length and calls, and caches audio, to protect the account's credits.
-Set ElevenLabs_API_KEY (or ELEVENLABS_API_KEY). ELEVENLABS_VOICE_ID and ELEVENLABS_MODEL are optional.
+The key comes only from the ELEVENLABS_API_KEY environment variable. ELEVENLABS_VOICE_ID and ELEVENLABS_MODEL are optional.
+Audio is cached by the sha256 of the text alone, so clear .llm_cache/speech after changing the voice or model.
 """
 import hashlib
 import json
@@ -27,11 +28,11 @@ class SpeechError(RuntimeError):
 
 
 def _key():
-    return os.environ.get("ElevenLabs_API_KEY") or os.environ.get("ELEVENLABS_API_KEY", "")
+    return os.environ.get("ELEVENLABS_API_KEY", "")
 
 
 def speak(text):
-    """MP3 bytes for the text. Cached by text, voice and model, so repeats cost nothing."""
+    """MP3 bytes for the text. Cached on disk by the sha256 of the text, so repeats cost nothing."""
     global _calls
     text = text.strip() if isinstance(text, str) else ""
     if not text:
@@ -41,7 +42,7 @@ def speak(text):
     voice = os.environ.get("ELEVENLABS_VOICE_ID", DEFAULT_VOICE)
     model = os.environ.get("ELEVENLABS_MODEL", DEFAULT_MODEL)
     cache_dir = Path(os.environ.get("LLM_CACHE_DIR", ".llm_cache")) / "speech"
-    path = cache_dir / f"{hashlib.sha256(json.dumps([voice, model, text]).encode()).hexdigest()}.mp3"
+    path = cache_dir / f"{hashlib.sha256(text.encode()).hexdigest()}.mp3"
     if path.exists():
         return path.read_bytes()
     if not _key():

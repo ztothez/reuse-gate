@@ -5,7 +5,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 126 pass |
+| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 130 pass |
 | `test_smoke.py` | passes |
 | Frontend tests (`npm test`), TypeScript | 24 pass, no type errors |
 | Baseline (`run_batch.py`) | 79/150 avoid a new build, 1434 citations, 0 invalid, 5 assets to retire, 7 to consolidate later. A test enforces these numbers |
@@ -29,7 +29,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Clarification loop:** answers go back to `/recommend`, are applied by field, and the request is decided again, replacing the result. Tested in Python, in the frontend, over HTTP, and in a browser with real models.
 - **Live backends:** gpt-oss-120b on Aitta, automatic fallback to GLM-5.2 on Featherless, then the rules. `warmup.py` ran against all three models. Failover was forced with a dead primary, and GLM-5.2 answered live.
 - **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
-- **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. The design was not checked against the original description of this feature, which was not available.
+- **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. Checked against the spec as far as it was received: key only from `ELEVENLABS_API_KEY`, POST with `audio/mpeg`, disk cache by sha256 of the text. The received spec ended mid-sentence.
 - **Radar ping:** `POST /radar-ping` returns the digest with no key for a Knative PingSource. Read-only, and it ignores the body.
 - **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
@@ -39,6 +39,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
 - Demo recording and pitch outline: not started.
 - n8n ran on a throwaway local instance with test keys, not on your own instance. `.env` has a key but no n8n URL. The digest is not connected to email or Teams.
+- `.env` names the key `ElevenLabs_API_KEY`, which is no longer read. Rename it to `ELEVENLABS_API_KEY`, or Listen shows its "not available" message.
 - `.env` still has `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`. The live API no longer uses them.
 - `FrontEnd/.env.local` sets `VITE_API_URL` to something other than localhost. It was not read or changed. A running frontend uses that API, which needs this code deployed for the loop to work.
 - The catalog swap is tested with a sample catalog, not a real second division estate.

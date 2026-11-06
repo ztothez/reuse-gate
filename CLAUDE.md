@@ -69,7 +69,7 @@ The 150 requests are only 10 distinct texts: cache LLM outputs by request text.
 - If both fail, the rule parser takes over. `LLM_MODE=rules` turns models off. `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY` no longer select the live backend.
 - `python3 -I warmup.py` before a demo. Exit 0 primary ready, 1 only fallback, 2 neither.
 - Embeddings: `intfloat/multilingual-e5-large` on Aitta.
-- Text to speech: ElevenLabs, key `ElevenLabs_API_KEY`. Capped, budgeted and cached in `speech.py`.
+- Text to speech: ElevenLabs, key only from env `ELEVENLABS_API_KEY`. Capped, budgeted and cached in `speech.py`.
 - Never commit keys. Use `.env`.
 
 ## TODO, in order
