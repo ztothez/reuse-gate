@@ -1,0 +1,2 @@
+{"id": "defined-metric", "question": "What is net revenue?", "must_contain": ["approved"], "must_not_contain": ["42"]}
+{"id": "undefined-metric", "question": "What is our invented metric?", "must_contain": ["unknown"]}

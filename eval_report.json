@@ -1,0 +1,1808 @@
+{
+  "requests": 10,
+  "backends": {
+    "featherless/GLM-5.2": {
+      "model": "zai-org/GLM-5.2",
+      "status": "completed",
+      "attempted": 10,
+      "valid": 9,
+      "failures": {
+        "invalid_output": 1
+      },
+      "field_agreement": {
+        "products": 9,
+        "kpis": 5,
+        "kind": 9,
+        "asks_clarification": 6
+      },
+      "products_kpis_kind_agree": 5,
+      "all_fields_agree": 5,
+      "usable_intents": 7,
+      "fell_back_to_rules": 3,
+      "action_agreement": 6,
+      "values_outside_allow_list": 0,
+      "latency_seconds": {
+        "mean": 32.75,
+        "median": 24.94,
+        "max": 74.17
+      },
+      "total_tokens": 11598,
+      "http_calls_this_run": 0,
+      "results": [
+        {
+          "id": "REQ-0001",
+          "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+          "baseline": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 24.94,
+          "cached": true,
+          "tokens": 1326
+        },
+        {
+          "id": "REQ-0002",
+          "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+          "baseline": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [
+              "Commercial Reach Index",
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "migration",
+            "asks_clarification": false
+          },
+          "baseline_action": "human_review",
+          "llm": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [],
+            "kind": "migration",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs should be included in the Power BI replacement?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 17.28,
+          "cached": true,
+          "tokens": 1822
+        },
+        {
+          "id": "REQ-0003",
+          "text": "Please build a new report for market access coverage and reimbursement status by product.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 21.4,
+          "cached": true,
+          "tokens": 806
+        },
+        {
+          "id": "REQ-0004",
+          "text": "We need a monthly supply-risk dashboard by medicine and country.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Demand Forecast Bias",
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 34.75,
+          "cached": true,
+          "tokens": 1848
+        },
+        {
+          "id": "REQ-0005",
+          "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+          "baseline": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": null,
+          "error": "LLM returned invalid JSON: Expecting property name enclosed in double quotes: line 1 column 53 (char 52)",
+          "error_type": "invalid_output",
+          "agreement": {},
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": null,
+          "cached": false,
+          "tokens": null
+        },
+        {
+          "id": "REQ-0008",
+          "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 17.85,
+          "cached": true,
+          "tokens": 943
+        },
+        {
+          "id": "REQ-0009",
+          "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs should the dashboard track?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 42.62,
+          "cached": true,
+          "tokens": 1888
+        },
+        {
+          "id": "REQ-0014",
+          "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+          "baseline": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 74.17,
+          "cached": true,
+          "tokens": 959
+        },
+        {
+          "id": "REQ-0023",
+          "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+          "baseline": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "repair_and_reuse",
+          "llm": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which country should the report cover?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 23.55,
+          "cached": true,
+          "tokens": 776
+        },
+        {
+          "id": "REQ-0028",
+          "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 38.18,
+          "cached": true,
+          "tokens": 1230
+        }
+      ]
+    },
+    "aitta/Llama-3.3-70B": {
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "status": "completed",
+      "attempted": 10,
+      "valid": 10,
+      "failures": {},
+      "field_agreement": {
+        "products": 10,
+        "kpis": 6,
+        "kind": 10,
+        "asks_clarification": 6
+      },
+      "products_kpis_kind_agree": 6,
+      "all_fields_agree": 6,
+      "usable_intents": 6,
+      "fell_back_to_rules": 4,
+      "action_agreement": 3,
+      "values_outside_allow_list": 6,
+      "latency_seconds": {
+        "mean": 2.33,
+        "median": 2.39,
+        "max": 2.58
+      },
+      "total_tokens": 4642,
+      "http_calls_this_run": 0,
+      "results": [
+        {
+          "id": "REQ-0001",
+          "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+          "baseline": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [
+            "All Pharma"
+          ],
+          "seconds": 2.39,
+          "cached": true,
+          "tokens": 466
+        },
+        {
+          "id": "REQ-0002",
+          "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+          "baseline": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [
+              "Commercial Reach Index",
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "migration",
+            "asks_clarification": false
+          },
+          "baseline_action": "human_review",
+          "llm": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [],
+            "kind": "migration",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs would you like to include in the new report?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [
+            "All Pharma"
+          ],
+          "seconds": 2.41,
+          "cached": true,
+          "tokens": 464
+        },
+        {
+          "id": "REQ-0003",
+          "text": "Please build a new report for market access coverage and reimbursement status by product.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 2.21,
+          "cached": true,
+          "tokens": 460
+        },
+        {
+          "id": "REQ-0004",
+          "text": "We need a monthly supply-risk dashboard by medicine and country.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "What specific KPIs would you like to include in the supply-risk dashboard?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [
+            "Supply Risk"
+          ],
+          "seconds": 2.58,
+          "cached": true,
+          "tokens": 465
+        },
+        {
+          "id": "REQ-0005",
+          "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+          "baseline": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs are required for the report?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [
+            "All Pharma"
+          ],
+          "seconds": 2.17,
+          "cached": true,
+          "tokens": 463
+        },
+        {
+          "id": "REQ-0008",
+          "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 2.39,
+          "cached": true,
+          "tokens": 470
+        },
+        {
+          "id": "REQ-0009",
+          "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs would you like to include in the dashboard?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 2.39,
+          "cached": true,
+          "tokens": 461
+        },
+        {
+          "id": "REQ-0014",
+          "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+          "baseline": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [
+            "All Pharma"
+          ],
+          "seconds": 2.39,
+          "cached": true,
+          "tokens": 467
+        },
+        {
+          "id": "REQ-0023",
+          "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+          "baseline": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "repair_and_reuse",
+          "llm": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [
+            "All Pharma"
+          ],
+          "seconds": 2.16,
+          "cached": true,
+          "tokens": 462
+        },
+        {
+          "id": "REQ-0028",
+          "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 2.22,
+          "cached": true,
+          "tokens": 464
+        }
+      ]
+    },
+    "aitta/gpt-oss-120b": {
+      "model": "openai/gpt-oss-120b",
+      "status": "completed",
+      "attempted": 10,
+      "valid": 10,
+      "failures": {},
+      "field_agreement": {
+        "products": 10,
+        "kpis": 6,
+        "kind": 10,
+        "asks_clarification": 7
+      },
+      "products_kpis_kind_agree": 6,
+      "all_fields_agree": 6,
+      "usable_intents": 6,
+      "fell_back_to_rules": 4,
+      "action_agreement": 6,
+      "values_outside_allow_list": 0,
+      "latency_seconds": {
+        "mean": 7.21,
+        "median": 7.28,
+        "max": 12.07
+      },
+      "total_tokens": 8855,
+      "http_calls_this_run": 0,
+      "results": [
+        {
+          "id": "REQ-0001",
+          "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+          "baseline": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 9.94,
+          "cached": true,
+          "tokens": 1064
+        },
+        {
+          "id": "REQ-0002",
+          "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+          "baseline": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [
+              "Commercial Reach Index",
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "migration",
+            "asks_clarification": false
+          },
+          "baseline_action": "human_review",
+          "llm": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [],
+            "kind": "migration",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPI(s) should be included in the report?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 12.07,
+          "cached": true,
+          "tokens": 1194
+        },
+        {
+          "id": "REQ-0003",
+          "text": "Please build a new report for market access coverage and reimbursement status by product.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 4.16,
+          "cached": true,
+          "tokens": 689
+        },
+        {
+          "id": "REQ-0004",
+          "text": "We need a monthly supply-risk dashboard by medicine and country.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPI should be used for the supply-risk dashboard (e.g., Inventory Coverage or On-Time In-Full)?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 7.55,
+          "cached": true,
+          "tokens": 899
+        },
+        {
+          "id": "REQ-0005",
+          "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+          "baseline": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPI(s) should be included in the report?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 8.98,
+          "cached": true,
+          "tokens": 993
+        },
+        {
+          "id": "REQ-0008",
+          "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 4.89,
+          "cached": true,
+          "tokens": 743
+        },
+        {
+          "id": "REQ-0009",
+          "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 4.9,
+          "cached": true,
+          "tokens": 730
+        },
+        {
+          "id": "REQ-0014",
+          "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+          "baseline": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 7.01,
+          "cached": true,
+          "tokens": 880
+        },
+        {
+          "id": "REQ-0023",
+          "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+          "baseline": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "repair_and_reuse",
+          "llm": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "repair_and_reuse",
+          "usable": true,
+          "dropped": [],
+          "seconds": 9.26,
+          "cached": true,
+          "tokens": 1016
+        },
+        {
+          "id": "REQ-0028",
+          "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 3.38,
+          "cached": true,
+          "tokens": 647
+        }
+      ]
+    },
+    "aitta/gemma-4-31b": {
+      "model": "google/gemma-4-31b-it",
+      "status": "completed",
+      "attempted": 10,
+      "valid": 9,
+      "failures": {
+        "request_failed": 1
+      },
+      "field_agreement": {
+        "products": 9,
+        "kpis": 7,
+        "kind": 9,
+        "asks_clarification": 7
+      },
+      "products_kpis_kind_agree": 7,
+      "all_fields_agree": 7,
+      "usable_intents": 7,
+      "fell_back_to_rules": 3,
+      "action_agreement": 7,
+      "values_outside_allow_list": 0,
+      "latency_seconds": {
+        "mean": 34.78,
+        "median": 35.1,
+        "max": 45.76
+      },
+      "total_tokens": 12011,
+      "http_calls_this_run": 1,
+      "results": [
+        {
+          "id": "REQ-0001",
+          "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+          "baseline": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "Nubeqa"
+            ],
+            "kpis": [
+              "Forecast Variance",
+              "Market Access Coverage",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 31.55,
+          "cached": true,
+          "tokens": 1251
+        },
+        {
+          "id": "REQ-0002",
+          "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+          "baseline": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [
+              "Commercial Reach Index",
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "migration",
+            "asks_clarification": false
+          },
+          "baseline_action": "human_review",
+          "llm": {
+            "products": [
+              "Xarelto"
+            ],
+            "kpis": [],
+            "kind": "migration",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which KPIs should be included in the report?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 45.76,
+          "cached": true,
+          "tokens": 1626
+        },
+        {
+          "id": "REQ-0003",
+          "text": "Please build a new report for market access coverage and reimbursement status by product.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 36.42,
+          "cached": true,
+          "tokens": 1374
+        },
+        {
+          "id": "REQ-0004",
+          "text": "We need a monthly supply-risk dashboard by medicine and country.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Inventory Coverage",
+              "On-Time In-Full"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 35.1,
+          "cached": true,
+          "tokens": 1337
+        },
+        {
+          "id": "REQ-0005",
+          "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+          "baseline": {
+            "products": [
+              "Kerendia"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": null,
+          "error": "LLM returned an empty response",
+          "error_type": "request_failed",
+          "agreement": {},
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": null,
+          "cached": false,
+          "tokens": null
+        },
+        {
+          "id": "REQ-0008",
+          "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "new_build",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Budget Variance",
+              "Gross-to-Net Rate",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "new_build",
+          "usable": true,
+          "dropped": [],
+          "seconds": 32.01,
+          "cached": true,
+          "tokens": 1267
+        },
+        {
+          "id": "REQ-0009",
+          "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [],
+            "kind": "new_report",
+            "asks_clarification": true,
+            "clarifications": [
+              "Which specific KPIs should be used to measure product performance?"
+            ]
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": false,
+            "kind": true,
+            "asks_clarification": false
+          },
+          "action": null,
+          "usable": false,
+          "dropped": [],
+          "seconds": 35.31,
+          "cached": true,
+          "tokens": 1344
+        },
+        {
+          "id": "REQ-0014",
+          "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+          "baseline": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "Lynkuet"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Market Access Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 27.37,
+          "cached": true,
+          "tokens": 1139
+        },
+        {
+          "id": "REQ-0023",
+          "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+          "baseline": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "repair_and_reuse",
+          "llm": {
+            "products": [
+              "Beyonttra"
+            ],
+            "kpis": [
+              "Launch Adoption Index",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "repair_and_reuse",
+          "usable": true,
+          "dropped": [],
+          "seconds": 42.39,
+          "cached": true,
+          "tokens": 1540
+        },
+        {
+          "id": "REQ-0028",
+          "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+          "baseline": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false
+          },
+          "baseline_action": "extend",
+          "llm": {
+            "products": [
+              "All Pharma"
+            ],
+            "kpis": [
+              "Demand Forecast Accuracy",
+              "Inventory Coverage",
+              "Net Sales"
+            ],
+            "kind": "new_report",
+            "asks_clarification": false,
+            "clarifications": []
+          },
+          "error": null,
+          "error_type": null,
+          "agreement": {
+            "products": true,
+            "kpis": true,
+            "kind": true,
+            "asks_clarification": true
+          },
+          "action": "extend",
+          "usable": true,
+          "dropped": [],
+          "seconds": 27.07,
+          "cached": true,
+          "tokens": 1133
+        }
+      ]
+    }
+  }
+}

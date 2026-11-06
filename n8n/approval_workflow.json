@@ -1,0 +1,146 @@
+{
+  "name": "Reuse Gate: approval",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reuse-gate-approval",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Approval webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "reuse-gate-approval",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "reuse-gate-webhook-key",
+          "name": "Reuse Gate webhook key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "api-url",
+              "name": "api_url",
+              "value": "http://localhost:8000",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "config",
+      "name": "Config: API URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api_url }}/n8n/approval",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({request_id: $('Approval webhook').item.json.body.request_id, decision: $('Approval webhook').item.json.body.decision, approver: $('Approval webhook').item.json.body.approver, owner: $('Approval webhook').item.json.body.owner, review_by: $('Approval webhook').item.json.body.review_by}) }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "register",
+      "name": "Register decision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "reuse-gate-api-key",
+          "name": "Reuse Gate API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.body) }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode }}"
+        }
+      },
+      "id": "respond",
+      "name": "Return result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Approval webhook": {
+      "main": [
+        [
+          {
+            "node": "Config: API URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: API URL": {
+      "main": [
+        [
+          {
+            "node": "Register decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register decision": {
+      "main": [
+        [
+          {
+            "node": "Return result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "pinData": {},
+  "id": "reuseGateApproval",
+  "versionId": "00000000-0000-4000-8000-000000000001",
+  "tags": []
+}

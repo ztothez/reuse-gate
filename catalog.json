@@ -1,0 +1,26 @@
+{
+  "division": "Pharmaceuticals",
+  "all_scope": "All Pharma",
+  "cross_product_pattern": "oncology brands|bayer pharma|by (product|medicine)",
+  "migration_kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
+  "market_aliases": {"USA": "US", "US": "US", "U.S.": "US", "UK": "UK", "Britain": "UK", "Great Britain": "UK",
+                     "Europe": "EMEA", "APAC": "Asia Pacific", "Asia": "Asia Pacific", "LATAM": "Latin America"},
+  "known_terms": ["Power", "Tableau", "Bayer", "Pharma", "Excel", "Global", "Monday", "Tuesday", "Wednesday", "Thursday",
+                  "Friday", "January", "February", "March", "April", "May", "June", "July", "August", "September",
+                  "October", "November", "December", "Asia", "Pacific", "North", "Latin", "America"],
+  "kpi_patterns": [
+    ["sales growth", ["Net Sales Growth"]],
+    ["net sales", ["Net Sales"]],
+    ["first sales", ["Net Sales"]],
+    ["forecast variance", ["Forecast Variance"]],
+    ["budget variance", ["Budget Variance"]],
+    ["gross-to-net", ["Gross-to-Net Rate"]],
+    ["market access", ["Market Access Coverage"]],
+    ["reimbursement", ["Reimbursement Status Coverage"]],
+    ["launch readiness|adoption", ["Launch Adoption Index"]],
+    ["forecast accuracy", ["Demand Forecast Accuracy"]],
+    ["inventory", ["Inventory Coverage"]],
+    ["supply[- ]risk", ["On-Time In-Full", "Inventory Coverage"]],
+    ["monthly performance|product performance", ["Net Sales", "Net Sales Growth"]]
+  ]
+}

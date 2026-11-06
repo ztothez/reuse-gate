@@ -1,0 +1,4888 @@
+{
+  "requests": [
+    {
+      "request_id": "REQ-0001",
+      "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+      "intent": {
+        "products": [
+          "Nubeqa"
+        ],
+        "market": "EMEA",
+        "kpis": [
+          "Net Sales Growth",
+          "Forecast Variance",
+          "Market Access Coverage"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "new_build",
+        "target": null,
+        "build_on": "SM-065",
+        "retire": [],
+        "repair": [],
+        "rationale": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only"
+        ],
+        "evidence": [
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-007",
+            "note": "AI-ready semantics"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-065",
+            "note": "certified, refresh healthy, AI readiness good"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-004",
+            "note": "Net Sales Growth: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-042",
+            "note": "Forecast Variance: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-027",
+            "note": "Market Access Coverage: canonical, approved"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "3 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
+            "product_context": "Beyonttra",
+            "market_context": "EMEA",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "Nubeqa"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales Growth",
+              "Forecast Variance",
+              "Market Access Coverage"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "63 asset(s) in scope, 18 alive, 7 citation(s)",
+          "input": {
+            "products": [
+              "Nubeqa"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales Growth",
+              "Forecast Variance",
+              "Market Access Coverage"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 63,
+            "candidates": [
+              {
+                "id": "AST-0256",
+                "name": "Nubeqa Net Sales Mgmt",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Forecast Variance"
+                ],
+                "blockers": [
+                  "uses non-canonical KPI variants for ['Market Access Coverage']",
+                  "semantic model SM-054 refresh status is warning"
+                ],
+                "score": 0.637
+              },
+              {
+                "id": "AST-0328",
+                "name": "Nubeqa Gross-to-Net",
+                "alive": true,
+                "covers": [
+                  "Net Sales Growth"
+                ],
+                "missing": [
+                  "Forecast Variance",
+                  "Market Access Coverage"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "semantic model SM-036 has poor AI readiness (clear)"
+                ],
+                "score": 0.521
+              },
+              {
+                "id": "AST-0357",
+                "name": "All Pharma Executive - US",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Forecast Variance"
+                ],
+                "blockers": [
+                  "not certified or promoted"
+                ],
+                "score": 0.513
+              },
+              {
+                "id": "AST-0051",
+                "name": "Nubeqa Product Performance Copy",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Forecast Variance"
+                ],
+                "blockers": [
+                  "uses non-canonical KPI variants for ['Market Access Coverage']"
+                ],
+                "score": 0.452
+              },
+              {
+                "id": "AST-0018",
+                "name": "All Pharma Market Access - US",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Forecast Variance"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "owner OWN-044 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Market Access Coverage']"
+                ],
+                "score": 0.314
+              }
+            ],
+            "citations": [
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-007",
+                "note": "AI-ready semantics"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-065",
+                "note": "certified, refresh healthy, AI readiness good"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-004",
+                "note": "Net Sales Growth: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-042",
+                "note": "Forecast Variance: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-027",
+                "note": "Market Access Coverage: canonical, approved"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "new build",
+          "input": {
+            "assets_checked": 63,
+            "kpis": [
+              "Net Sales Growth",
+              "Forecast Variance",
+              "Market Access Coverage"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "new_build",
+            "target": null,
+            "build_on": "SM-065",
+            "retire": [],
+            "repair": [],
+            "rationale": [
+              "no alive, governed asset covers enough of the request",
+              "build on a healthy shared semantic model, using canonical KPI definitions only"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "new_build",
+            "build_on": "SM-065",
+            "target": null
+          },
+          "output": {
+            "title": "Nubeqa dashboard",
+            "purpose": "Governed view of Net Sales Growth, Forecast Variance, Market Access Coverage for Nubeqa in EMEA.",
+            "products": [
+              "Nubeqa"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales Growth",
+              "Forecast Variance",
+              "Market Access Coverage"
+            ],
+            "semantic_model": "SM-065",
+            "source_action": "new_build",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": null,
+            "measures": [
+              {
+                "kpi_id": "KPI-004",
+                "name": "Net Sales Growth",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-042",
+                "name": "Forecast Variance",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-027",
+                "name": "Market Access Coverage",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": null,
+            "review_date": "2027-09-05",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Products",
+                  "id": "P-NUB",
+                  "note": "Nubeqa"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "DE",
+                  "note": "in EMEA"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-004",
+                  "note": "Net Sales Growth: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-042",
+                  "note": "Forecast Variance: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-027",
+                  "note": "Market Access Coverage: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-065",
+                  "note": "scope All Pharma, region Latin America"
+                }
+              ],
+              "owner": [],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-007",
+                  "note": "AI-ready semantics"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "2 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Nubeqa dashboard",
+            "as_of": "2026-09-05"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": false,
+                "detail": "no active owner could be proposed"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": false,
+                "detail": "no citation for ['owner']"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0002",
+      "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+      "intent": {
+        "products": [
+          "Xarelto"
+        ],
+        "market": "JP",
+        "kpis": [
+          "Net Sales",
+          "Net Sales Growth",
+          "Commercial Reach Index"
+        ],
+        "kind": "migration",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "human_review",
+        "target": null,
+        "build_on": null,
+        "retire": [],
+        "repair": [],
+        "rationale": [
+          "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
+        ],
+        "evidence": [
+          {
+            "table": "Migration_Backlog",
+            "id": "AST-0254",
+            "note": "HUMAN_REVIEW, high complexity, not_started"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-006",
+            "note": "Do not migrate waste"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "3 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
+            "product_context": "All Pharma",
+            "market_context": "JP",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "Xarelto"
+            ],
+            "market": "JP",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth",
+              "Commercial Reach Index"
+            ],
+            "kind": "migration",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "11 asset(s) in scope, 3 alive, 2 citation(s)",
+          "input": {
+            "products": [
+              "Xarelto"
+            ],
+            "market": "JP",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth",
+              "Commercial Reach Index"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 11,
+            "candidates": [
+              {
+                "id": "AST-0008",
+                "name": "All Pharma Market Access Monthly",
+                "alive": true,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Commercial Reach Index"
+                ],
+                "blockers": [
+                  "semantic model SM-034 refresh status is failed",
+                  "semantic model SM-034 has poor AI readiness (clear)"
+                ],
+                "score": 0.692
+              },
+              {
+                "id": "AST-0191",
+                "name": "Xarelto Forecast New",
+                "alive": true,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Commercial Reach Index"
+                ],
+                "blockers": [
+                  "not certified or promoted"
+                ],
+                "score": 0.52
+              },
+              {
+                "id": "AST-0078",
+                "name": "Xarelto Commercial Reach Mgmt",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Net Sales",
+                  "Net Sales Growth",
+                  "Commercial Reach Index"
+                ],
+                "blockers": [
+                  "semantic model SM-067 has poor AI readiness (clear)"
+                ],
+                "score": 0.702
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "missing": [
+                  "Commercial Reach Index"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Net Sales']"
+                ],
+                "score": 0.371
+              },
+              {
+                "id": "AST-0335",
+                "name": "All Pharma Growth Legacy",
+                "alive": false,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth",
+                  "Commercial Reach Index"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "owner OWN-043 is missing or inactive"
+                ],
+                "score": 0.646
+              }
+            ],
+            "citations": [
+              {
+                "table": "Migration_Backlog",
+                "id": "AST-0254",
+                "note": "HUMAN_REVIEW, high complexity, not_started"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-006",
+                "note": "Do not migrate waste"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "human review",
+          "input": {
+            "assets_checked": 11,
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth",
+              "Commercial Reach Index"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "human_review",
+            "target": null,
+            "build_on": null,
+            "retire": [],
+            "repair": [],
+            "rationale": [
+              "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "skipped",
+          "summary": "no new artifact for this decision",
+          "input": {
+            "action": "human_review",
+            "build_on": null,
+            "target": null
+          },
+          "output": {
+            "reason": "DashboardSpec is available only for new_build and extend"
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "skipped",
+          "summary": "no spec to check",
+          "input": {
+            "spec": null
+          },
+          "output": {
+            "passed": null,
+            "gates": []
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0003",
+      "text": "Please build a new report for market access coverage and reimbursement status by product.",
+      "intent": {
+        "products": [
+          "All Pharma"
+        ],
+        "market": "US",
+        "kpis": [
+          "Market Access Coverage",
+          "Reimbursement Status Coverage"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "new_build",
+        "target": null,
+        "build_on": "SM-065",
+        "retire": [
+          {
+            "id": "AST-0335",
+            "name": "All Pharma Growth Legacy",
+            "type": "App",
+            "platform": "Power BI",
+            "endorsement": "promoted",
+            "status": "active",
+            "views_3m": 14,
+            "users_3m": 2,
+            "owner": "Felix Virtanen"
+          }
+        ],
+        "repair": [],
+        "rationale": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only",
+          "1 dead overlapping asset(s) should be retired, not repaired"
+        ],
+        "evidence": [
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-007",
+            "note": "AI-ready semantics"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-065",
+            "note": "certified, refresh healthy, AI readiness good"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-027",
+            "note": "Market Access Coverage: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-031",
+            "note": "Reimbursement Status Coverage: canonical, approved"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only",
+          "1 dead overlapping asset(s) should be retired, not repaired"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "2 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Please build a new report for market access coverage and reimbursement status by product.",
+            "product_context": "Beyonttra",
+            "market_context": "US",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "US",
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "3 asset(s) in scope, 0 alive, 6 citation(s)",
+          "input": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "US",
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 3,
+            "candidates": [
+              {
+                "id": "AST-0335",
+                "name": "All Pharma Growth Legacy",
+                "alive": false,
+                "covers": [
+                  "Market Access Coverage",
+                  "Reimbursement Status Coverage"
+                ],
+                "missing": [],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "owner OWN-043 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Reimbursement Status Coverage']"
+                ],
+                "score": 0.546
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "Market Access Coverage",
+                  "Reimbursement Status Coverage"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted"
+                ],
+                "score": 0.471
+              },
+              {
+                "id": "AST-0010",
+                "name": "All Pharma Commercial Reach - Global",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "Market Access Coverage",
+                  "Reimbursement Status Coverage"
+                ],
+                "blockers": [
+                  "lifecycle status is candidate_retire",
+                  "legacy Tableau content, not a reuse target",
+                  "not certified or promoted"
+                ],
+                "score": 0.337
+              }
+            ],
+            "citations": [
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-007",
+                "note": "AI-ready semantics"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-065",
+                "note": "certified, refresh healthy, AI readiness good"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-027",
+                "note": "Market Access Coverage: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-031",
+                "note": "Reimbursement Status Coverage: canonical, approved"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "new build",
+          "input": {
+            "assets_checked": 3,
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "new_build",
+            "target": null,
+            "build_on": "SM-065",
+            "retire": [
+              "AST-0335"
+            ],
+            "repair": [],
+            "rationale": [
+              "no alive, governed asset covers enough of the request",
+              "build on a healthy shared semantic model, using canonical KPI definitions only",
+              "1 dead overlapping asset(s) should be retired, not repaired"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "new_build",
+            "build_on": "SM-065",
+            "target": null
+          },
+          "output": {
+            "title": "All Pharma dashboard",
+            "purpose": "Governed view of Market Access Coverage, Reimbursement Status Coverage for All Pharma in US.",
+            "products": [
+              "All Pharma"
+            ],
+            "market": "US",
+            "kpis": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "semantic_model": "SM-065",
+            "source_action": "new_build",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": null,
+            "measures": [
+              {
+                "kpi_id": "KPI-027",
+                "name": "Market Access Coverage",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-031",
+                "name": "Reimbursement Status Coverage",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": null,
+            "review_date": "2027-08-08",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-065",
+                  "note": "scope All Pharma, region Latin America"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "US",
+                  "note": "United States"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-027",
+                  "note": "Market Access Coverage: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-031",
+                  "note": "Reimbursement Status Coverage: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-065",
+                  "note": "scope All Pharma, region Latin America"
+                }
+              ],
+              "owner": [],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-007",
+                  "note": "AI-ready semantics"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "2 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "All Pharma dashboard",
+            "as_of": "2026-08-08"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": false,
+                "detail": "no active owner could be proposed"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": false,
+                "detail": "no citation for ['owner']"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0004",
+      "text": "We need a monthly supply-risk dashboard by medicine and country.",
+      "intent": {
+        "products": [
+          "All Pharma"
+        ],
+        "market": "JP",
+        "kpis": [
+          "On-Time In-Full",
+          "Inventory Coverage"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "extend",
+        "target": {
+          "id": "AST-0008",
+          "name": "All Pharma Market Access Monthly",
+          "type": "Dashboard",
+          "platform": "Power BI",
+          "endorsement": "promoted",
+          "status": "active",
+          "views_3m": 859,
+          "users_3m": 194,
+          "owner": "Nina Schmidt",
+          "coverage": {
+            "requested": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ],
+            "covered": [
+              {
+                "kpi": "On-Time In-Full",
+                "map_id": "AST-0008:KPI-020",
+                "kpi_id": "KPI-020",
+                "kpi_name": "On-Time In-Full",
+                "definition_status": "canonical",
+                "usage_role": "primary"
+              }
+            ],
+            "missing": [
+              "Inventory Coverage"
+            ],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": "SM-034",
+        "retire": [],
+        "repair": [
+          "add canonical KPI(s): ['Inventory Coverage']",
+          "semantic model SM-034 refresh status is failed",
+          "semantic model SM-034 has poor AI readiness (clear)"
+        ],
+        "rationale": [
+          "All Pharma Market Access Monthly is alive and covers ['On-Time In-Full']; only ['Inventory Coverage'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: On-Time In-Full (Asset_KPI_Map AST-0008:KPI-020, canonical); not covered: Inventory Coverage",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0008",
+            "note": "All Pharma Market Access Monthly: active, promoted, audience 1559"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0008",
+            "note": "859 views, 194 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-020",
+            "note": "On-Time In-Full: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-034->AST-0008",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-034",
+            "note": "promoted, refresh failed, AI readiness poor"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0008:KPI-020",
+            "note": "On-Time In-Full (canonical), role primary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "All Pharma Market Access Monthly is alive and covers ['On-Time In-Full']; only ['Inventory Coverage'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: On-Time In-Full (Asset_KPI_Map AST-0008:KPI-020, canonical); not covered: Inventory Coverage",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "2 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "We need a monthly supply-risk dashboard by medicine and country.",
+            "product_context": "Xarelto",
+            "market_context": "JP",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "JP",
+            "kpis": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "7 asset(s) in scope, 1 alive, 8 citation(s)",
+          "input": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "JP",
+            "kpis": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 7,
+            "candidates": [
+              {
+                "id": "AST-0008",
+                "name": "All Pharma Market Access Monthly",
+                "alive": true,
+                "covers": [
+                  "On-Time In-Full"
+                ],
+                "missing": [
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "semantic model SM-034 refresh status is failed",
+                  "semantic model SM-034 has poor AI readiness (clear)"
+                ],
+                "score": 0.692
+              },
+              {
+                "id": "AST-0335",
+                "name": "All Pharma Growth Legacy",
+                "alive": false,
+                "covers": [
+                  "Inventory Coverage"
+                ],
+                "missing": [
+                  "On-Time In-Full"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "owner OWN-043 is missing or inactive"
+                ],
+                "score": 0.646
+              },
+              {
+                "id": "AST-0231",
+                "name": "All Pharma Forecast - Global",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "On-Time In-Full",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "lifecycle status is legacy",
+                  "semantic model SM-068 refresh status is failed"
+                ],
+                "score": 0.578
+              },
+              {
+                "id": "AST-0154",
+                "name": "All Pharma Demand Final",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "On-Time In-Full",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "lifecycle status is legacy",
+                  "semantic model SM-033 refresh status is warning"
+                ],
+                "score": 0.513
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "On-Time In-Full",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted"
+                ],
+                "score": 0.471
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0008",
+                "note": "All Pharma Market Access Monthly: active, promoted, audience 1559"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0008",
+                "note": "859 views, 194 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-020",
+                "note": "On-Time In-Full: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-034->AST-0008",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-034",
+                "note": "promoted, refresh failed, AI readiness poor"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0008:KPI-020",
+                "note": "On-Time In-Full (canonical), role primary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "extend",
+          "input": {
+            "assets_checked": 7,
+            "kpis": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "extend",
+            "target": "AST-0008",
+            "build_on": "SM-034",
+            "retire": [],
+            "repair": [
+              "add canonical KPI(s): ['Inventory Coverage']",
+              "semantic model SM-034 refresh status is failed",
+              "semantic model SM-034 has poor AI readiness (clear)"
+            ],
+            "rationale": [
+              "All Pharma Market Access Monthly is alive and covers ['On-Time In-Full']; only ['Inventory Coverage'] is missing",
+              "extend it on its existing semantic model instead of creating a new asset",
+              "requested KPIs this target covers: On-Time In-Full (Asset_KPI_Map AST-0008:KPI-020, canonical); not covered: Inventory Coverage",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "extend",
+            "build_on": "SM-034",
+            "target": "AST-0008"
+          },
+          "output": {
+            "title": "Extended All Pharma Market Access Monthly",
+            "purpose": "Governed view of On-Time In-Full, Inventory Coverage for All Pharma in JP.",
+            "products": [
+              "All Pharma"
+            ],
+            "market": "JP",
+            "kpis": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ],
+            "semantic_model": "SM-034",
+            "source_action": "extend",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": "AST-0008",
+            "measures": [
+              {
+                "kpi_id": "KPI-020",
+                "name": "On-Time In-Full",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-016",
+                "name": "Inventory Coverage",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": "Nina Schmidt",
+            "review_date": "2027-09-01",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-034",
+                  "note": "scope Nubeqa, region Global"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "JP",
+                  "note": "Japan"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-020",
+                  "note": "On-Time In-Full: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-016",
+                  "note": "Inventory Coverage: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-034",
+                  "note": "scope Nubeqa, region Global"
+                }
+              ],
+              "owner": [
+                {
+                  "table": "Owners",
+                  "id": "OWN-009",
+                  "note": "Nina Schmidt, Commercial Analytics Lead, active"
+                }
+              ],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Analytics_Assets",
+                  "id": "AST-0008",
+                  "note": "asset being extended"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "1 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Extended All Pharma Market Access Monthly",
+            "as_of": "2026-09-01"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": false,
+                "detail": "SM-034: endorsement is promoted, refresh status is failed"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": true,
+                "detail": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0005",
+      "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+      "intent": {
+        "products": [
+          "Kerendia"
+        ],
+        "market": "SE",
+        "kpis": [
+          "Net Sales",
+          "Net Sales Growth"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "extend",
+        "target": {
+          "id": "AST-0187",
+          "name": "Kerendia Gross-to-Net Monthly",
+          "type": "Report",
+          "platform": "Power BI",
+          "endorsement": "none",
+          "status": "active",
+          "views_3m": 722,
+          "users_3m": 142,
+          "owner": "Oliver Schmidt",
+          "coverage": {
+            "requested": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "covered": [
+              {
+                "kpi": "Net Sales",
+                "map_id": "AST-0187:KPI-003",
+                "kpi_id": "KPI-003",
+                "kpi_name": "Net Sales v2",
+                "definition_status": "duplicate_candidate",
+                "usage_role": "primary"
+              }
+            ],
+            "missing": [
+              "Net Sales Growth"
+            ],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": "SM-057",
+        "retire": [
+          {
+            "id": "AST-0015",
+            "name": "All Pharma Net Sales New",
+            "type": "Report",
+            "platform": "Power BI",
+            "endorsement": "none",
+            "status": "active",
+            "views_3m": 14,
+            "users_3m": 1,
+            "owner": "Sofia Rossi"
+          },
+          {
+            "id": "AST-0072",
+            "name": "Kerendia Market Access - EMEA",
+            "type": "App",
+            "platform": "Power BI",
+            "endorsement": "none",
+            "status": "candidate_retire",
+            "views_3m": 829,
+            "users_3m": 158,
+            "owner": "Leo Weber"
+          }
+        ],
+        "repair": [
+          "add canonical KPI(s): ['Net Sales Growth']",
+          "not certified or promoted",
+          "owner OWN-037 is missing or inactive",
+          "uses non-canonical KPI variants for ['Net Sales']",
+          "semantic model SM-057 refresh status is warning"
+        ],
+        "rationale": [
+          "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0187",
+            "note": "Kerendia Gross-to-Net Monthly: active, none, audience 198"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0187",
+            "note": "722 views, 142 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-001",
+            "note": "Net Sales: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-057->AST-0187",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-057",
+            "note": "none, refresh warning, AI readiness good"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0187:KPI-003",
+            "note": "Net Sales v2 (duplicate_candidate), role primary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "2 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
+            "product_context": "Beyonttra",
+            "market_context": "SE",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "Kerendia"
+            ],
+            "market": "SE",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "12 asset(s) in scope, 3 alive, 8 citation(s)",
+          "input": {
+            "products": [
+              "Kerendia"
+            ],
+            "market": "SE",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 12,
+            "candidates": [
+              {
+                "id": "AST-0187",
+                "name": "Kerendia Gross-to-Net Monthly",
+                "alive": true,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "owner OWN-037 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Net Sales']",
+                  "semantic model SM-057 refresh status is warning"
+                ],
+                "score": 0.31
+              },
+              {
+                "id": "AST-0218",
+                "name": "Kerendia Net Sales Final",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "blockers": [],
+                "score": 0.698
+              },
+              {
+                "id": "AST-0164",
+                "name": "Kerendia Gross-to-Net New",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "blockers": [],
+                "score": 0.688
+              },
+              {
+                "id": "AST-0072",
+                "name": "Kerendia Market Access - EMEA",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "missing": [],
+                "blockers": [
+                  "lifecycle status is candidate_retire",
+                  "not certified or promoted",
+                  "semantic model SM-029 refresh status is failed"
+                ],
+                "score": 0.376
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "missing": [],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Net Sales']"
+                ],
+                "score": 0.371
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0187",
+                "note": "Kerendia Gross-to-Net Monthly: active, none, audience 198"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0187",
+                "note": "722 views, 142 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-001",
+                "note": "Net Sales: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-057->AST-0187",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-057",
+                "note": "none, refresh warning, AI readiness good"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0187:KPI-003",
+                "note": "Net Sales v2 (duplicate_candidate), role primary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "extend",
+          "input": {
+            "assets_checked": 12,
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "extend",
+            "target": "AST-0187",
+            "build_on": "SM-057",
+            "retire": [
+              "AST-0015",
+              "AST-0072"
+            ],
+            "repair": [
+              "add canonical KPI(s): ['Net Sales Growth']",
+              "not certified or promoted",
+              "owner OWN-037 is missing or inactive",
+              "uses non-canonical KPI variants for ['Net Sales']",
+              "semantic model SM-057 refresh status is warning"
+            ],
+            "rationale": [
+              "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+              "extend it on its existing semantic model instead of creating a new asset",
+              "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "extend",
+            "build_on": "SM-057",
+            "target": "AST-0187"
+          },
+          "output": {
+            "title": "Extended Kerendia Gross-to-Net Monthly",
+            "purpose": "Governed view of Net Sales, Net Sales Growth for Kerendia in SE.",
+            "products": [
+              "Kerendia"
+            ],
+            "market": "SE",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "semantic_model": "SM-057",
+            "source_action": "extend",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": "AST-0187",
+            "measures": [
+              {
+                "kpi_id": "KPI-001",
+                "name": "Net Sales",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-004",
+                "name": "Net Sales Growth",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": "Mika Rossi",
+            "review_date": "2027-09-23",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Products",
+                  "id": "P-KER",
+                  "note": "Kerendia"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "SE",
+                  "note": "Sweden"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-001",
+                  "note": "Net Sales: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-004",
+                  "note": "Net Sales Growth: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-057",
+                  "note": "scope Nubeqa, region Latin America"
+                }
+              ],
+              "owner": [
+                {
+                  "table": "Owners",
+                  "id": "OWN-041",
+                  "note": "Mika Rossi, Data Product Owner, active"
+                }
+              ],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Analytics_Assets",
+                  "id": "AST-0187",
+                  "note": "asset being extended"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "1 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Extended Kerendia Gross-to-Net Monthly",
+            "as_of": "2026-09-23"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": false,
+                "detail": "SM-057: endorsement is none, refresh status is warning"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": true,
+                "detail": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0008",
+      "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+      "intent": {
+        "products": [
+          "All Pharma"
+        ],
+        "market": "MX",
+        "kpis": [
+          "Net Sales",
+          "Budget Variance",
+          "Gross-to-Net Rate"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "new_build",
+        "target": null,
+        "build_on": "SM-065",
+        "retire": [],
+        "repair": [],
+        "rationale": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only"
+        ],
+        "evidence": [
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-007",
+            "note": "AI-ready semantics"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-065",
+            "note": "certified, refresh healthy, AI readiness good"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-001",
+            "note": "Net Sales: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-039",
+            "note": "Budget Variance: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-034",
+            "note": "Gross-to-Net Rate: canonical, approved"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "no alive, governed asset covers enough of the request",
+          "build on a healthy shared semantic model, using canonical KPI definitions only"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "3 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
+            "product_context": "Xarelto",
+            "market_context": "MX",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "MX",
+            "kpis": [
+              "Net Sales",
+              "Budget Variance",
+              "Gross-to-Net Rate"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "3 asset(s) in scope, 0 alive, 7 citation(s)",
+          "input": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "MX",
+            "kpis": [
+              "Net Sales",
+              "Budget Variance",
+              "Gross-to-Net Rate"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 3,
+            "candidates": [
+              {
+                "id": "AST-0335",
+                "name": "All Pharma Growth Legacy",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Budget Variance"
+                ],
+                "missing": [
+                  "Gross-to-Net Rate"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "owner OWN-043 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Budget Variance']"
+                ],
+                "score": 0.546
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Budget Variance"
+                ],
+                "missing": [
+                  "Gross-to-Net Rate"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Net Sales']"
+                ],
+                "score": 0.371
+              },
+              {
+                "id": "AST-0198",
+                "name": "All Pharma Launch Legacy",
+                "alive": false,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Budget Variance",
+                  "Gross-to-Net Rate"
+                ],
+                "blockers": [
+                  "lifecycle status is legacy",
+                  "uses non-canonical KPI variants for ['Net Sales']",
+                  "semantic model SM-008 refresh status is warning"
+                ],
+                "score": 0.308
+              }
+            ],
+            "citations": [
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-007",
+                "note": "AI-ready semantics"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-065",
+                "note": "certified, refresh healthy, AI readiness good"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-001",
+                "note": "Net Sales: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-039",
+                "note": "Budget Variance: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-034",
+                "note": "Gross-to-Net Rate: canonical, approved"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "new build",
+          "input": {
+            "assets_checked": 3,
+            "kpis": [
+              "Net Sales",
+              "Budget Variance",
+              "Gross-to-Net Rate"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "new_build",
+            "target": null,
+            "build_on": "SM-065",
+            "retire": [],
+            "repair": [],
+            "rationale": [
+              "no alive, governed asset covers enough of the request",
+              "build on a healthy shared semantic model, using canonical KPI definitions only"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "new_build",
+            "build_on": "SM-065",
+            "target": null
+          },
+          "output": {
+            "title": "All Pharma dashboard",
+            "purpose": "Governed view of Net Sales, Budget Variance, Gross-to-Net Rate for All Pharma in MX.",
+            "products": [
+              "All Pharma"
+            ],
+            "market": "MX",
+            "kpis": [
+              "Net Sales",
+              "Budget Variance",
+              "Gross-to-Net Rate"
+            ],
+            "semantic_model": "SM-065",
+            "source_action": "new_build",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": null,
+            "measures": [
+              {
+                "kpi_id": "KPI-001",
+                "name": "Net Sales",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-039",
+                "name": "Budget Variance",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-034",
+                "name": "Gross-to-Net Rate",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": null,
+            "review_date": "2027-10-25",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-065",
+                  "note": "scope All Pharma, region Latin America"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "MX",
+                  "note": "Mexico"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-001",
+                  "note": "Net Sales: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-039",
+                  "note": "Budget Variance: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-034",
+                  "note": "Gross-to-Net Rate: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-065",
+                  "note": "scope All Pharma, region Latin America"
+                }
+              ],
+              "owner": [],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-007",
+                  "note": "AI-ready semantics"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "2 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "All Pharma dashboard",
+            "as_of": "2026-10-25"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": false,
+                "detail": "no active owner could be proposed"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": false,
+                "detail": "no citation for ['owner']"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0009",
+      "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+      "intent": {
+        "products": [
+          "All Pharma"
+        ],
+        "market": "ES",
+        "kpis": [
+          "Net Sales",
+          "Net Sales Growth"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "extend",
+        "target": {
+          "id": "AST-0069",
+          "name": "All Pharma Supply",
+          "type": "App",
+          "platform": "Power BI",
+          "endorsement": "promoted",
+          "status": "active",
+          "views_3m": 792,
+          "users_3m": 155,
+          "owner": "Maya Andersson",
+          "coverage": {
+            "requested": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "covered": [
+              {
+                "kpi": "Net Sales",
+                "map_id": "AST-0069:KPI-002",
+                "kpi_id": "KPI-002",
+                "kpi_name": "Net Sales Local",
+                "definition_status": "definition_conflict",
+                "usage_role": "secondary"
+              }
+            ],
+            "missing": [
+              "Net Sales Growth"
+            ],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": "SM-028",
+        "retire": [
+          {
+            "id": "AST-0015",
+            "name": "All Pharma Net Sales New",
+            "type": "Report",
+            "platform": "Power BI",
+            "endorsement": "none",
+            "status": "active",
+            "views_3m": 14,
+            "users_3m": 1,
+            "owner": "Sofia Rossi"
+          }
+        ],
+        "repair": [
+          "add canonical KPI(s): ['Net Sales Growth']",
+          "uses non-canonical KPI variants for ['Net Sales']",
+          "semantic model SM-028 refresh status is failed",
+          "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
+        ],
+        "rationale": [
+          "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0069",
+            "note": "All Pharma Supply: active, promoted, audience 324"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0069",
+            "note": "792 views, 155 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-001",
+            "note": "Net Sales: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-028->AST-0069",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-028",
+            "note": "none, refresh failed, AI readiness poor"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0069:KPI-002",
+            "note": "Net Sales Local (definition_conflict), role secondary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "2 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+            "product_context": "Beyonttra",
+            "market_context": "ES",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "ES",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "6 asset(s) in scope, 1 alive, 8 citation(s)",
+          "input": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "ES",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 6,
+            "candidates": [
+              {
+                "id": "AST-0069",
+                "name": "All Pharma Supply",
+                "alive": true,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth"
+                ],
+                "blockers": [
+                  "uses non-canonical KPI variants for ['Net Sales']",
+                  "semantic model SM-028 refresh status is failed",
+                  "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
+                ],
+                "score": 0.489
+              },
+              {
+                "id": "AST-0015",
+                "name": "All Pharma Net Sales New",
+                "alive": false,
+                "covers": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "missing": [],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Net Sales']"
+                ],
+                "score": 0.371
+              },
+              {
+                "id": "AST-0165",
+                "name": "All Pharma Product Performance Legacy",
+                "alive": false,
+                "covers": [
+                  "Net Sales Growth"
+                ],
+                "missing": [
+                  "Net Sales"
+                ],
+                "blockers": [
+                  "low adoption (15 views in the last 3 months)",
+                  "semantic model SM-047 refresh status is failed"
+                ],
+                "score": 0.646
+              },
+              {
+                "id": "AST-0335",
+                "name": "All Pharma Growth Legacy",
+                "alive": false,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Net Sales Growth"
+                ],
+                "blockers": [
+                  "low adoption (14 views in the last 3 months)",
+                  "owner OWN-043 is missing or inactive"
+                ],
+                "score": 0.646
+              },
+              {
+                "id": "AST-0052",
+                "name": "All Pharma Supply New",
+                "alive": false,
+                "covers": [],
+                "missing": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "blockers": [
+                  "low adoption (13 views in the last 3 months)",
+                  "semantic model SM-013 refresh status is warning"
+                ],
+                "score": 0.751
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0069",
+                "note": "All Pharma Supply: active, promoted, audience 324"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0069",
+                "note": "792 views, 155 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-001",
+                "note": "Net Sales: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-028->AST-0069",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-028",
+                "note": "none, refresh failed, AI readiness poor"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0069:KPI-002",
+                "note": "Net Sales Local (definition_conflict), role secondary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "extend",
+          "input": {
+            "assets_checked": 6,
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "extend",
+            "target": "AST-0069",
+            "build_on": "SM-028",
+            "retire": [
+              "AST-0015"
+            ],
+            "repair": [
+              "add canonical KPI(s): ['Net Sales Growth']",
+              "uses non-canonical KPI variants for ['Net Sales']",
+              "semantic model SM-028 refresh status is failed",
+              "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
+            ],
+            "rationale": [
+              "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
+              "extend it on its existing semantic model instead of creating a new asset",
+              "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "extend",
+            "build_on": "SM-028",
+            "target": "AST-0069"
+          },
+          "output": {
+            "title": "Extended All Pharma Supply",
+            "purpose": "Governed view of Net Sales, Net Sales Growth for All Pharma in ES.",
+            "products": [
+              "All Pharma"
+            ],
+            "market": "ES",
+            "kpis": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "semantic_model": "SM-028",
+            "source_action": "extend",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": "AST-0069",
+            "measures": [
+              {
+                "kpi_id": "KPI-001",
+                "name": "Net Sales",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-004",
+                "name": "Net Sales Growth",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": "Maya Andersson",
+            "review_date": "2027-09-01",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-028",
+                  "note": "scope Nubeqa, region Asia Pacific"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "ES",
+                  "note": "Spain"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-001",
+                  "note": "Net Sales: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-004",
+                  "note": "Net Sales Growth: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-028",
+                  "note": "scope Nubeqa, region Asia Pacific"
+                }
+              ],
+              "owner": [
+                {
+                  "table": "Owners",
+                  "id": "OWN-003",
+                  "note": "Maya Andersson, Data Steward, active"
+                }
+              ],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Analytics_Assets",
+                  "id": "AST-0069",
+                  "note": "asset being extended"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "1 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Extended All Pharma Supply",
+            "as_of": "2026-09-01"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": false,
+                "detail": "SM-028: endorsement is none, refresh status is failed"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": true,
+                "detail": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0014",
+      "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+      "intent": {
+        "products": [
+          "Lynkuet"
+        ],
+        "market": "Global",
+        "kpis": [
+          "Net Sales",
+          "Market Access Coverage",
+          "Launch Adoption Index"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "extend",
+        "target": {
+          "id": "AST-0008",
+          "name": "All Pharma Market Access Monthly",
+          "type": "Dashboard",
+          "platform": "Power BI",
+          "endorsement": "promoted",
+          "status": "active",
+          "views_3m": 859,
+          "users_3m": 194,
+          "owner": "Nina Schmidt",
+          "coverage": {
+            "requested": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ],
+            "covered": [
+              {
+                "kpi": "Net Sales",
+                "map_id": "AST-0008:KPI-001",
+                "kpi_id": "KPI-001",
+                "kpi_name": "Net Sales",
+                "definition_status": "canonical",
+                "usage_role": "secondary"
+              },
+              {
+                "kpi": "Market Access Coverage",
+                "map_id": "AST-0008:KPI-028",
+                "kpi_id": "KPI-028",
+                "kpi_name": "Market Access Coverage Legacy",
+                "definition_status": "definition_conflict",
+                "usage_role": "secondary"
+              }
+            ],
+            "missing": [
+              "Launch Adoption Index"
+            ],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": "SM-034",
+        "retire": [
+          {
+            "id": "AST-0022",
+            "name": "All Pharma Net Sales Final",
+            "type": "Workbook",
+            "platform": "Tableau",
+            "endorsement": "promoted",
+            "status": "active",
+            "views_3m": 802,
+            "users_3m": 146,
+            "owner": "Nina Garcia"
+          }
+        ],
+        "repair": [
+          "add canonical KPI(s): ['Launch Adoption Index']",
+          "uses non-canonical KPI variants for ['Market Access Coverage']",
+          "semantic model SM-034 refresh status is failed",
+          "semantic model SM-034 has poor AI readiness (clear)"
+        ],
+        "rationale": [
+          "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0008",
+            "note": "All Pharma Market Access Monthly: active, promoted, audience 1559"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0008",
+            "note": "859 views, 194 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-001",
+            "note": "Net Sales: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-027",
+            "note": "Market Access Coverage: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-034->AST-0008",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-034",
+            "note": "promoted, refresh failed, AI readiness poor"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0008:KPI-001",
+            "note": "Net Sales (canonical), role secondary"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0008:KPI-028",
+            "note": "Market Access Coverage Legacy (definition_conflict), role secondary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "3 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
+            "product_context": "Nubeqa",
+            "market_context": "Global",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "Lynkuet"
+            ],
+            "market": "Global",
+            "kpis": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "89 asset(s) in scope, 19 alive, 10 citation(s)",
+          "input": {
+            "products": [
+              "Lynkuet"
+            ],
+            "market": "Global",
+            "kpis": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 89,
+            "candidates": [
+              {
+                "id": "AST-0008",
+                "name": "All Pharma Market Access Monthly",
+                "alive": true,
+                "covers": [
+                  "Net Sales",
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Launch Adoption Index"
+                ],
+                "blockers": [
+                  "uses non-canonical KPI variants for ['Market Access Coverage']",
+                  "semantic model SM-034 refresh status is failed",
+                  "semantic model SM-034 has poor AI readiness (clear)"
+                ],
+                "score": 0.592
+              },
+              {
+                "id": "AST-0357",
+                "name": "All Pharma Executive - US",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage",
+                  "Launch Adoption Index"
+                ],
+                "missing": [
+                  "Net Sales"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Launch Adoption Index']"
+                ],
+                "score": 0.413
+              },
+              {
+                "id": "AST-0110",
+                "name": "All Pharma Demand - US",
+                "alive": true,
+                "covers": [
+                  "Net Sales",
+                  "Launch Adoption Index"
+                ],
+                "missing": [
+                  "Market Access Coverage"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Net Sales', 'Launch Adoption Index']"
+                ],
+                "score": 0.321
+              },
+              {
+                "id": "AST-0219",
+                "name": "All Pharma Forecast Final",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage",
+                  "Launch Adoption Index"
+                ],
+                "missing": [
+                  "Net Sales"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Market Access Coverage', 'Launch Adoption Index']",
+                  "semantic model SM-033 refresh status is warning"
+                ],
+                "score": 0.278
+              },
+              {
+                "id": "AST-0016",
+                "name": "All Pharma Launch - EMEA",
+                "alive": true,
+                "covers": [
+                  "Market Access Coverage"
+                ],
+                "missing": [
+                  "Net Sales",
+                  "Launch Adoption Index"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "semantic model SM-008 refresh status is warning"
+                ],
+                "score": 0.673
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0008",
+                "note": "All Pharma Market Access Monthly: active, promoted, audience 1559"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0008",
+                "note": "859 views, 194 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-001",
+                "note": "Net Sales: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-027",
+                "note": "Market Access Coverage: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-034->AST-0008",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-034",
+                "note": "promoted, refresh failed, AI readiness poor"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0008:KPI-001",
+                "note": "Net Sales (canonical), role secondary"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0008:KPI-028",
+                "note": "Market Access Coverage Legacy (definition_conflict), role secondary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "extend",
+          "input": {
+            "assets_checked": 89,
+            "kpis": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "extend",
+            "target": "AST-0008",
+            "build_on": "SM-034",
+            "retire": [
+              "AST-0022"
+            ],
+            "repair": [
+              "add canonical KPI(s): ['Launch Adoption Index']",
+              "uses non-canonical KPI variants for ['Market Access Coverage']",
+              "semantic model SM-034 refresh status is failed",
+              "semantic model SM-034 has poor AI readiness (clear)"
+            ],
+            "rationale": [
+              "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
+              "extend it on its existing semantic model instead of creating a new asset",
+              "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "extend",
+            "build_on": "SM-034",
+            "target": "AST-0008"
+          },
+          "output": {
+            "title": "Extended All Pharma Market Access Monthly",
+            "purpose": "Governed view of Net Sales, Market Access Coverage, Launch Adoption Index for Lynkuet in Global.",
+            "products": [
+              "Lynkuet"
+            ],
+            "market": "Global",
+            "kpis": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ],
+            "semantic_model": "SM-034",
+            "source_action": "extend",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": "AST-0008",
+            "measures": [
+              {
+                "kpi_id": "KPI-001",
+                "name": "Net Sales",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-027",
+                "name": "Market Access Coverage",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-023",
+                "name": "Launch Adoption Index",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": "Nina Schmidt",
+            "review_date": "2027-10-13",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Products",
+                  "id": "P-LYN",
+                  "note": "Lynkuet"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-034",
+                  "note": "scope Nubeqa, region Global"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-001",
+                  "note": "Net Sales: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-027",
+                  "note": "Market Access Coverage: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-023",
+                  "note": "Launch Adoption Index: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-034",
+                  "note": "scope Nubeqa, region Global"
+                }
+              ],
+              "owner": [
+                {
+                  "table": "Owners",
+                  "id": "OWN-009",
+                  "note": "Nina Schmidt, Commercial Analytics Lead, active"
+                }
+              ],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Analytics_Assets",
+                  "id": "AST-0008",
+                  "note": "asset being extended"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "1 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Extended All Pharma Market Access Monthly",
+            "as_of": "2026-10-13"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": false,
+                "detail": "SM-034: endorsement is promoted, refresh status is failed"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": true,
+                "detail": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0023",
+      "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+      "intent": {
+        "products": [
+          "Beyonttra"
+        ],
+        "market": "UK",
+        "kpis": [
+          "Reimbursement Status Coverage",
+          "Launch Adoption Index"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "repair_and_reuse",
+        "target": {
+          "id": "AST-0287",
+          "name": "All Pharma Executive Legacy",
+          "type": "Dashboard",
+          "platform": "Power BI",
+          "endorsement": "promoted",
+          "status": "active",
+          "views_3m": 3640,
+          "users_3m": 783,
+          "owner": "Emma Garcia",
+          "coverage": {
+            "requested": [
+              "Reimbursement Status Coverage",
+              "Launch Adoption Index"
+            ],
+            "covered": [
+              {
+                "kpi": "Reimbursement Status Coverage",
+                "map_id": "AST-0287:KPI-033",
+                "kpi_id": "KPI-033",
+                "kpi_name": "Reimbursement Status Coverage v2",
+                "definition_status": "duplicate_candidate",
+                "usage_role": "primary"
+              },
+              {
+                "kpi": "Launch Adoption Index",
+                "map_id": "AST-0287:KPI-026",
+                "kpi_id": "KPI-026",
+                "kpi_name": "Launch Adoption Index Adjusted",
+                "definition_status": "local_variant",
+                "usage_role": "primary"
+              }
+            ],
+            "missing": [],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": null,
+        "retire": [],
+        "repair": [
+          "owner OWN-029 is missing or inactive",
+          "uses non-canonical KPI variants for ['Reimbursement Status Coverage', 'Launch Adoption Index']",
+          "semantic model SM-036 has poor AI readiness (clear)"
+        ],
+        "rationale": [
+          "All Pharma Executive Legacy is alive and covers ['Reimbursement Status Coverage', 'Launch Adoption Index'], but has governance gaps",
+          "closing the gaps is cheaper than a new build and avoids another overlapping asset",
+          "requested KPIs this target covers: Reimbursement Status Coverage (Asset_KPI_Map AST-0287:KPI-033, duplicate_candidate); Launch Adoption Index (Asset_KPI_Map AST-0287:KPI-026, local_variant)",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0287",
+            "note": "All Pharma Executive Legacy: active, promoted, audience 2004"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0287",
+            "note": "3640 views, 783 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-031",
+            "note": "Reimbursement Status Coverage: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-023",
+            "note": "Launch Adoption Index: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-036->AST-0287",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-036",
+            "note": "promoted, refresh healthy, AI readiness poor"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-005",
+            "note": "High reach requires trust"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0287:KPI-033",
+            "note": "Reimbursement Status Coverage v2 (duplicate_candidate), role primary"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0287:KPI-026",
+            "note": "Launch Adoption Index Adjusted (local_variant), role primary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "All Pharma Executive Legacy is alive and covers ['Reimbursement Status Coverage', 'Launch Adoption Index'], but has governance gaps",
+          "closing the gaps is cheaper than a new build and avoids another overlapping asset",
+          "requested KPIs this target covers: Reimbursement Status Coverage (Asset_KPI_Map AST-0287:KPI-033, duplicate_candidate); Launch Adoption Index (Asset_KPI_Map AST-0287:KPI-026, local_variant)",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "2 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
+            "product_context": "Hyrnuo",
+            "market_context": "UK",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "Beyonttra"
+            ],
+            "market": "UK",
+            "kpis": [
+              "Reimbursement Status Coverage",
+              "Launch Adoption Index"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "10 asset(s) in scope, 6 alive, 10 citation(s)",
+          "input": {
+            "products": [
+              "Beyonttra"
+            ],
+            "market": "UK",
+            "kpis": [
+              "Reimbursement Status Coverage",
+              "Launch Adoption Index"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 10,
+            "candidates": [
+              {
+                "id": "AST-0287",
+                "name": "All Pharma Executive Legacy",
+                "alive": true,
+                "covers": [
+                  "Reimbursement Status Coverage",
+                  "Launch Adoption Index"
+                ],
+                "missing": [],
+                "blockers": [
+                  "owner OWN-029 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Reimbursement Status Coverage', 'Launch Adoption Index']",
+                  "semantic model SM-036 has poor AI readiness (clear)"
+                ],
+                "score": 0.646
+              },
+              {
+                "id": "AST-0034",
+                "name": "All Pharma Inventory v2",
+                "alive": true,
+                "covers": [
+                  "Reimbursement Status Coverage"
+                ],
+                "missing": [
+                  "Launch Adoption Index"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "owner OWN-038 is missing or inactive"
+                ],
+                "score": 0.514
+              },
+              {
+                "id": "AST-0357",
+                "name": "All Pharma Executive - US",
+                "alive": true,
+                "covers": [
+                  "Launch Adoption Index"
+                ],
+                "missing": [
+                  "Reimbursement Status Coverage"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "uses non-canonical KPI variants for ['Launch Adoption Index']"
+                ],
+                "score": 0.313
+              },
+              {
+                "id": "AST-0032",
+                "name": "Beyonttra Commercial Reach v2",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Reimbursement Status Coverage",
+                  "Launch Adoption Index"
+                ],
+                "blockers": [
+                  "semantic model SM-043 refresh status is failed",
+                  "semantic model SM-043 has poor AI readiness (clear)"
+                ],
+                "score": 0.842
+              },
+              {
+                "id": "AST-0331",
+                "name": "Beyonttra Digital Engagement Legacy",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Reimbursement Status Coverage",
+                  "Launch Adoption Index"
+                ],
+                "blockers": [],
+                "score": 0.695
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0287",
+                "note": "All Pharma Executive Legacy: active, promoted, audience 2004"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0287",
+                "note": "3640 views, 783 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-031",
+                "note": "Reimbursement Status Coverage: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-023",
+                "note": "Launch Adoption Index: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-036->AST-0287",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-036",
+                "note": "promoted, refresh healthy, AI readiness poor"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-005",
+                "note": "High reach requires trust"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0287:KPI-033",
+                "note": "Reimbursement Status Coverage v2 (duplicate_candidate), role primary"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0287:KPI-026",
+                "note": "Launch Adoption Index Adjusted (local_variant), role primary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "repair and reuse",
+          "input": {
+            "assets_checked": 10,
+            "kpis": [
+              "Reimbursement Status Coverage",
+              "Launch Adoption Index"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "repair_and_reuse",
+            "target": "AST-0287",
+            "build_on": null,
+            "retire": [],
+            "repair": [
+              "owner OWN-029 is missing or inactive",
+              "uses non-canonical KPI variants for ['Reimbursement Status Coverage', 'Launch Adoption Index']",
+              "semantic model SM-036 has poor AI readiness (clear)"
+            ],
+            "rationale": [
+              "All Pharma Executive Legacy is alive and covers ['Reimbursement Status Coverage', 'Launch Adoption Index'], but has governance gaps",
+              "closing the gaps is cheaper than a new build and avoids another overlapping asset",
+              "requested KPIs this target covers: Reimbursement Status Coverage (Asset_KPI_Map AST-0287:KPI-033, duplicate_candidate); Launch Adoption Index (Asset_KPI_Map AST-0287:KPI-026, local_variant)",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "skipped",
+          "summary": "no new artifact for this decision",
+          "input": {
+            "action": "repair_and_reuse",
+            "build_on": null,
+            "target": "AST-0287"
+          },
+          "output": {
+            "reason": "DashboardSpec is available only for new_build and extend"
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "skipped",
+          "summary": "no spec to check",
+          "input": {
+            "spec": null
+          },
+          "output": {
+            "passed": null,
+            "gates": []
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "REQ-0028",
+      "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+      "intent": {
+        "products": [
+          "All Pharma"
+        ],
+        "market": "EMEA",
+        "kpis": [
+          "Net Sales",
+          "Demand Forecast Accuracy",
+          "Inventory Coverage"
+        ],
+        "kind": "new_report",
+        "clarifications": [],
+        "questions": []
+      },
+      "recommendation": {
+        "action": "extend",
+        "target": {
+          "id": "AST-0088",
+          "name": "All Pharma Budget Legacy",
+          "type": "Report",
+          "platform": "Power BI",
+          "endorsement": "none",
+          "status": "active",
+          "views_3m": 118,
+          "users_3m": 29,
+          "owner": "Maya Andersson",
+          "coverage": {
+            "requested": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ],
+            "covered": [
+              {
+                "kpi": "Demand Forecast Accuracy",
+                "map_id": "AST-0088:KPI-006",
+                "kpi_id": "KPI-006",
+                "kpi_name": "Demand Forecast Accuracy",
+                "definition_status": "canonical",
+                "usage_role": "primary"
+              },
+              {
+                "kpi": "Inventory Coverage",
+                "map_id": "AST-0088:KPI-016",
+                "kpi_id": "KPI-016",
+                "kpi_name": "Inventory Coverage",
+                "definition_status": "canonical",
+                "usage_role": "primary"
+              },
+              {
+                "kpi": "Inventory Coverage",
+                "map_id": "AST-0088:KPI-017",
+                "kpi_id": "KPI-017",
+                "kpi_name": "Inventory Coverage Legacy",
+                "definition_status": "duplicate_candidate",
+                "usage_role": "primary"
+              }
+            ],
+            "missing": [
+              "Net Sales"
+            ],
+            "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
+          }
+        },
+        "build_on": "SM-050",
+        "retire": [],
+        "repair": [
+          "add canonical KPI(s): ['Net Sales']",
+          "not certified or promoted",
+          "semantic model SM-050 has poor AI readiness (implicit_measures)"
+        ],
+        "rationale": [
+          "All Pharma Budget Legacy is alive and covers ['Demand Forecast Accuracy', 'Inventory Coverage']; only ['Net Sales'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Demand Forecast Accuracy (Asset_KPI_Map AST-0088:KPI-006, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-016, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-017, duplicate_candidate); not covered: Net Sales",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "evidence": [
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0088",
+            "note": "All Pharma Budget Legacy: active, none, audience 1642"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0088",
+            "note": "118 views, 29 users in the last 3 months"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-006",
+            "note": "Demand Forecast Accuracy: canonical, approved"
+          },
+          {
+            "table": "KPI_Catalog",
+            "id": "KPI-016",
+            "note": "Inventory Coverage: canonical, approved"
+          },
+          {
+            "table": "Lineage_Edges",
+            "id": "SM-050->AST-0088",
+            "note": "semantic dependency"
+          },
+          {
+            "table": "Semantic_Models",
+            "id": "SM-050",
+            "note": "none, refresh healthy, AI readiness poor"
+          },
+          {
+            "table": "Governance_Signals",
+            "id": "SIG-00099",
+            "note": "HIGH_REACH_UNENDORSED (high, open)"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-001",
+            "note": "Reuse before build"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-002",
+            "note": "Canonical KPI first"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0088:KPI-006",
+            "note": "Demand Forecast Accuracy (canonical), role primary"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0088:KPI-016",
+            "note": "Inventory Coverage (canonical), role primary"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0088:KPI-017",
+            "note": "Inventory Coverage Legacy (duplicate_candidate), role primary"
+          }
+        ]
+      },
+      "answers": [],
+      "ai": {
+        "intent_source": "rules",
+        "explanation": [
+          "All Pharma Budget Legacy is alive and covers ['Demand Forecast Accuracy', 'Inventory Coverage']; only ['Net Sales'] is missing",
+          "extend it on its existing semantic model instead of creating a new asset",
+          "requested KPIs this target covers: Demand Forecast Accuracy (Asset_KPI_Map AST-0088:KPI-006, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-016, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-017, duplicate_candidate); not covered: Net Sales",
+          "asset names in the data pack are not used for matching because they do not reflect coverage"
+        ],
+        "explanation_source": "rules",
+        "model": null
+      },
+      "pipeline": [
+        {
+          "stage": "Intent",
+          "status": "ok",
+          "summary": "3 KPI(s), 0 question(s), parsed by rules",
+          "input": {
+            "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
+            "product_context": "Beyonttra",
+            "market_context": "EMEA",
+            "answers": []
+          },
+          "output": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ],
+            "kind": "new_report",
+            "clarifications": [],
+            "questions": [],
+            "parser": "rules",
+            "model": null,
+            "named_assets": [],
+            "missing_assets": [],
+            "conflicting_kpis": [],
+            "stopped_because": null
+          }
+        },
+        {
+          "stage": "Evidence",
+          "status": "ok",
+          "summary": "30 asset(s) in scope, 8 alive, 12 citation(s)",
+          "input": {
+            "products": [
+              "All Pharma"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ]
+          },
+          "output": {
+            "assets_in_scope": 30,
+            "candidates": [
+              {
+                "id": "AST-0088",
+                "name": "All Pharma Budget Legacy",
+                "alive": true,
+                "covers": [
+                  "Demand Forecast Accuracy",
+                  "Inventory Coverage"
+                ],
+                "missing": [
+                  "Net Sales"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "semantic model SM-050 has poor AI readiness (implicit_measures)"
+                ],
+                "score": 0.477
+              },
+              {
+                "id": "AST-0287",
+                "name": "All Pharma Executive Legacy",
+                "alive": true,
+                "covers": [
+                  "Demand Forecast Accuracy"
+                ],
+                "missing": [
+                  "Net Sales",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "owner OWN-029 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Demand Forecast Accuracy']",
+                  "semantic model SM-036 has poor AI readiness (clear)"
+                ],
+                "score": 0.646
+              },
+              {
+                "id": "AST-0069",
+                "name": "All Pharma Supply",
+                "alive": true,
+                "covers": [
+                  "Net Sales"
+                ],
+                "missing": [
+                  "Demand Forecast Accuracy",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "uses non-canonical KPI variants for ['Net Sales']",
+                  "semantic model SM-028 refresh status is failed",
+                  "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
+                ],
+                "score": 0.489
+              },
+              {
+                "id": "AST-0018",
+                "name": "All Pharma Market Access - US",
+                "alive": true,
+                "covers": [
+                  "Demand Forecast Accuracy"
+                ],
+                "missing": [
+                  "Net Sales",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "not certified or promoted",
+                  "owner OWN-044 is missing or inactive",
+                  "uses non-canonical KPI variants for ['Demand Forecast Accuracy']"
+                ],
+                "score": 0.314
+              },
+              {
+                "id": "AST-0189",
+                "name": "All Pharma Forecast v2",
+                "alive": true,
+                "covers": [],
+                "missing": [
+                  "Net Sales",
+                  "Demand Forecast Accuracy",
+                  "Inventory Coverage"
+                ],
+                "blockers": [
+                  "not certified or promoted"
+                ],
+                "score": 0.524
+              }
+            ],
+            "citations": [
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0088",
+                "note": "All Pharma Budget Legacy: active, none, audience 1642"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0088",
+                "note": "118 views, 29 users in the last 3 months"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-006",
+                "note": "Demand Forecast Accuracy: canonical, approved"
+              },
+              {
+                "table": "KPI_Catalog",
+                "id": "KPI-016",
+                "note": "Inventory Coverage: canonical, approved"
+              },
+              {
+                "table": "Lineage_Edges",
+                "id": "SM-050->AST-0088",
+                "note": "semantic dependency"
+              },
+              {
+                "table": "Semantic_Models",
+                "id": "SM-050",
+                "note": "none, refresh healthy, AI readiness poor"
+              },
+              {
+                "table": "Governance_Signals",
+                "id": "SIG-00099",
+                "note": "HIGH_REACH_UNENDORSED (high, open)"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-001",
+                "note": "Reuse before build"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-002",
+                "note": "Canonical KPI first"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0088:KPI-006",
+                "note": "Demand Forecast Accuracy (canonical), role primary"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0088:KPI-016",
+                "note": "Inventory Coverage (canonical), role primary"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0088:KPI-017",
+                "note": "Inventory Coverage Legacy (duplicate_candidate), role primary"
+              }
+            ]
+          }
+        },
+        {
+          "stage": "Decision",
+          "status": "ok",
+          "summary": "extend",
+          "input": {
+            "assets_checked": 30,
+            "kpis": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ],
+            "decided_by": "deterministic rules, no LLM"
+          },
+          "output": {
+            "action": "extend",
+            "target": "AST-0088",
+            "build_on": "SM-050",
+            "retire": [],
+            "repair": [
+              "add canonical KPI(s): ['Net Sales']",
+              "not certified or promoted",
+              "semantic model SM-050 has poor AI readiness (implicit_measures)"
+            ],
+            "rationale": [
+              "All Pharma Budget Legacy is alive and covers ['Demand Forecast Accuracy', 'Inventory Coverage']; only ['Net Sales'] is missing",
+              "extend it on its existing semantic model instead of creating a new asset",
+              "requested KPIs this target covers: Demand Forecast Accuracy (Asset_KPI_Map AST-0088:KPI-006, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-016, canonical); Inventory Coverage (Asset_KPI_Map AST-0088:KPI-017, duplicate_candidate); not covered: Net Sales",
+              "asset names in the data pack are not used for matching because they do not reflect coverage"
+            ]
+          }
+        },
+        {
+          "stage": "Spec",
+          "status": "ok",
+          "summary": "draft, final only after human approval",
+          "input": {
+            "action": "extend",
+            "build_on": "SM-050",
+            "target": "AST-0088"
+          },
+          "output": {
+            "title": "Extended All Pharma Budget Legacy",
+            "purpose": "Governed view of Net Sales, Demand Forecast Accuracy, Inventory Coverage for All Pharma in EMEA.",
+            "products": [
+              "All Pharma"
+            ],
+            "market": "EMEA",
+            "kpis": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ],
+            "semantic_model": "SM-050",
+            "source_action": "extend",
+            "governance": [
+              "Use canonical KPI definitions only",
+              "Register an owner and review date before release",
+              "Keep evidence and approval in the decision log"
+            ],
+            "target": "AST-0088",
+            "measures": [
+              {
+                "kpi_id": "KPI-001",
+                "name": "Net Sales",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-006",
+                "name": "Demand Forecast Accuracy",
+                "source": "KPI_Catalog"
+              },
+              {
+                "kpi_id": "KPI-016",
+                "name": "Inventory Coverage",
+                "source": "KPI_Catalog"
+              }
+            ],
+            "owner": "Maya Andersson",
+            "review_date": "2027-09-26",
+            "evidence": {
+              "products": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-050",
+                  "note": "scope All Pharma, region North America"
+                }
+              ],
+              "market": [
+                {
+                  "table": "Markets",
+                  "id": "DE",
+                  "note": "in EMEA"
+                }
+              ],
+              "kpis": [
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-001",
+                  "note": "Net Sales: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-006",
+                  "note": "Demand Forecast Accuracy: canonical"
+                },
+                {
+                  "table": "KPI_Catalog",
+                  "id": "KPI-016",
+                  "note": "Inventory Coverage: canonical"
+                }
+              ],
+              "semantic_model": [
+                {
+                  "table": "Semantic_Models",
+                  "id": "SM-050",
+                  "note": "scope All Pharma, region North America"
+                }
+              ],
+              "owner": [
+                {
+                  "table": "Owners",
+                  "id": "OWN-003",
+                  "note": "Maya Andersson, Data Steward, active"
+                }
+              ],
+              "source_action": [
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-001",
+                  "note": "Reuse before build"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-002",
+                  "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Analytics_Assets",
+                  "id": "AST-0088",
+                  "note": "asset being extended"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "stage": "Gates",
+          "status": "fail",
+          "summary": "1 of 7 gates failed, release is blocked",
+          "input": {
+            "spec": "Extended All Pharma Budget Legacy",
+            "as_of": "2026-09-26"
+          },
+          "output": {
+            "passed": false,
+            "gates": [
+              {
+                "gate": "canonical_kpis",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "certified_healthy_model",
+                "passed": false,
+                "detail": "SM-050: endorsement is none"
+              },
+              {
+                "gate": "owner_and_review_date",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "measures_in_catalog",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "no_alive_duplicate",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "valid_extend_target",
+                "passed": true,
+                "detail": "ok"
+              },
+              {
+                "gate": "evidence_cited",
+                "passed": true,
+                "detail": "ok"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "radar": {
+    "totals": {
+      "assets": 360,
+      "kpis": 56,
+      "kpi_status": {
+        "canonical": 18,
+        "definition_conflict": 13,
+        "duplicate_candidate": 16,
+        "local_variant": 9
+      },
+      "ownerless": 86,
+      "high_reach_uncertified": 40,
+      "dead_or_unused": 206
+    },
+    "kpi_conflicts": [
+      {
+        "metric": "Demand Forecast Accuracy",
+        "variants": [
+          {
+            "id": "KPI-006",
+            "name": "Demand Forecast Accuracy",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-007",
+            "name": "Demand Forecast Accuracy Mgmt",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-008",
+            "name": "Demand Forecast Accuracy v2",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-009",
+            "name": "Demand Forecast Accuracy Legacy",
+            "status": "definition_conflict"
+          }
+        ]
+      },
+      {
+        "metric": "Demand Forecast Bias",
+        "variants": [
+          {
+            "id": "KPI-010",
+            "name": "Demand Forecast Bias",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-011",
+            "name": "Demand Forecast Bias Local",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-012",
+            "name": "Demand Forecast Bias Legacy",
+            "status": "local_variant"
+          },
+          {
+            "id": "KPI-013",
+            "name": "Demand Forecast Bias Adjusted",
+            "status": "definition_conflict"
+          }
+        ]
+      },
+      {
+        "metric": "Inventory Coverage",
+        "variants": [
+          {
+            "id": "KPI-016",
+            "name": "Inventory Coverage",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-017",
+            "name": "Inventory Coverage Legacy",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-018",
+            "name": "Inventory Coverage Mgmt",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-019",
+            "name": "Inventory Coverage Mgmt",
+            "status": "local_variant"
+          }
+        ]
+      },
+      {
+        "metric": "Launch Adoption Index",
+        "variants": [
+          {
+            "id": "KPI-023",
+            "name": "Launch Adoption Index",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-024",
+            "name": "Launch Adoption Index Adjusted",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-025",
+            "name": "Launch Adoption Index v2",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-026",
+            "name": "Launch Adoption Index Adjusted",
+            "status": "local_variant"
+          }
+        ]
+      },
+      {
+        "metric": "Market Access Coverage",
+        "variants": [
+          {
+            "id": "KPI-027",
+            "name": "Market Access Coverage",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-028",
+            "name": "Market Access Coverage Legacy",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-029",
+            "name": "Market Access Coverage Mgmt",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-030",
+            "name": "Market Access Coverage Local",
+            "status": "local_variant"
+          }
+        ]
+      },
+      {
+        "metric": "Forecast Variance",
+        "variants": [
+          {
+            "id": "KPI-042",
+            "name": "Forecast Variance",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-043",
+            "name": "Forecast Variance Adjusted",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-044",
+            "name": "Forecast Variance Adjusted",
+            "status": "local_variant"
+          },
+          {
+            "id": "KPI-045",
+            "name": "Forecast Variance Mgmt",
+            "status": "local_variant"
+          }
+        ]
+      },
+      {
+        "metric": "Net Sales",
+        "variants": [
+          {
+            "id": "KPI-001",
+            "name": "Net Sales",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-002",
+            "name": "Net Sales Local",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-003",
+            "name": "Net Sales v2",
+            "status": "duplicate_candidate"
+          }
+        ]
+      },
+      {
+        "metric": "On-Time In-Full",
+        "variants": [
+          {
+            "id": "KPI-020",
+            "name": "On-Time In-Full",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-021",
+            "name": "On-Time In-Full Mgmt",
+            "status": "definition_conflict"
+          },
+          {
+            "id": "KPI-022",
+            "name": "On-Time In-Full Local",
+            "status": "duplicate_candidate"
+          }
+        ]
+      },
+      {
+        "metric": "Reimbursement Status Coverage",
+        "variants": [
+          {
+            "id": "KPI-031",
+            "name": "Reimbursement Status Coverage",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-032",
+            "name": "Reimbursement Status Coverage Legacy",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-033",
+            "name": "Reimbursement Status Coverage v2",
+            "status": "duplicate_candidate"
+          }
+        ]
+      },
+      {
+        "metric": "Gross-to-Net Rate",
+        "variants": [
+          {
+            "id": "KPI-034",
+            "name": "Gross-to-Net Rate",
+            "status": "canonical"
+          },
+          {
+            "id": "KPI-035",
+            "name": "Gross-to-Net Rate Legacy",
+            "status": "duplicate_candidate"
+          },
+          {
+            "id": "KPI-036",
+            "name": "Gross-to-Net Rate Legacy",
+            "status": "duplicate_candidate"
+          }
+        ]
+      }
+    ],
+    "ownerless_assets": [
+      {
+        "id": "AST-0009",
+        "name": "Nubeqa Supply - US",
+        "views_3m": 11,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire, low usage"
+      },
+      {
+        "id": "AST-0011",
+        "name": "Kerendia Supply Final",
+        "views_3m": 957,
+        "endorsement": "certified",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0013",
+        "name": "Beyonttra Budget Final",
+        "views_3m": 14,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy, low usage"
+      },
+      {
+        "id": "AST-0018",
+        "name": "All Pharma Market Access - US",
+        "views_3m": 798,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0021",
+        "name": "All Pharma Launch Final",
+        "views_3m": 993,
+        "endorsement": "promoted",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0025",
+        "name": "Xarelto Supply Legacy",
+        "views_3m": 3318,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0026",
+        "name": "Nubeqa Growth v2",
+        "views_3m": 13,
+        "endorsement": "none",
+        "status": "active",
+        "reason": "low usage"
+      },
+      {
+        "id": "AST-0027",
+        "name": "Lynkuet Net Sales Final",
+        "views_3m": 792,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0031",
+        "name": "Kerendia Inventory - US",
+        "views_3m": 787,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0034",
+        "name": "All Pharma Inventory v2",
+        "views_3m": 790,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      }
+    ],
+    "high_reach_uncertified": [
+      {
+        "id": "AST-0140",
+        "name": "Eylea Inventory Final",
+        "views_3m": 4538,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0084",
+        "name": "Hyrnuo Digital Engagement Mgmt",
+        "views_3m": 4369,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0199",
+        "name": "Eylea Budget v2",
+        "views_3m": 4196,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0149",
+        "name": "Eylea Budget New",
+        "views_3m": 4078,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0059",
+        "name": "Xarelto Launch - US",
+        "views_3m": 4011,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0316",
+        "name": "Nubeqa Gross-to-Net Copy",
+        "views_3m": 3940,
+        "endorsement": "none",
+        "status": "active",
+        "reason": ""
+      },
+      {
+        "id": "AST-0307",
+        "name": "All Pharma Commercial Reach - EMEA",
+        "views_3m": 3939,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0273",
+        "name": "Beyonttra Forecast - EMEA",
+        "views_3m": 3931,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0095",
+        "name": "Xarelto Launch Monthly",
+        "views_3m": 3901,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0047",
+        "name": "Kerendia Budget v2",
+        "views_3m": 3846,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      }
+    ],
+    "dead_assets": [
+      {
+        "id": "AST-0002",
+        "name": "Hyrnuo Launch Monthly",
+        "views_3m": 888,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0003",
+        "name": "All Pharma Market Access Legacy",
+        "views_3m": 152,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0005",
+        "name": "Kerendia Inventory Copy",
+        "views_3m": 806,
+        "endorsement": "certified",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      },
+      {
+        "id": "AST-0006",
+        "name": "Eylea Executive New",
+        "views_3m": 671,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0009",
+        "name": "Nubeqa Supply - US",
+        "views_3m": 11,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire, low usage"
+      },
+      {
+        "id": "AST-0010",
+        "name": "All Pharma Commercial Reach - Global",
+        "views_3m": 129,
+        "endorsement": "none",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0013",
+        "name": "Beyonttra Budget Final",
+        "views_3m": 14,
+        "endorsement": "none",
+        "status": "legacy",
+        "reason": "lifecycle: legacy, low usage"
+      },
+      {
+        "id": "AST-0015",
+        "name": "All Pharma Net Sales New",
+        "views_3m": 14,
+        "endorsement": "none",
+        "status": "active",
+        "reason": "low usage"
+      },
+      {
+        "id": "AST-0017",
+        "name": "Lynkuet Commercial Reach Monthly",
+        "views_3m": 3173,
+        "endorsement": "promoted",
+        "status": "candidate_retire",
+        "reason": "lifecycle: candidate_retire"
+      },
+      {
+        "id": "AST-0021",
+        "name": "All Pharma Launch Final",
+        "views_3m": 993,
+        "endorsement": "promoted",
+        "status": "legacy",
+        "reason": "lifecycle: legacy"
+      }
+    ]
+  }
+}
