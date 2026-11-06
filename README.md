@@ -43,7 +43,7 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
 ```bash
 pip install openpyxl                                  # only needed to rebuild estate.db
 python3 -I load_estate.py <data-pack>.xlsx estate.db  # optional, estate.db is committed
-python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases
+python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases test_speech
 python3 run_batch.py estate.db                        # expect 79/150 new builds avoided, 1434 citations, 0 invalid
 python3 -I spec_gate.py estate.db                     # writes docs/quality_report.md
 python3 -I edge_cases.py estate.db docs/edge_cases.md
@@ -161,6 +161,16 @@ failed primary is skipped for 120 seconds so nobody waits on it for every call. 
 
 Run `python3 -I warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
 primary is ready, 1 if only the fallback is, and 2 if neither is. `llm.py` also keeps an on-disk response cache.
+
+### Listen button
+
+The Listen button on the explanation reads the decision aloud through ElevenLabs. `POST /speak {"text": "..."}` returns `audio/mpeg`.
+The server writes the spoken script (`ai.speech`): the decision and its reasons, without table ids. This is a model-free text to speech
+step, and it changes nothing about the decision.
+
+Set `ElevenLabs_API_KEY` in `.env`. `ELEVENLABS_VOICE_ID`, `ELEVENLABS_MODEL` and `SPEAK_MAX_CALLS` are optional. The API has no login, so
+credits are protected by a 1000-character limit, a budget of 50 paid calls per server process, and an on-disk audio cache. Without a key, or
+if the service fails, the button shows a short message and the rest of the page keeps working. The button is hidden in demo mode.
 
 ### Clarification loop
 
@@ -311,4 +321,6 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   spec and not the registered decision. Release itself is not automated, and a spec is a handoff and not a published report.
 - **Demo fallback:** if the API is unreachable, the front end shows mock data with a "Demo data" badge, and an unrecognized request
   then gets the first mock answer. Live API rejections are shown as errors.
+- **Open text to speech:** `/speak` accepts any text up to the limit from anyone who can reach the API. The caps limit the cost, but do not
+  stop misuse, and the text goes to ElevenLabs, a third party. A real deployment needs the access controls above.
 - **Single process:** one Python process, a local file for the log, and no authentication.

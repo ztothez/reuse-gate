@@ -5,9 +5,9 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`) | 105 pass |
+| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 118 pass |
 | `test_smoke.py` | passes |
-| Frontend tests (`npm test`), TypeScript | 18 pass, no type errors |
+| Frontend tests (`npm test`), TypeScript | 24 pass, no type errors |
 | Baseline (`run_batch.py`) | 79/150 avoid a new build, 1434 citations, 0 invalid, 5 assets to retire, 7 to consolidate later. A test enforces these numbers |
 | Spec gates over 150 requests | 123 specs, 11 pass every gate, 112 blocked with a named reason, 0 crashes |
 | Edge cases | 24 cases, all end in a safe, explained outcome |
@@ -29,6 +29,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Clarification loop:** answers go back to `/recommend`, are applied by field, and the request is decided again, replacing the result. Tested in Python, in the frontend, over HTTP, and in a browser with real models.
 - **Live backends:** gpt-oss-120b on Aitta, automatic fallback to GLM-5.2 on Featherless, then the rules. `warmup.py` ran against all three models. Failover was forced with a dead primary, and GLM-5.2 answered live.
 - **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
+- **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. The design was not checked against the original description of this feature, which was not available.
 - **Data pack:** committed as `3a27c97`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
@@ -47,7 +48,7 @@ See "Honest limitations" in `README.md`.
 
 ## How to run
 ```bash
-python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases
+python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases test_speech
 python3 run_batch.py estate.db
 python3 -I spec_gate.py estate.db
 python3 -I edge_cases.py estate.db docs/edge_cases.md

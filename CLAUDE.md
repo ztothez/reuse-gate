@@ -32,6 +32,7 @@ Bayer's evaluation weights: 30% problem fit and business value, 25% governance a
 - `catalog.json` division vocabulary, so nothing Pharma-specific lives in the logic.
 - `pipeline.py` `run_request`, the one path: Intent -> Evidence -> Decision -> Spec -> Gates. `spec_gate.py` quality gates and batch report.
 - `edge_cases.py`, `test_edge_cases.py`, `test_spec_gate.py`. `eval_intent.py` live evaluation. `kpi_match.py`, `embed_probe.py` embeddings.
+- `speech.py` ElevenLabs text to speech behind `POST /speak`, for the Listen button.
 - `warmup.py` wakes the live models. `Containerfile`, `deploy/openshift/` OpenShift packaging.
 - `PROGRESS.md` current status, kept honest. Read it before the TODO list below, which predates it.
 - `recommend.py` `parse_request` (rule-based baseline), `assess`, `recommend`, `_migration`. Actions: reuse,
@@ -68,6 +69,7 @@ The 150 requests are only 10 distinct texts: cache LLM outputs by request text.
 - If both fail, the rule parser takes over. `LLM_MODE=rules` turns models off. `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY` no longer select the live backend.
 - `python3 -I warmup.py` before a demo. Exit 0 primary ready, 1 only fallback, 2 neither.
 - Embeddings: `intfloat/multilingual-e5-large` on Aitta.
+- Text to speech: ElevenLabs, key `ElevenLabs_API_KEY`. Capped, budgeted and cached in `speech.py`.
 - Never commit keys. Use `.env`.
 
 ## TODO, in order

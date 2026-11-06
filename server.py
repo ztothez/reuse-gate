@@ -3,6 +3,7 @@
 Usage: python3 -I server.py <db> [port]      (default port 8000)
 
 POST /recommend  {"text": "...", "answers": [...]}      -> recommendation item (same shape as mock_api.json)
+POST /speak      {"text": "..."}                       -> audio/mpeg from ElevenLabs, capped and cached
 POST /spec       {intent, recommendation, owner, review_by} -> {spec, gates}
 GET  /radar                                            -> radar summary
 POST /approve    {request_id, decision, approver, owner, review_by}
@@ -26,6 +27,7 @@ from llm import live_client, load_env
 from pipeline import run_request
 from spec import build_spec
 from spec_gate import check
+from speech import SpeechError, speak
 
 EST = None
 LOG = []
@@ -85,6 +87,14 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _send_audio(self, audio):
+        self.send_response(200)
+        self.send_header("Content-Type", "audio/mpeg")
+        self.send_header("Content-Length", str(len(audio)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(audio)
+
     def _body(self):
         n = int(self.headers.get("Content-Length") or 0)
         if n > MAX_BODY:
@@ -122,6 +132,11 @@ class Handler(BaseHTTPRequestHandler):
                 if not isinstance(answers, list) or not all(isinstance(a, dict) and isinstance(a.get("answer", ""), str) for a in answers):
                     return self._send(400, {"error": "answers must be a list of objects with a text answer"})
                 return self._send(200, do_recommend(text.strip(), answers))
+            if self.path == "/speak":
+                try:
+                    return self._send_audio(speak(body.get("text")))
+                except SpeechError as exc:
+                    return self._send(exc.status, {"error": str(exc)})
             if self.path == "/approve":
                 missing = [k for k in ("request_id", "decision", "approver", "owner") if not body.get(k)]
                 if missing or body["decision"] not in ("approve", "reject"):

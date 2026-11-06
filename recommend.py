@@ -17,6 +17,7 @@ TRUST = {"certified": 1.0, "promoted": 0.7, "none": 0.2}
 HEALTH = {"active": 1.0, "candidate_retire": 0.3, "legacy": 0.1}
 LOW_VIEWS = 100  # fewer views than this in the last 3 months means the asset is not alive
 GLOBAL = "Global"
+COVERAGE_PREFIX = "requested KPIs this target covers:"
 RETIRE_AFTER_BUILD_NOTE = "retire after the new asset is live"
 CONSOLIDATE_NOTE = "migrate users first, owner review required"
 NAME_NOTE = "asset names in the data pack are not used for matching because they do not reflect coverage"
@@ -548,7 +549,7 @@ def recommend(est, intent):
     if rec.target:
         cov = target_coverage(est, intent, rec.target)
         listed = "; ".join(f"{c['kpi']} (Asset_KPI_Map {c['map_id']}, {c['definition_status']})" for c in cov["covered"]) or "none"
-        rec.rationale.append(f"requested KPIs this target covers: {listed}" + (f"; not covered: {', '.join(cov['missing'])}" if cov["missing"] else ""))
+        rec.rationale.append(f"{COVERAGE_PREFIX} {listed}" + (f"; not covered: {', '.join(cov['missing'])}" if cov["missing"] else ""))
         rec.rationale.append(NAME_NOTE)
         rec.evidence += [("Asset_KPI_Map", c["map_id"], f"{c['kpi_name']} ({c['definition_status']}), role {c['usage_role']}") for c in cov["covered"]]
     return rec

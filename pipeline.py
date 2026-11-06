@@ -2,12 +2,14 @@
 
 The API, the mock export and the tests all call run_request, so what the front end shows is what actually ran.
 """
+import re
 from datetime import date
 
 from llm import LLM, LLMError
-from recommend import CONSOLIDATE_NOTE, MAX_TEXT, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
+from recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
 from spec import build_spec
 from spec_gate import check
+from speech import MAX_CHARS as MAX_SPEECH
 
 MAX_CANDIDATES = 5
 MAX_SHOWN = 5  # the API returns every listed asset; displays show this many and a "+N more" count
@@ -45,6 +47,15 @@ def rec_json(est, intent, rec):
             "evidence": [{"table": t, "id": i, "note": n} for t, i, n in rec.evidence],
         },
     }
+
+
+def speech_script(action, lines):
+    """What the Listen button says: the decision and why, without table ids and list punctuation."""
+    said = [re.sub(r"[\[\]']", "", line).replace("(s)", "s").rstrip(".") for line in lines if line != NAME_NOTE and not line.startswith(COVERAGE_PREFIX)]
+    script = ". ".join([f"Recommendation: {action.replace('_', ' ')}"] + said) + "."
+    if len(script) > MAX_SPEECH:
+        script = script[: script.rfind(". ", 0, MAX_SPEECH) + 1]
+    return script
 
 
 def _stage(stage, status, summary, input_, output):
@@ -135,5 +146,6 @@ def run_request(est, req, client=None, as_of=None, answers=None):
             result["ai"]["explanation_source"] = "llm"
         except LLMError:
             pass
+    result["ai"]["speech"] = speech_script(rec.action, result["ai"]["explanation"])
     result["pipeline"] = stages(est, req, intent, rec, result, source, as_of or date.today().isoformat())
     return result

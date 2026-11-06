@@ -24,7 +24,7 @@ export interface RecommendResult {
     action: Action; target: Asset | null; build_on: string | null;
     retire: Asset[]; retire_note?: string | null; consolidate_later?: Asset[]; consolidate_note?: string | null; repair: (string | Asset)[]; rationale: string[]; evidence: Evidence[];
   };
-  ai?: { intent_source: "llm" | "rules"; explanation_source: "llm" | "rules"; explanation: string[]; model?: string | null };
+  ai?: { intent_source: "llm" | "rules"; explanation_source: "llm" | "rules"; explanation: string[]; model?: string | null; speech?: string };
   answers?: Answer[];
   pipeline?: PipelineStage[];
 }
@@ -96,6 +96,14 @@ export function mockRecommend(text: string): RecommendResult {
 
 export const recommend = (text: string, answers: Answer[] = []) =>
   call<RecommendResult>("/recommend", { method: "POST", body: JSON.stringify({ text, answers }) }, () => mockRecommend(text));
+
+// Audio exists only on the live API. A failure here is not a reason to switch the app to demo data.
+export const canSpeak = () => Boolean(API) && !demo;
+export async function speak(text: string): Promise<Blob> {
+  const res = await fetch(`${API}/speak`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+  if (!res.ok) throw new Error(String(res.status));
+  return res.blob();
+}
 
 export const getRadar = () => call<Radar>("/radar", undefined, () => data.radar);
 
