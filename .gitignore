@@ -7,3 +7,7 @@ eval_intent_report.json
 .llm_cache/
 venv/
 *.pyc
+
+# challenge brief documents (not ours to redistribute)
+Bayer_SinceAI2026/*.pdf
+Bayer_SinceAI2026/*.docx

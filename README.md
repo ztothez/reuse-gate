@@ -273,6 +273,13 @@ The xlsx stands in for live metadata. Each sheet would map to a source: `Analyti
 `Lineage_Edges` to the Power BI scanner metadata, `Asset_Usage` to activity events, `Owners` to the corporate directory, and
 `KPI_Catalog` to the business glossary. Only `load_estate.py` would change.
 
+### OpenShift
+
+Scheduled radar digest: Knative PingSource calls /radar-ping on weekdays
+
+`POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
+read-only, ignores the request body, and exposes only data that the public `GET /radar` already shows. `GET /n8n/radar-digest` still needs its key.
+
 ### n8n: approval webhook and radar digest
 
 Importable workflows are in [n8n/](n8n/). Both start inactive.

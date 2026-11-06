@@ -10,6 +10,7 @@ POST /approve    {request_id, decision, approver, owner, review_by}
 GET  /log                                              -> approvals recorded by this process
 GET  /health
 GET  /n8n/radar-digest
+POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
 POST /n8n/approval
 """
 import json
@@ -121,7 +122,19 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._send(404, {"error": "not found"})
 
+    def _drain(self):
+        """Read and discard the body, so closing the connection cannot lose the response."""
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            return
+        if n > 0:
+            self.rfile.read(min(n, MAX_BODY))
+
     def do_POST(self):
+        if self.path == "/radar-ping":  # a PingSource cannot send the n8n key; this exposes nothing beyond GET /radar
+            self._drain()
+            return self._send(200, radar_digest())
         try:
             body = self._body()
             if self.path == "/recommend":

@@ -5,7 +5,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 118 pass |
+| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 126 pass |
 | `test_smoke.py` | passes |
 | Frontend tests (`npm test`), TypeScript | 24 pass, no type errors |
 | Baseline (`run_batch.py`) | 79/150 avoid a new build, 1434 citations, 0 invalid, 5 assets to retire, 7 to consolidate later. A test enforces these numbers |
@@ -30,7 +30,8 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Live backends:** gpt-oss-120b on Aitta, automatic fallback to GLM-5.2 on Featherless, then the rules. `warmup.py` ran against all three models. Failover was forced with a dead primary, and GLM-5.2 answered live.
 - **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
 - **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. The design was not checked against the original description of this feature, which was not available.
-- **Data pack:** committed as `3a27c97`, synthetic, created by SinceAI. `.env` is ignored.
+- **Radar ping:** `POST /radar-ping` returns the digest with no key for a Knative PingSource. Read-only, and it ignores the body.
+- **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
 - Nothing is pushed. No remote is configured.
