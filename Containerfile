@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi9/python-312:latest
 WORKDIR /opt/app-root/src
-COPY --chown=1001:0 *.py *.json estate.db ./
+COPY --chown=1001:0 *.py *.json estate.db cases.example.jsonl ./
 RUN chmod -R g=u /opt/app-root/src
 USER 1001
 ENV PORT=8080 DB_PATH=estate.db

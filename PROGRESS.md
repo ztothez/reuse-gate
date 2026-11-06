@@ -35,7 +35,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 
 ## Not done or not verified
 - Nothing is pushed. No remote is configured.
-- `Containerfile` and `deploy/openshift/api.yaml` exist, written outside this work and not tested here. The manifest sets no model keys, so a deployed API runs rules-only until a secret provides them. A KServe InferenceService manifest does not exist yet.
+- OpenShift packaging is committed: `Containerfile`, `deploy/openshift/` (API, KServe InferenceService, Tekton pipeline, PingSource) and `kserve_predictor.py`. The tests were checked against the files the `Containerfile` copies, where 2 skip, but no image was built and nothing has run on a cluster from this work. The manifest sets no model or audio keys, so a deployed API runs rules-only until a secret provides them.
 - `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
 - Demo recording and pitch outline: not started.
 - n8n ran on a throwaway local instance with test keys, not on your own instance. `.env` has a key but no n8n URL. The digest is not connected to email or Teams.

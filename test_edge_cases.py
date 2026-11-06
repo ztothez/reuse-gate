@@ -19,6 +19,7 @@ from recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_over
                        recommend, scoped_assessments)
 
 DB = Path(__file__).parent / "estate.db"
+FRONTEND_MOCK = Path(__file__).parent / "FrontEnd/src/data/mock_api.json"
 STAGES = ["Intent", "Evidence", "Decision", "Spec", "Gates"]
 
 
@@ -169,10 +170,11 @@ class EdgeCaseTest(unittest.TestCase):
     def test_fake_map_citation_is_rejected(self):
         self.assertFalse(self.est.exists("Asset_KPI_Map", "AST-0001:KPI-999"))
 
+    @unittest.skipUnless(FRONTEND_MOCK.exists(), "FrontEnd is not in the OpenShift image; this runs in the full local suite")
     def test_mock_files_match_the_pipeline(self):
         root = Path(__file__).parent
         mock = json.loads((root / "mock_api.json").read_text(encoding="utf-8"))
-        self.assertEqual(mock, json.loads((root / "FrontEnd/src/data/mock_api.json").read_text(encoding="utf-8")))
+        self.assertEqual(mock, json.loads(FRONTEND_MOCK.read_text(encoding="utf-8")))
         for item in mock["requests"]:
             req = next(r for r in self.est.requests if r["request_id"] == item["request_id"])
             fresh = run_request(self.est, req, NoLLM(), as_of=req["request_date"])
