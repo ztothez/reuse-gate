@@ -44,7 +44,7 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
 pip install openpyxl                                  # only needed to rebuild estate.db
 python3 -I load_estate.py <data-pack>.xlsx estate.db  # optional, estate.db is committed
 python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases
-python3 run_batch.py estate.db                        # expect 79/150 new builds avoided, 1057 citations, 0 invalid
+python3 run_batch.py estate.db                        # expect 79/150 new builds avoided, 1434 citations, 0 invalid
 python3 -I spec_gate.py estate.db                     # writes docs/quality_report.md
 python3 -I edge_cases.py estate.db docs/edge_cases.md
 python3 -I warmup.py                                  # wakes the live models before a demo
@@ -87,6 +87,21 @@ The low pass rate reflects the deliberately messy estate. It is what the gates a
 `test_spec_gate.py` starts from a spec that passes, breaks one thing at a time, and confirms the right gate fails. It also
 confirms that a rerun of the batch gives identical results. Full results: [docs/quality_report.md](docs/quality_report.md).
 
+### Retire or consolidate later
+
+Overlapping assets are those in the request's scope that cover every requested KPI, other than the target. Each one goes on exactly one
+list, so nothing is dropped, and each cites its own `Analytics_Assets`, `Asset_Usage` and `Asset_KPI_Map` rows.
+
+| List | Rule | Note |
+| --- | --- | --- |
+| Retire | Below the alive threshold (100 views in 3 months), not certified, and a duplicate of the target | Only a proposal: a person approves. For a new build: retire after the new asset is live |
+| Consolidate later | Every other overlapping asset, because it still has users, is certified, or is not shown to be a duplicate | Migrate users first, owner review required |
+
+A duplicate covers the same requested KPIs as the target, according to `Asset_KPI_Map`. For a new build, the planned build is the target.
+With no target, as in some migration requests, the migration backlog's `RETIRE` path is the evidence. A lifecycle status such as
+`candidate_retire` does not put an asset on the retire list by itself, because some of those assets are certified and heavily used.
+The UI shows 5 items per list and a "+N more" count. The API returns them all, and all are cited.
+
 ### Edge cases
 
 `test_edge_cases.py` runs each case below through the real pipeline, and again over HTTP. Each must end in a clarification,
@@ -96,23 +111,23 @@ human_review or a cited decision, and never in a crash or an invented product, K
 | Case | Request | Outcome | Explanation |
 | --- | --- | --- | --- |
 | Ambiguous request | Can you make me a useful dashboard for the team? | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
-| No product named | We need net sales and budget variance by country. | repair_and_reuse, 10 citations, asks the requester | All Pharma Supply is alive and covers ['Net Sales', 'Budget Variance'], but has governance gaps |
+| No product named | We need net sales and budget variance by country. | repair_and_reuse, 28 citations, asks the requester | All Pharma Supply is alive and covers ['Net Sales', 'Budget Variance'], but has governance gaps |
 | No KPI named | Please build a new Kerendia report for our leadership meeting. | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
 | Unknown product | Create a net sales dashboard for Zyntrex in Germany. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Zyntrex, so nothing can be matched |
 | Another division, no catalog loaded | Build a net sales dashboard for Claritin in Consumer Health. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Claritin, Consumer, Health, so nothing can be matched |
-| Conflicting KPI definitions | Build a Xarelto report showing Net Sales Local and Net Sales v2. | repair_and_reuse, 10 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
-| Retired asset by id | Please reuse AST-0002 for our launch review. | human_review, 7 citations, asks the requester | Hyrnuo Launch Monthly (AST-0002) is not a reuse target: lifecycle status is candidate_retire; legacy Tableau content, not a reuse target |
-| Retired asset by name | Please bring back the Kerendia Inventory Copy report. | human_review, 8 citations, asks the requester | Kerendia Inventory Copy (AST-0005) is not a reuse target: lifecycle status is legacy; legacy Tableau content, not a reuse target |
+| Conflicting KPI definitions | Build a Xarelto report showing Net Sales Local and Net Sales v2. | repair_and_reuse, 83 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Retired asset by id | Please reuse AST-0002 for our launch review. | human_review, 8 citations, asks the requester | Hyrnuo Launch Monthly (AST-0002) is not a reuse target: lifecycle status is candidate_retire; legacy Tableau content, not a reuse target |
+| Retired asset by name | Please bring back the Kerendia Inventory Copy report. | human_review, 10 citations, asks the requester | Kerendia Inventory Copy (AST-0005) is not a reuse target: lifecycle status is legacy; legacy Tableau content, not a reuse target |
 | Asset that does not exist | Please reuse report AST-9999 for net sales of Nubeqa. | human_review, asks the requester | AST-9999 does not exist in the asset catalog |
-| Market named: country | Create a Nubeqa net sales dashboard for Germany. | new_build, 5 citations | no alive, governed asset covers enough of the request |
-| Market named: region | Create a Nubeqa net sales dashboard for EMEA. | repair_and_reuse, 8 citations | All Pharma Supply is alive and covers ['Net Sales'], but has governance gaps |
-| Market named: alias | Create a Nubeqa net sales dashboard for the US. | new_build, 5 citations | no alive, governed asset covers enough of the request |
-| No market named | Create a Nubeqa net sales dashboard. | repair_and_reuse, 8 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
-| Several markets named | Nubeqa net sales for Japan and Brazil, please. | repair_and_reuse, 8 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Market named: country | Create a Nubeqa net sales dashboard for Germany. | new_build, 20 citations | no alive, governed asset covers enough of the request |
+| Market named: region | Create a Nubeqa net sales dashboard for EMEA. | repair_and_reuse, 45 citations | All Pharma Supply is alive and covers ['Net Sales'], but has governance gaps |
+| Market named: alias | Create a Nubeqa net sales dashboard for the US. | new_build, 19 citations | no alive, governed asset covers enough of the request |
+| No market named | Create a Nubeqa net sales dashboard. | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Several markets named | Nubeqa net sales for Japan and Brazil, please. | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
 | Empty text | (empty) | human_review, asks the requester | the request is empty or too short to act on |
 | Very short text | help | human_review, asks the requester | the request is empty or too short to act on |
 | Punctuation only | ?!?!?!?!?!?! | human_review, asks the requester | the request is empty or too short to act on |
-| Very long text | Net sales for Nubeqa. Lorem ipsum dolor sit amet. Lorem ipsum dolor... | repair_and_reuse, 8 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Very long text | Net sales for Nubeqa. Lorem ipsum dolor sit amet. Lorem ipsum dolor... | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
 | Non-English, Finnish | Tarvitsen raportin tuotteen myynnista maittain. | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
 | Non-English, German | Ich brauche einen Bericht zum Umsatz nach Land. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Bericht, Umsatz, Land, so nothing can be matched |
 | Non-English, Japanese | 製品別の売上ダッシュボードが必要です。 | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
@@ -288,6 +303,8 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   assets from markets nobody asked for. The requester is told. The Intent stage shows the choice so a person can catch it, but nothing forces them to.
 - **Prompt injection detection is a regex** and can be evaded. What protects the decision is that the model cannot set it. LLM
   explanations are not checked for accuracy and are labelled as AI-generated.
+- **Duplicates are judged on KPIs only:** an asset counts as a duplicate if it covers the same requested KPIs, so a report with the same
+  KPIs for a different audience or product counts as a duplicate. A person should check this before approving a retirement.
 - **Region is not checked:** model selection matches product scope, not `region_scope`.
 - **Fallback is slower:** GLM-5.2 took a median of about 25 seconds per call in the evaluation, and a request makes two calls.
 - **Gates can run after approval:** `/approve` records a decision without checking gates, so a gate failure blocks release of the

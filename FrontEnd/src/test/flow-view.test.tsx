@@ -44,6 +44,43 @@ describe("target card", () => {
   });
 });
 
+describe("retire and consolidate lists", () => {
+  const assets = (prefix: string, n: number) =>
+    Array.from({ length: n }, (_, i) => ({ id: `${prefix}-${i}`, name: `${prefix} ${i}`, reason: `why ${prefix} ${i}`, citations: [] }));
+  const withLists = (retire: number, later: number) => {
+    const base = mockRecommend("Create a global Nubeqa dashboard");
+    return { ...base, recommendation: { ...base.recommendation, retire: assets("R", retire), consolidate_later: assets("C", later), consolidate_note: "migrate users first, owner review required" } };
+  };
+
+  it("caps each list at 5 and counts the rest", () => {
+    render(<ResultView result={withLists(7, 12)} />);
+    ["R-4", "C-4"].forEach((id) => expect(screen.getByText(id)).toBeInTheDocument());
+    ["R-5", "C-5"].forEach((id) => expect(screen.queryByText(id)).not.toBeInTheDocument());
+    expect(screen.getByText("+2 more")).toBeInTheDocument();
+    expect(screen.getByText("+7 more")).toBeInTheDocument();
+  });
+
+  it("shows no count at exactly 5, and the required note on the consolidate list", () => {
+    render(<ResultView result={withLists(5, 1)} />);
+    expect(screen.getByText("R-4")).toBeInTheDocument();
+    expect(screen.queryByText(/\+\d+ more$/)).not.toBeInTheDocument();
+    expect(screen.getByText(/migrate users first, owner review required/)).toBeInTheDocument();
+    expect(screen.getByText("why C 0")).toBeInTheDocument();
+  });
+
+  it("words a new build's retire list as waiting for the new asset", () => {
+    const result = withLists(1, 0);
+    render(<ResultView result={{ ...result, recommendation: { ...result.recommendation, action: "new_build", retire_note: "retire after the new asset is live" } }} />);
+    expect(screen.getByText(/retire after the new asset is live/)).toBeInTheDocument();
+  });
+
+  it("hides the panels when the lists are empty", () => {
+    render(<ResultView result={withLists(0, 0)} />);
+    expect(screen.queryByRole("heading", { name: "Retire" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Consolidate later" })).not.toBeInTheDocument();
+  });
+});
+
 describe("api client", () => {
   it("surfaces a 4xx from the live API instead of switching to demo data", async () => {
     vi.stubEnv("VITE_API_URL", "http://api.test");

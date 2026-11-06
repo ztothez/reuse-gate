@@ -5,11 +5,12 @@ The API, the mock export and the tests all call run_request, so what the front e
 from datetime import date
 
 from llm import LLM, LLMError
-from recommend import MAX_TEXT, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
+from recommend import CONSOLIDATE_NOTE, MAX_TEXT, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
 from spec import build_spec
 from spec_gate import check
 
 MAX_CANDIDATES = 5
+MAX_SHOWN = 5  # the API returns every listed asset; displays show this many and a "+N more" count
 
 
 def rec_json(est, intent, rec):
@@ -23,6 +24,9 @@ def rec_json(est, intent, rec):
             "views_3m": est.views(aid), "users_3m": est.users(aid),
             "owner": (est.owners.get(a["owner_id"]) or {}).get("owner_name"),
         }
+    def listed(aid):
+        return {**asset(aid), "reason": rec.item_notes.get(aid, ""), "citations": rec.item_citations.get(aid, [])}
+
     target = asset(rec.target) if rec.target else None
     if target:
         target["coverage"] = target_coverage(est, intent, rec.target)
@@ -33,7 +37,10 @@ def rec_json(est, intent, rec):
                    "questions": [{"text": q, "field": getattr(q, "field", "model")} for q in intent.clarifications]},
         "recommendation": {
             "action": rec.action, "target": target,
-            "build_on": rec.build_on, "retire": [asset(a) for a in rec.retire],
+            "build_on": rec.build_on, "retire": [listed(a) for a in rec.retire],
+            "retire_note": RETIRE_AFTER_BUILD_NOTE if rec.retire and rec.action == "new_build" else None,
+            "consolidate_later": [listed(a) for a in rec.consolidate],
+            "consolidate_note": CONSOLIDATE_NOTE if rec.consolidate else None,
             "repair": rec.repair, "rationale": rec.rationale,
             "evidence": [{"table": t, "id": i, "note": n} for t, i, n in rec.evidence],
         },
@@ -80,7 +87,9 @@ def stages(est, req, intent, rec, result, source, as_of):
         "Decision", "ok", decision["action"].replace("_", " "),
         {"assets_checked": checked, "kpis": parsed["kpis"], "decided_by": "deterministic rules, no LLM"},
         {"action": decision["action"], "target": (decision["target"] or {}).get("id"), "build_on": decision["build_on"],
-         "retire": [a["id"] for a in decision["retire"]], "repair": decision["repair"], "rationale": decision["rationale"]},
+         "retire": [a["id"] for a in decision["retire"][:MAX_SHOWN]], "retire_more": max(len(decision["retire"]) - MAX_SHOWN, 0),
+         "consolidate_later": [a["id"] for a in decision["consolidate_later"][:MAX_SHOWN]],
+         "consolidate_more": max(len(decision["consolidate_later"]) - MAX_SHOWN, 0), "repair": decision["repair"], "rationale": decision["rationale"]},
     ))
 
     spec_input = {"action": decision["action"], "build_on": decision["build_on"], "target": (decision["target"] or {}).get("id")}
@@ -119,7 +128,10 @@ def run_request(est, req, client=None, as_of=None, answers=None):
                     "model": getattr(client, "last_model", None) if source == "llm" else None}
     if source == "llm":
         try:
-            result["ai"]["explanation"] = client.explain(intent.text, result["intent"], result["recommendation"])
+            brief = {**result["recommendation"], "evidence": result["recommendation"]["evidence"][:15],
+                     "retire": result["recommendation"]["retire"][:MAX_SHOWN],
+                     "consolidate_later": result["recommendation"]["consolidate_later"][:MAX_SHOWN]}
+            result["ai"]["explanation"] = client.explain(intent.text, result["intent"], brief)
             result["ai"]["explanation_source"] = "llm"
         except LLMError:
             pass

@@ -8,23 +8,28 @@ import { ACTIONS, Chip, Endorsement, ErrorState, Panel } from "./shared";
 import { ApprovalPanel } from "./ApprovalPanel";
 import { FlowView } from "./FlowView";
 
-function AssetTable({ rows }: { rows: Asset[] }) {
+const MAX_SHOWN = 5;
+
+function AssetTable({ rows: all }: { rows: Asset[] }) {
+  const rows = all.slice(0, MAX_SHOWN);
+  const more = all.length - rows.length;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="text-left text-xs text-muted-foreground">
-          <tr><th className="py-2 pr-3">ID</th><th className="pr-3">Name</th><th className="pr-3">Platform</th><th className="pr-3">Endorsement</th><th className="pr-3">Views 3m</th><th>Owner</th></tr>
+          <tr><th className="py-2 pr-3">ID</th><th className="pr-3">Name</th><th className="pr-3">Platform</th><th className="pr-3">Endorsement</th><th className="pr-3">Views 3m</th><th className="pr-3">Owner</th><th>Why</th></tr>
         </thead>
         <tbody>
           {rows.map((a) => (
             <tr key={a.id} className="border-t">
               <td className="py-2 pr-3 font-mono text-xs">{a.id}</td><td className="pr-3">{a.name}</td>
               <td className="pr-3">{a.platform ?? "-"}</td><td className="pr-3"><Endorsement value={a.endorsement} /></td>
-              <td className="pr-3 tabular-nums">{a.views_3m ?? "-"}</td><td>{a.owner ?? "Unowned"}</td>
+              <td className="pr-3 tabular-nums">{a.views_3m ?? "-"}</td><td className="pr-3">{a.owner ?? "Unowned"}</td><td className="text-xs text-muted-foreground">{a.reason}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      {more > 0 && <p className="mt-2 text-sm font-medium">+{more} more</p>}
     </div>
   );
 }
@@ -136,7 +141,12 @@ export function ResultView({ result, onAnswers, rechecking }: { result: Recommen
         </p>
       )}
 
-      {rec.retire.length > 0 && <Panel title="Retire"><AssetTable rows={rec.retire} /></Panel>}
+      {rec.retire.length > 0 && <Panel title="Retire" caption={`Low usage, not certified, and a duplicate of the target${rec.retire_note ? `: ${rec.retire_note}` : ""}. All are cited under Evidence.`}><AssetTable rows={rec.retire} /></Panel>}
+      {(rec.consolidate_later?.length ?? 0) > 0 && (
+        <Panel title="Consolidate later" caption={`Overlapping assets that still have users or are certified: ${rec.consolidate_note}. All are cited under Evidence.`}>
+          <AssetTable rows={rec.consolidate_later!} />
+        </Panel>
+      )}
       {rec.repair.length > 0 && (
         <Panel title="Repair">
           <ul className="divide-y text-sm">
@@ -150,7 +160,7 @@ export function ResultView({ result, onAnswers, rechecking }: { result: Recommen
       </Panel>
 
       <Panel title="Evidence" caption="Every recommendation cites the data it is based on.">
-        <ul className="divide-y">
+        <ul className="max-h-96 divide-y overflow-auto">
           {rec.evidence.map((e) => (
             <li key={e.table + e.id} className="flex flex-wrap items-center gap-3 py-2 text-sm">
               <Chip mono>{e.table} / {e.id}</Chip><span>{e.note}</span>

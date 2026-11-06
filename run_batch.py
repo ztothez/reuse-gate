@@ -25,6 +25,7 @@ def main(db):
     print(f"new builds avoided: {avoided}/{total} ({avoided / total:.0%})")
     retire = {aid for _, _, r in results for aid in r.retire}
     print(f"distinct assets flagged for retirement: {len(retire)}")
+    print(f"distinct assets to consolidate later: {len({aid for _, _, r in results for aid in r.consolidate})}")
     print(f"requests needing clarification: {sum(1 for _, i, _ in results if i.clarifications)}")
 
     bad = [(t, k) for _, _, r in results for t, k, _ in r.evidence if not est.exists(t, k)]

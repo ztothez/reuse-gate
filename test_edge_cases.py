@@ -14,8 +14,9 @@ import server
 from edge_cases import CASES, run_case
 from estate import Estate
 from llm import LLMError, NoLLM
-from pipeline import run_request
-from recommend import NAME_NOTE, parse_request, parse_request_llm, recommend
+from pipeline import rec_json, run_request, stages
+from recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_overlap as split_overlap, parse_request, parse_request_llm,
+                       recommend, scoped_assessments)
 
 DB = Path(__file__).parent / "estate.db"
 STAGES = ["Intent", "Evidence", "Decision", "Spec", "Gates"]
@@ -47,7 +48,7 @@ class EdgeCaseTest(unittest.TestCase):
         rec = result["recommendation"]
         self.assertTrue(rec["rationale"], "every outcome is explained")
         self.assertEqual([s["stage"] for s in result["pipeline"]], STAGES)
-        for asset in [rec["target"]] + rec["retire"]:
+        for asset in [rec["target"]] + rec["retire"] + rec["consolidate_later"]:
             if asset:
                 self.assertIn(asset["id"], self.est.assets, "invented asset")
         self.assertTrue(rec["target"] is None or rec["target"]["id"] != "AST-9999")
@@ -187,7 +188,8 @@ class EdgeCaseTest(unittest.TestCase):
         result = run_case(self.est, "Please reuse AST-0002 for our launch review.")
         rec = result["recommendation"]
         self.assertIn(("Analytics_Assets", "AST-0002"), {(e["table"], e["id"]) for e in rec["evidence"]})
-        self.assertEqual([a["id"] for a in rec["retire"]], ["AST-0002"])
+        self.assertEqual(rec["retire"], [], "with no target it cannot be a duplicate of one")
+        self.assertEqual([a["id"] for a in rec["consolidate_later"]], ["AST-0002"])
 
     def test_words_that_match_an_asset_name_are_not_a_request_for_that_asset(self):
         self.assertIn("Nubeqa Net Sales", {a["asset_name"] for a in self.est.assets.values()})
@@ -271,6 +273,148 @@ class EdgeCaseTest(unittest.TestCase):
         result = run_case(self.est, "Nubeqa net sales report please.", FakeLLM(error=LLMError("down")))
         self.assertSafe(result)
         self.assertEqual(result["ai"]["intent_source"], "rules")
+
+
+@unittest.skipUnless(DB.exists(), "run load_estate.py first")
+class RetireRuleTest(unittest.TestCase):
+    """Retire only low-usage, uncertified duplicates. Everything else overlapping is consolidated later, and all of it is cited."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.est = est = Estate(str(DB))
+        cls.runs = [run_request(est, r, NoLLM(), as_of=r["request_date"]) for r in est.requests]
+        markets = ["", " for Germany", " for EMEA", " for the US", " for Brazil"]
+        topics = ["Nubeqa net sales", "Nubeqa forecast variance", "Xarelto net sales", "net sales and budget variance", "inventory coverage",
+                  "market access coverage", "Kerendia net sales", "Eylea demand forecast accuracy", "forecast variance"]
+        cls.runs += [run_case(est, f"{t} report{m} please.") for t in topics for m in markets]
+
+    def test_reported_assets_are_not_retired(self):
+        reported = {"AST-0233", "AST-0239", "AST-0019"}
+        for result in self.runs:
+            self.assertFalse({a["id"] for a in result["recommendation"]["retire"]} & reported, result["text"])
+        later = {a["id"] for r in self.runs for a in r["recommendation"]["consolidate_later"]}
+        self.assertLessEqual(reported, later, "they must still be listed, not dropped")
+
+    def test_every_retired_asset_meets_all_three_conditions(self):
+        checked = 0
+        for result in self.runs:
+            rec = result["recommendation"]
+            requested = set(result["intent"]["kpis"])
+            shared = requested & {c["kpi"] for c in (rec["target"] or {}).get("coverage", {}).get("covered", [])} or requested
+            for item in rec["retire"]:
+                checked += 1
+                self.assertLess(self.est.views(item["id"]), LOW_VIEWS, item["id"])
+                self.assertNotEqual(self.est.assets[item["id"]]["endorsement"], "certified", item["id"])
+                metrics = {self.est.kpis[k]["canonical_metric"] for k in self.est.asset_kpis[item["id"]]}
+                self.assertLessEqual(shared, metrics, item["id"])
+        self.assertGreater(checked, 0)
+
+    def test_alive_or_certified_overlap_is_never_retired(self):
+        checked = 0
+        for result in self.runs:
+            for item in result["recommendation"]["consolidate_later"]:
+                checked += 1
+                self.assertTrue(item["reason"])
+            for item in result["recommendation"]["retire"]:
+                a = self.est.assets[item["id"]]
+                alive = a["lifecycle_status"] == "active" and a["platform"] == "Power BI" and self.est.views(item["id"]) >= LOW_VIEWS
+                self.assertFalse(alive or a["endorsement"] == "certified", item["id"])
+        self.assertGreater(checked, 0)
+
+    def test_an_asset_is_on_one_list_only_and_never_the_target(self):
+        for result in self.runs:
+            rec = result["recommendation"]
+            retire, later = [a["id"] for a in rec["retire"]], [a["id"] for a in rec["consolidate_later"]]
+            self.assertEqual(len(retire + later), len(set(retire + later)))
+            self.assertNotIn((rec["target"] or {}).get("id"), retire + later)
+
+    def test_no_overlapping_asset_is_lost(self):
+        for result in self.runs[:150]:
+            rec = result["recommendation"]
+            if result["intent"]["kind"] == "migration" or rec["action"] == "human_review":
+                continue
+            intent = Intent("", "", result["intent"]["products"], result["intent"]["market"], result["intent"]["kpis"])
+            full = {x["asset"]["asset_id"] for x in scoped_assessments(self.est, intent) if not x["missing"]}
+            listed = {a["id"] for a in rec["retire"] + rec["consolidate_later"]}
+            self.assertEqual(listed, full - {(rec["target"] or {}).get("id")}, result["request_id"])
+
+    def test_every_listed_item_is_cited_with_rows_that_exist(self):
+        for result in self.runs:
+            rec = result["recommendation"]
+            cited = {f"{e['table']}:{e['id']}" for e in rec["evidence"]}
+            for item in rec["retire"] + rec["consolidate_later"]:
+                self.assertIn(f"Analytics_Assets:{item['id']}", item["citations"])
+                self.assertIn(f"Asset_Usage:{item['id']}", item["citations"])
+                self.assertLessEqual(set(item["citations"]), cited, item["id"])
+            for e in rec["evidence"]:
+                self.assertTrue(self.est.exists(e["table"], e["id"]), e)
+
+    def test_note_appears_only_with_a_consolidate_list(self):
+        for result in self.runs:
+            rec = result["recommendation"]
+            expected = "migrate users first, owner review required" if rec["consolidate_later"] else None
+            self.assertEqual(rec["consolidate_note"], expected)
+
+    def test_flow_view_caps_ids_and_counts_the_rest(self):
+        est = self.est
+        req = {"request_id": "X", "request_text": "Net sales report by product for Germany please.", "product_context": est.all_scope, "market_context": None}
+        intent = parse_request(est, req)
+        rec = recommend(est, intent)
+        rec.consolidate, rec.retire = list(est.assets)[:8], list(est.assets)[8:15]
+        out = rec_json(est, intent, rec)
+        out["ai"], out["answers"] = {"model": None}, []
+        decision = stages(est, req, intent, rec, out, "rules", "2026-11-07")[2]["output"]
+        self.assertEqual((len(decision["retire"]), decision["retire_more"]), (5, 2))
+        self.assertEqual((len(decision["consolidate_later"]), decision["consolidate_more"]), (5, 3))
+        self.assertEqual((len(out["recommendation"]["retire"]), len(out["recommendation"]["consolidate_later"])), (7, 8), "the API keeps every item")
+
+    def test_new_build_retire_items_wait_for_the_new_asset(self):
+        note = "retire after the new asset is live"
+        checked = 0
+        for result in self.runs:
+            rec = result["recommendation"]
+            if rec["action"] == "new_build" and rec["retire"]:
+                checked += 1
+                self.assertEqual(rec["retire_note"], note)
+                self.assertTrue(all(item["reason"].endswith(note) for item in rec["retire"]))
+                self.assertTrue(any(line.endswith(note) for line in rec["rationale"]))
+            else:
+                self.assertIsNone(rec["retire_note"])
+                self.assertFalse(any(note in item["reason"] for item in rec["retire"]))
+        self.assertGreater(checked, 0)
+
+    def test_low_usage_certified_duplicate_is_consolidated(self):
+        est = self.est
+        asset = next(i for i, a in est.assets.items() if a["endorsement"] == "certified" and est.views(i) < LOW_VIEWS)
+        metric = est.kpis[est.asset_kpis[asset][0]]["canonical_metric"]
+        rec = Recommendation("new_build", retire=[asset])
+        split_overlap(est, Intent("", "", [est.all_scope], "Global", [metric]), rec)
+        self.assertEqual((rec.retire, rec.consolidate), ([], [asset]))
+
+    def test_low_usage_uncertified_duplicate_is_retired(self):
+        est = self.est
+        asset = next(i for i, a in est.assets.items() if a["endorsement"] != "certified" and est.views(i) < LOW_VIEWS and est.asset_kpis[i])
+        metric = est.kpis[est.asset_kpis[asset][0]]["canonical_metric"]
+        rec = Recommendation("new_build", retire=[asset])
+        split_overlap(est, Intent("", "", [est.all_scope], "Global", [metric]), rec)
+        self.assertEqual((rec.retire, rec.consolidate), ([asset], []))
+
+    def test_low_usage_uncertified_non_duplicate_is_consolidated(self):
+        est = self.est
+        target = next(i for i in est.assets if "Net Sales" in {est.kpis[k]["canonical_metric"] for k in est.asset_kpis[i]})
+        other = next(i for i, a in est.assets.items() if a["endorsement"] != "certified" and est.views(i) < LOW_VIEWS
+                     and "Net Sales" not in {est.kpis[k]["canonical_metric"] for k in est.asset_kpis[i]})
+        rec = Recommendation("repair_and_reuse", target=target, retire=[other])
+        split_overlap(est, Intent("", "", [est.all_scope], "Global", ["Net Sales"]), rec)
+        self.assertEqual((rec.retire, rec.consolidate), ([], [other]))
+        self.assertIn("not shown to duplicate", rec.item_notes[other])
+
+    def test_retire_action_with_nothing_retirable_goes_to_a_person(self):
+        est = self.est
+        busy = next(i for i, a in est.assets.items() if a["endorsement"] == "certified" and est.views(i) >= LOW_VIEWS)
+        rec = Recommendation("retire", retire=[busy])
+        split_overlap(est, Intent("", "", [est.all_scope], "Global", []), rec)
+        self.assertEqual((rec.action, rec.retire), ("human_review", []))
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")

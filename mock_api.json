@@ -22,6 +22,9 @@
         "target": null,
         "build_on": "SM-065",
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [],
         "rationale": [
           "no alive, governed asset covers enough of the request",
@@ -267,6 +270,9 @@
             "target": null,
             "build_on": "SM-065",
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [],
             "rationale": [
               "no alive, governed asset covers enough of the request",
@@ -455,6 +461,9 @@
         "target": null,
         "build_on": null,
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [],
         "rationale": [
           "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
@@ -647,6 +656,9 @@
             "target": null,
             "build_on": null,
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [],
             "rationale": [
               "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
@@ -710,14 +722,24 @@
             "status": "active",
             "views_3m": 14,
             "users_3m": 2,
-            "owner": "Felix Virtanen"
+            "owner": "Felix Virtanen",
+            "reason": "14 views in 3 months (below 100), promoted endorsement, duplicates the requested KPIs, retire after the new asset is live",
+            "citations": [
+              "Analytics_Assets:AST-0335",
+              "Asset_Usage:AST-0335",
+              "Asset_KPI_Map:AST-0335:KPI-033",
+              "Asset_KPI_Map:AST-0335:KPI-027"
+            ]
           }
         ],
+        "retire_note": "retire after the new asset is live",
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [],
         "rationale": [
           "no alive, governed asset covers enough of the request",
           "build on a healthy shared semantic model, using canonical KPI definitions only",
-          "1 dead overlapping asset(s) should be retired, not repaired"
+          "1 low-usage, uncertified duplicate(s): retire after the new asset is live"
         ],
         "evidence": [
           {
@@ -749,6 +771,31 @@
             "table": "KPI_Catalog",
             "id": "KPI-031",
             "note": "Reimbursement Status Coverage: canonical, approved"
+          },
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0335",
+            "note": "All Pharma Growth Legacy: active, promoted, Power BI"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0335",
+            "note": "14 views, 2 users in the last 3 months"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0335:KPI-033",
+            "note": "AST-0335 covers Reimbursement Status Coverage through Reimbursement Status Coverage v2"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0335:KPI-027",
+            "note": "AST-0335 covers Market Access Coverage through Market Access Coverage"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-006",
+            "note": "Do not migrate waste"
           }
         ]
       },
@@ -758,7 +805,7 @@
         "explanation": [
           "no alive, governed asset covers enough of the request",
           "build on a healthy shared semantic model, using canonical KPI definitions only",
-          "1 dead overlapping asset(s) should be retired, not repaired"
+          "1 low-usage, uncertified duplicate(s): retire after the new asset is live"
         ],
         "explanation_source": "rules",
         "model": null
@@ -797,7 +844,7 @@
         {
           "stage": "Evidence",
           "status": "ok",
-          "summary": "3 asset(s) in scope, 0 alive, 6 citation(s)",
+          "summary": "3 asset(s) in scope, 0 alive, 11 citation(s)",
           "input": {
             "products": [
               "All Pharma"
@@ -889,6 +936,31 @@
                 "table": "KPI_Catalog",
                 "id": "KPI-031",
                 "note": "Reimbursement Status Coverage: canonical, approved"
+              },
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0335",
+                "note": "All Pharma Growth Legacy: active, promoted, Power BI"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0335",
+                "note": "14 views, 2 users in the last 3 months"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0335:KPI-033",
+                "note": "AST-0335 covers Reimbursement Status Coverage through Reimbursement Status Coverage v2"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0335:KPI-027",
+                "note": "AST-0335 covers Market Access Coverage through Market Access Coverage"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-006",
+                "note": "Do not migrate waste"
               }
             ]
           }
@@ -912,11 +984,14 @@
             "retire": [
               "AST-0335"
             ],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [],
             "rationale": [
               "no alive, governed asset covers enough of the request",
               "build on a healthy shared semantic model, using canonical KPI definitions only",
-              "1 dead overlapping asset(s) should be retired, not repaired"
+              "1 low-usage, uncertified duplicate(s): retire after the new asset is live"
             ]
           }
         },
@@ -1012,6 +1087,11 @@
                   "table": "Governance_Rules",
                   "id": "RULE-007",
                   "note": "AI-ready semantics"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-006",
+                  "note": "Do not migrate waste"
                 }
               ]
             }
@@ -1119,6 +1199,9 @@
         },
         "build_on": "SM-034",
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [
           "add canonical KPI(s): ['Inventory Coverage']",
           "semantic model SM-034 refresh status is failed",
@@ -1372,6 +1455,9 @@
             "target": "AST-0008",
             "build_on": "SM-034",
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [
               "add canonical KPI(s): ['Inventory Coverage']",
               "semantic model SM-034 refresh status is failed",
@@ -1599,8 +1685,18 @@
             "status": "active",
             "views_3m": 14,
             "users_3m": 1,
-            "owner": "Sofia Rossi"
-          },
+            "owner": "Sofia Rossi",
+            "reason": "14 views in 3 months (below 100), none endorsement, duplicates the requested KPIs",
+            "citations": [
+              "Analytics_Assets:AST-0015",
+              "Asset_Usage:AST-0015",
+              "Asset_KPI_Map:AST-0015:KPI-004",
+              "Asset_KPI_Map:AST-0015:KPI-003"
+            ]
+          }
+        ],
+        "retire_note": null,
+        "consolidate_later": [
           {
             "id": "AST-0072",
             "name": "Kerendia Market Access - EMEA",
@@ -1610,9 +1706,17 @@
             "status": "candidate_retire",
             "views_3m": 829,
             "users_3m": 158,
-            "owner": "Leo Weber"
+            "owner": "Leo Weber",
+            "reason": "829 views in 3 months",
+            "citations": [
+              "Analytics_Assets:AST-0072",
+              "Asset_Usage:AST-0072",
+              "Asset_KPI_Map:AST-0072:KPI-001",
+              "Asset_KPI_Map:AST-0072:KPI-004"
+            ]
           }
         ],
+        "consolidate_note": "migrate users first, owner review required",
         "repair": [
           "add canonical KPI(s): ['Net Sales Growth']",
           "not certified or promoted",
@@ -1623,6 +1727,8 @@
         "rationale": [
           "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 low-usage, uncertified duplicate(s): can be retired",
+          "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -1663,6 +1769,51 @@
             "note": "Canonical KPI first"
           },
           {
+            "table": "Analytics_Assets",
+            "id": "AST-0015",
+            "note": "All Pharma Net Sales New: active, none, Power BI"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0015",
+            "note": "14 views, 1 users in the last 3 months"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0015:KPI-004",
+            "note": "AST-0015 covers Net Sales Growth through Net Sales Growth"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0015:KPI-003",
+            "note": "AST-0015 covers Net Sales through Net Sales v2"
+          },
+          {
+            "table": "Analytics_Assets",
+            "id": "AST-0072",
+            "note": "Kerendia Market Access - EMEA: candidate_retire, none, Power BI"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0072",
+            "note": "829 views, 158 users in the last 3 months"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0072:KPI-001",
+            "note": "AST-0072 covers Net Sales through Net Sales"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0072:KPI-004",
+            "note": "AST-0072 covers Net Sales Growth through Net Sales Growth"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-006",
+            "note": "Do not migrate waste"
+          },
+          {
             "table": "Asset_KPI_Map",
             "id": "AST-0187:KPI-003",
             "note": "Net Sales v2 (duplicate_candidate), role primary"
@@ -1675,6 +1826,8 @@
         "explanation": [
           "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 low-usage, uncertified duplicate(s): can be retired",
+          "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -1715,7 +1868,7 @@
         {
           "stage": "Evidence",
           "status": "ok",
-          "summary": "12 asset(s) in scope, 3 alive, 8 citation(s)",
+          "summary": "12 asset(s) in scope, 3 alive, 17 citation(s)",
           "input": {
             "products": [
               "Kerendia"
@@ -1841,6 +1994,51 @@
                 "note": "Canonical KPI first"
               },
               {
+                "table": "Analytics_Assets",
+                "id": "AST-0015",
+                "note": "All Pharma Net Sales New: active, none, Power BI"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0015",
+                "note": "14 views, 1 users in the last 3 months"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0015:KPI-004",
+                "note": "AST-0015 covers Net Sales Growth through Net Sales Growth"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0015:KPI-003",
+                "note": "AST-0015 covers Net Sales through Net Sales v2"
+              },
+              {
+                "table": "Analytics_Assets",
+                "id": "AST-0072",
+                "note": "Kerendia Market Access - EMEA: candidate_retire, none, Power BI"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0072",
+                "note": "829 views, 158 users in the last 3 months"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0072:KPI-001",
+                "note": "AST-0072 covers Net Sales through Net Sales"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0072:KPI-004",
+                "note": "AST-0072 covers Net Sales Growth through Net Sales Growth"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-006",
+                "note": "Do not migrate waste"
+              },
+              {
                 "table": "Asset_KPI_Map",
                 "id": "AST-0187:KPI-003",
                 "note": "Net Sales v2 (duplicate_candidate), role primary"
@@ -1865,9 +2063,13 @@
             "target": "AST-0187",
             "build_on": "SM-057",
             "retire": [
-              "AST-0015",
+              "AST-0015"
+            ],
+            "retire_more": 0,
+            "consolidate_later": [
               "AST-0072"
             ],
+            "consolidate_more": 0,
             "repair": [
               "add canonical KPI(s): ['Net Sales Growth']",
               "not certified or promoted",
@@ -1878,6 +2080,8 @@
             "rationale": [
               "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
               "extend it on its existing semantic model instead of creating a new asset",
+              "1 low-usage, uncertified duplicate(s): can be retired",
+              "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
               "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0187:KPI-003, duplicate_candidate); not covered: Net Sales Growth",
               "asset names in the data pack are not used for matching because they do not reflect coverage"
             ]
@@ -1978,6 +2182,11 @@
                   "note": "Canonical KPI first"
                 },
                 {
+                  "table": "Governance_Rules",
+                  "id": "RULE-006",
+                  "note": "Do not migrate waste"
+                },
+                {
                   "table": "Analytics_Assets",
                   "id": "AST-0187",
                   "note": "asset being extended"
@@ -2059,6 +2268,9 @@
         "target": null,
         "build_on": "SM-065",
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [],
         "rationale": [
           "no alive, governed asset covers enough of the request",
@@ -2274,6 +2486,9 @@
             "target": null,
             "build_on": "SM-065",
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [],
             "rationale": [
               "no alive, governed asset covers enough of the request",
@@ -2500,9 +2715,19 @@
             "status": "active",
             "views_3m": 14,
             "users_3m": 1,
-            "owner": "Sofia Rossi"
+            "owner": "Sofia Rossi",
+            "reason": "14 views in 3 months (below 100), none endorsement, duplicates the requested KPIs",
+            "citations": [
+              "Analytics_Assets:AST-0015",
+              "Asset_Usage:AST-0015",
+              "Asset_KPI_Map:AST-0015:KPI-004",
+              "Asset_KPI_Map:AST-0015:KPI-003"
+            ]
           }
         ],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [
           "add canonical KPI(s): ['Net Sales Growth']",
           "uses non-canonical KPI variants for ['Net Sales']",
@@ -2512,6 +2737,7 @@
         "rationale": [
           "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 low-usage, uncertified duplicate(s): can be retired",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -2552,6 +2778,31 @@
             "note": "Canonical KPI first"
           },
           {
+            "table": "Analytics_Assets",
+            "id": "AST-0015",
+            "note": "All Pharma Net Sales New: active, none, Power BI"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0015",
+            "note": "14 views, 1 users in the last 3 months"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0015:KPI-004",
+            "note": "AST-0015 covers Net Sales Growth through Net Sales Growth"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0015:KPI-003",
+            "note": "AST-0015 covers Net Sales through Net Sales v2"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-006",
+            "note": "Do not migrate waste"
+          },
+          {
             "table": "Asset_KPI_Map",
             "id": "AST-0069:KPI-002",
             "note": "Net Sales Local (definition_conflict), role secondary"
@@ -2564,6 +2815,7 @@
         "explanation": [
           "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 low-usage, uncertified duplicate(s): can be retired",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -2604,7 +2856,7 @@
         {
           "stage": "Evidence",
           "status": "ok",
-          "summary": "6 asset(s) in scope, 1 alive, 8 citation(s)",
+          "summary": "6 asset(s) in scope, 1 alive, 13 citation(s)",
           "input": {
             "products": [
               "All Pharma"
@@ -2736,6 +2988,31 @@
                 "note": "Canonical KPI first"
               },
               {
+                "table": "Analytics_Assets",
+                "id": "AST-0015",
+                "note": "All Pharma Net Sales New: active, none, Power BI"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0015",
+                "note": "14 views, 1 users in the last 3 months"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0015:KPI-004",
+                "note": "AST-0015 covers Net Sales Growth through Net Sales Growth"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0015:KPI-003",
+                "note": "AST-0015 covers Net Sales through Net Sales v2"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-006",
+                "note": "Do not migrate waste"
+              },
+              {
                 "table": "Asset_KPI_Map",
                 "id": "AST-0069:KPI-002",
                 "note": "Net Sales Local (definition_conflict), role secondary"
@@ -2762,6 +3039,9 @@
             "retire": [
               "AST-0015"
             ],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [
               "add canonical KPI(s): ['Net Sales Growth']",
               "uses non-canonical KPI variants for ['Net Sales']",
@@ -2771,6 +3051,7 @@
             "rationale": [
               "All Pharma Supply is alive and covers ['Net Sales']; only ['Net Sales Growth'] is missing",
               "extend it on its existing semantic model instead of creating a new asset",
+              "1 low-usage, uncertified duplicate(s): can be retired",
               "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0069:KPI-002, definition_conflict); not covered: Net Sales Growth",
               "asset names in the data pack are not used for matching because they do not reflect coverage"
             ]
@@ -2869,6 +3150,11 @@
                   "table": "Governance_Rules",
                   "id": "RULE-002",
                   "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-006",
+                  "note": "Do not migrate waste"
                 },
                 {
                   "table": "Analytics_Assets",
@@ -2990,7 +3276,9 @@
           }
         },
         "build_on": "SM-034",
-        "retire": [
+        "retire": [],
+        "retire_note": null,
+        "consolidate_later": [
           {
             "id": "AST-0022",
             "name": "All Pharma Net Sales Final",
@@ -3000,9 +3288,19 @@
             "status": "active",
             "views_3m": 802,
             "users_3m": 146,
-            "owner": "Nina Garcia"
+            "owner": "Nina Garcia",
+            "reason": "802 views in 3 months",
+            "citations": [
+              "Analytics_Assets:AST-0022",
+              "Asset_Usage:AST-0022",
+              "Asset_KPI_Map:AST-0022:KPI-003",
+              "Asset_KPI_Map:AST-0022:KPI-023",
+              "Asset_KPI_Map:AST-0022:KPI-027",
+              "Migration_Backlog:AST-0022"
+            ]
           }
         ],
+        "consolidate_note": "migrate users first, owner review required",
         "repair": [
           "add canonical KPI(s): ['Launch Adoption Index']",
           "uses non-canonical KPI variants for ['Market Access Coverage']",
@@ -3012,6 +3310,7 @@
         "rationale": [
           "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -3057,6 +3356,41 @@
             "note": "Canonical KPI first"
           },
           {
+            "table": "Analytics_Assets",
+            "id": "AST-0022",
+            "note": "All Pharma Net Sales Final: active, promoted, Tableau"
+          },
+          {
+            "table": "Asset_Usage",
+            "id": "AST-0022",
+            "note": "802 views, 146 users in the last 3 months"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0022:KPI-003",
+            "note": "AST-0022 covers Net Sales through Net Sales v2"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0022:KPI-023",
+            "note": "AST-0022 covers Launch Adoption Index through Launch Adoption Index"
+          },
+          {
+            "table": "Asset_KPI_Map",
+            "id": "AST-0022:KPI-027",
+            "note": "AST-0022 covers Market Access Coverage through Market Access Coverage"
+          },
+          {
+            "table": "Migration_Backlog",
+            "id": "AST-0022",
+            "note": "REBUILD_ON_SHARED_MODEL, low complexity, in_progress"
+          },
+          {
+            "table": "Governance_Rules",
+            "id": "RULE-006",
+            "note": "Do not migrate waste"
+          },
+          {
             "table": "Asset_KPI_Map",
             "id": "AST-0008:KPI-001",
             "note": "Net Sales (canonical), role secondary"
@@ -3074,6 +3408,7 @@
         "explanation": [
           "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
           "extend it on its existing semantic model instead of creating a new asset",
+          "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
           "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
           "asset names in the data pack are not used for matching because they do not reflect coverage"
         ],
@@ -3115,7 +3450,7 @@
         {
           "stage": "Evidence",
           "status": "ok",
-          "summary": "89 asset(s) in scope, 19 alive, 10 citation(s)",
+          "summary": "89 asset(s) in scope, 19 alive, 17 citation(s)",
           "input": {
             "products": [
               "Lynkuet"
@@ -3260,6 +3595,41 @@
                 "note": "Canonical KPI first"
               },
               {
+                "table": "Analytics_Assets",
+                "id": "AST-0022",
+                "note": "All Pharma Net Sales Final: active, promoted, Tableau"
+              },
+              {
+                "table": "Asset_Usage",
+                "id": "AST-0022",
+                "note": "802 views, 146 users in the last 3 months"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0022:KPI-003",
+                "note": "AST-0022 covers Net Sales through Net Sales v2"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0022:KPI-023",
+                "note": "AST-0022 covers Launch Adoption Index through Launch Adoption Index"
+              },
+              {
+                "table": "Asset_KPI_Map",
+                "id": "AST-0022:KPI-027",
+                "note": "AST-0022 covers Market Access Coverage through Market Access Coverage"
+              },
+              {
+                "table": "Migration_Backlog",
+                "id": "AST-0022",
+                "note": "REBUILD_ON_SHARED_MODEL, low complexity, in_progress"
+              },
+              {
+                "table": "Governance_Rules",
+                "id": "RULE-006",
+                "note": "Do not migrate waste"
+              },
+              {
                 "table": "Asset_KPI_Map",
                 "id": "AST-0008:KPI-001",
                 "note": "Net Sales (canonical), role secondary"
@@ -3289,9 +3659,12 @@
             "action": "extend",
             "target": "AST-0008",
             "build_on": "SM-034",
-            "retire": [
+            "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [
               "AST-0022"
             ],
+            "consolidate_more": 0,
             "repair": [
               "add canonical KPI(s): ['Launch Adoption Index']",
               "uses non-canonical KPI variants for ['Market Access Coverage']",
@@ -3301,6 +3674,7 @@
             "rationale": [
               "All Pharma Market Access Monthly is alive and covers ['Net Sales', 'Market Access Coverage']; only ['Launch Adoption Index'] is missing",
               "extend it on its existing semantic model instead of creating a new asset",
+              "1 other overlapping asset(s) to consolidate later: migrate users first, owner review required",
               "requested KPIs this target covers: Net Sales (Asset_KPI_Map AST-0008:KPI-001, canonical); Market Access Coverage (Asset_KPI_Map AST-0008:KPI-028, definition_conflict); not covered: Launch Adoption Index",
               "asset names in the data pack are not used for matching because they do not reflect coverage"
             ]
@@ -3410,6 +3784,11 @@
                   "table": "Governance_Rules",
                   "id": "RULE-002",
                   "note": "Canonical KPI first"
+                },
+                {
+                  "table": "Governance_Rules",
+                  "id": "RULE-006",
+                  "note": "Do not migrate waste"
                 },
                 {
                   "table": "Analytics_Assets",
@@ -3528,6 +3907,9 @@
         },
         "build_on": null,
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [
           "owner OWN-029 is missing or inactive",
           "uses non-canonical KPI variants for ['Reimbursement Status Coverage', 'Launch Adoption Index']",
@@ -3799,6 +4181,9 @@
             "target": "AST-0287",
             "build_on": null,
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [
               "owner OWN-029 is missing or inactive",
               "uses non-canonical KPI variants for ['Reimbursement Status Coverage', 'Launch Adoption Index']",
@@ -3908,6 +4293,9 @@
         },
         "build_on": "SM-050",
         "retire": [],
+        "retire_note": null,
+        "consolidate_later": [],
+        "consolidate_note": null,
         "repair": [
           "add canonical KPI(s): ['Net Sales']",
           "not certified or promoted",
@@ -4213,6 +4601,9 @@
             "target": "AST-0088",
             "build_on": "SM-050",
             "retire": [],
+            "retire_more": 0,
+            "consolidate_later": [],
+            "consolidate_more": 0,
             "repair": [
               "add canonical KPI(s): ['Net Sales']",
               "not certified or promoted",

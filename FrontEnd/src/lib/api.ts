@@ -7,7 +7,7 @@ export type Action =
 export interface Asset {
   id: string; name: string; type?: string; platform?: string;
   endorsement?: string; status?: string; views_3m?: number; users_3m?: number; owner?: string | null;
-  coverage?: Coverage;
+  coverage?: Coverage; reason?: string; citations?: string[];
 }
 export interface Coverage {
   requested: string[];
@@ -22,7 +22,7 @@ export interface RecommendResult {
   intent: { products: string[]; market: string; kpis: string[]; kind: string; clarifications: string[]; questions?: Question[] };
   recommendation: {
     action: Action; target: Asset | null; build_on: string | null;
-    retire: Asset[]; repair: (string | Asset)[]; rationale: string[]; evidence: Evidence[];
+    retire: Asset[]; retire_note?: string | null; consolidate_later?: Asset[]; consolidate_note?: string | null; repair: (string | Asset)[]; rationale: string[]; evidence: Evidence[];
   };
   ai?: { intent_source: "llm" | "rules"; explanation_source: "llm" | "rules"; explanation: string[]; model?: string | null };
   answers?: Answer[];

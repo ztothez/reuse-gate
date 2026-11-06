@@ -5,10 +5,10 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`) | 92 pass |
+| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`) | 105 pass |
 | `test_smoke.py` | passes |
-| Frontend tests (`npm test`), TypeScript | 14 pass, no type errors |
-| Baseline (`run_batch.py`) | 79/150 avoid a new build, 1057 citations, 0 invalid. A test enforces both numbers |
+| Frontend tests (`npm test`), TypeScript | 18 pass, no type errors |
+| Baseline (`run_batch.py`) | 79/150 avoid a new build, 1434 citations, 0 invalid, 5 assets to retire, 7 to consolidate later. A test enforces these numbers |
 | Spec gates over 150 requests | 123 specs, 11 pass every gate, 112 blocked with a named reason, 0 crashes |
 | Edge cases | 24 cases, all end in a safe, explained outcome |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
@@ -28,6 +28,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **KPI coverage:** the rationale, `target.coverage`, citations and the frontend target card list covered KPIs with `Asset_KPI_Map` ids. A test keeps both mock files equal to the pipeline output.
 - **Clarification loop:** answers go back to `/recommend`, are applied by field, and the request is decided again, replacing the result. Tested in Python, in the frontend, over HTTP, and in a browser with real models.
 - **Live backends:** gpt-oss-120b on Aitta, automatic fallback to GLM-5.2 on Featherless, then the rules. `warmup.py` ran against all three models. Failover was forced with a dead primary, and GLM-5.2 answered live.
+- **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
 - **Data pack:** committed as `3a27c97`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified

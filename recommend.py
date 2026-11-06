@@ -17,6 +17,8 @@ TRUST = {"certified": 1.0, "promoted": 0.7, "none": 0.2}
 HEALTH = {"active": 1.0, "candidate_retire": 0.3, "legacy": 0.1}
 LOW_VIEWS = 100  # fewer views than this in the last 3 months means the asset is not alive
 GLOBAL = "Global"
+RETIRE_AFTER_BUILD_NOTE = "retire after the new asset is live"
+CONSOLIDATE_NOTE = "migrate users first, owner review required"
 NAME_NOTE = "asset names in the data pack are not used for matching because they do not reflect coverage"
 MIN_TEXT = 10
 MAX_TEXT = 2000  # longer requests are cut before parsing or any LLM call
@@ -66,7 +68,10 @@ class Recommendation:
     action: str  # reuse | repair_and_reuse | extend | new_build | retire_and_reuse | migrate | retire | human_review
     target: str | None = None
     build_on: str | None = None  # semantic model to build on
-    retire: list = field(default_factory=list)
+    retire: list = field(default_factory=list)  # low usage, not certified, and a duplicate of the target
+    consolidate: list = field(default_factory=list)  # every other overlapping asset: it has users or is certified
+    item_notes: dict = field(default_factory=dict)  # asset id -> why it is on its list
+    item_citations: dict = field(default_factory=dict)  # asset id -> evidence ids
     repair: list = field(default_factory=list)
     rationale: list = field(default_factory=list)
     evidence: list = field(default_factory=list)  # (table, id, note)
@@ -471,8 +476,71 @@ def _pick_model(est, intent):
     return max(ranked)[-1] if ranked else None
 
 
+def _metrics(est, asset_id):
+    return {est.kpis[k]["canonical_metric"] for k in est.asset_kpis.get(asset_id, [])}
+
+
+def _is_duplicate(est, intent, rec, asset_id):
+    """Duplicate means covering the same requested KPIs, from Asset_KPI_Map. Never judged from the asset name."""
+    if rec.target:
+        shared = set(intent.kpis) & _metrics(est, rec.target)
+        return bool(shared) and shared <= _metrics(est, asset_id)
+    if rec.action == "new_build":  # the planned build is the target
+        return bool(intent.kpis) and set(intent.kpis) <= _metrics(est, asset_id)
+    return est.backlog.get(asset_id, {}).get("recommended_path_candidate") == "RETIRE"  # no target: the backlog's own judgement
+
+
+def _split_overlap(est, intent, rec):
+    """Retire only low-usage, uncertified duplicates of the target. Everything else overlapping is consolidated later, so nothing is lost."""
+    candidates, rec.retire = [a for a in rec.retire if a != rec.target], []
+    for aid in candidates:
+        a, views = est.assets[aid], est.views(aid)
+        low, certified, duplicate = views < LOW_VIEWS, a["endorsement"] == "certified", _is_duplicate(est, intent, rec, aid)
+        if low and not certified and duplicate:
+            rec.retire.append(aid)
+            rec.item_notes[aid] = f"{views} views in 3 months (below {LOW_VIEWS}), {a['endorsement']} endorsement, duplicates the requested KPIs"
+            if rec.action == "new_build":
+                rec.item_notes[aid] += f", {RETIRE_AFTER_BUILD_NOTE}"
+        else:
+            rec.consolidate.append(aid)
+            why = [f"{views} views in 3 months"]
+            if certified:
+                why.append("certified")
+            if not duplicate:
+                why.append("not shown to duplicate the target")
+            rec.item_notes[aid] = ", ".join(why)
+        _cite_item(est, intent, rec, aid)
+    if (rec.retire or rec.consolidate) and _rule(est, "RULE-006") not in rec.evidence:
+        rec.evidence.append(_rule(est, "RULE-006"))
+    if rec.retire:
+        when = RETIRE_AFTER_BUILD_NOTE if rec.action == "new_build" else "can be retired"
+        rec.rationale.append(f"{len(rec.retire)} low-usage, uncertified duplicate(s): {when}")
+    if rec.consolidate:
+        rec.rationale.append(f"{len(rec.consolidate)} other overlapping asset(s) to consolidate later: {CONSOLIDATE_NOTE}")
+    if rec.action == "retire" and not rec.retire:
+        rec.action = "human_review"
+        rec.rationale.append("nothing meets the retire rule, so a person must decide")
+
+
+def _cite_item(est, intent, rec, aid):
+    """Every listed asset cites its own rows, including any hidden behind a "+N more" in the UI."""
+    a = est.assets[aid]
+    rows = [("Analytics_Assets", aid, f"{a['asset_name']}: {a['lifecycle_status']}, {a['endorsement']}, {a['platform']}"),
+            ("Asset_Usage", aid, f"{est.views(aid)} views, {est.users(aid)} users in the last 3 months")]
+    for kid in est.asset_kpis.get(aid, []):
+        if est.kpis[kid]["canonical_metric"] in intent.kpis:
+            rows.append(("Asset_KPI_Map", f"{aid}:{kid}", f"{aid} covers {est.kpis[kid]['canonical_metric']} through {est.kpis[kid]['kpi_name']}"))
+    b = est.backlog.get(aid)
+    if b:
+        rows.append(("Migration_Backlog", aid, f"{b['recommended_path_candidate']}, {b['complexity']} complexity, {b['status']}"))
+    seen = {(t, i) for t, i, _ in rec.evidence}
+    rec.evidence += [r for r in rows if (r[0], r[1]) not in seen]
+    rec.item_citations[aid] = [f"{r[0]}:{r[1]}" for r in rows]
+
+
 def recommend(est, intent):
     rec = _review_gate(est, intent) or _decide(est, intent)
+    _split_overlap(est, intent, rec)
     for kid in intent.variants:
         k = est.kpis[kid]
         rec.evidence.append(("KPI_Catalog", kid, f"{k['kpi_name']}: {k['definition_status']} variant of {k['canonical_metric']}, not used"))
@@ -524,8 +592,8 @@ def _decide(est, intent):
 
     scoped = scoped_assessments(est, intent)
     full = [x for x in scoped if not x["missing"]]
-    dead_overlap = [x["asset"]["asset_id"] for x in full if not x["alive"]]
-    rec = Recommendation("new_build", retire=dead_overlap, clarifications=list(intent.clarifications))
+    overlap = [x["asset"]["asset_id"] for x in full]  # split into retire and consolidate once the target is known
+    rec = Recommendation("new_build", retire=overlap, clarifications=list(intent.clarifications))
 
     ready = [x for x in full if x["ready"]]
     if ready:
@@ -569,8 +637,6 @@ def _decide(est, intent):
         "no alive, governed asset covers enough of the request",
         "build on a healthy shared semantic model, using canonical KPI definitions only",
     ]
-    if dead_overlap:
-        rec.rationale.append(f"{len(dead_overlap)} dead overlapping asset(s) should be retired, not repaired")
     rec.evidence = [_rule(est, "RULE-001"), _rule(est, "RULE-002"), _rule(est, "RULE-007")]
     if rec.build_on:
         m = est.models[rec.build_on]
@@ -603,7 +669,7 @@ def _migration(est, intent):
         rec.retire = [a["asset_id"] for a in legacy]
         rec.rationale = [
             f"a governed Power BI asset ({best['asset']['asset_name']}) already covers the commercial KPIs",
-            f"retire {len(legacy)} legacy Tableau workbook(s) after moving users, instead of recreating them 1:1",
+            "do not recreate the legacy Tableau workbooks 1:1",
         ]
         rec.evidence = _evidence_for(est, best) + [_rule(est, "RULE-006")]
         return rec
@@ -631,8 +697,6 @@ def _migration(est, intent):
             a["asset_id"] for a in legacy if a["asset_id"] != top["asset_id"] and (path(a) == "RETIRE" or est.views(a["asset_id"]) < LOW_VIEWS)
         ]
         rec.rationale = [f"backlog path for {top['asset_name']} is {path(top)}; migrate it onto {rec.build_on}"]
-        if rec.retire:
-            rec.rationale.append(f"{len(rec.retire)} other legacy workbook(s) are retire candidates and should not be migrated 1:1")
         return rec
 
     if any(path(a) == "HUMAN_REVIEW" for a in legacy):
