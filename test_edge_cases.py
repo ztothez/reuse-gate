@@ -15,7 +15,7 @@ from edge_cases import CASES, run_case
 from estate import Estate
 from llm import LLMError, NoLLM
 from pipeline import rec_json, run_request, stages
-from recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_overlap as split_overlap, parse_request, parse_request_llm,
+from recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_overlap as split_overlap, assess, parse_request, parse_request_llm,
                        recommend, scoped_assessments)
 
 DB = Path(__file__).parent / "estate.db"
@@ -294,8 +294,11 @@ class RetireRuleTest(unittest.TestCase):
         reported = {"AST-0233", "AST-0239", "AST-0019"}
         for result in self.runs:
             self.assertFalse({a["id"] for a in result["recommendation"]["retire"]} & reported, result["text"])
-        later = {a["id"] for r in self.runs for a in r["recommendation"]["consolidate_later"]}
-        self.assertLessEqual(reported, later, "they must still be listed, not dropped")
+        for asset in sorted(reported):  # had they overlapped, each would go to consolidate later: all have real usage
+            metric = self.est.kpis[self.est.asset_kpis[asset][0]]["canonical_metric"]
+            rec = Recommendation("new_build", retire=[asset])
+            split_overlap(self.est, Intent("", "", [self.est.all_scope], "Global", [metric]), rec)
+            self.assertEqual((rec.retire, rec.consolidate), ([], [asset]))
 
     def test_every_retired_asset_meets_all_three_conditions(self):
         checked = 0
@@ -417,6 +420,74 @@ class RetireRuleTest(unittest.TestCase):
         rec = Recommendation("retire", retire=[busy])
         split_overlap(est, Intent("", "", [est.all_scope], "Global", []), rec)
         self.assertEqual((rec.action, rec.retire), ("human_review", []))
+
+
+@unittest.skipUnless(DB.exists(), "run load_estate.py first")
+class PrimaryCoverageTest(unittest.TestCase):
+    """A target must cover a requested KPI as primary. A secondary mapping is incidental: visible and cited, never counted."""
+
+    REQUEST = "I need a dashboard for Nubeqa net sales by region in EMEA"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.est = est = Estate(str(DB))
+        cls.runs = [run_request(est, r, NoLLM(), as_of=r["request_date"]) for r in est.requests]
+        topics = ["Nubeqa net sales", "Xarelto net sales", "net sales and budget variance", "inventory coverage", "market access coverage", "forecast variance"]
+        cls.runs += [run_case(est, f"{t} report{m} please.") for t in topics for m in ("", " for Germany", " for EMEA", " for the US")]
+
+    def primary(self, asset, metric):
+        return [k for k in self.est.asset_kpis[asset] if self.est.kpis[k]["canonical_metric"] == metric and self.est.kpi_roles[(asset, k)] == "primary"]
+
+    def test_the_reported_request_no_longer_picks_the_secondary_match(self):
+        rec = run_case(self.est, self.REQUEST)["recommendation"]
+        self.assertNotEqual(rec["target"]["id"], "AST-0069")
+        self.assertTrue(self.primary(rec["target"]["id"], "Net Sales"))
+        self.assertEqual({c["usage_role"] for c in rec["target"]["coverage"]["covered"]}, {"primary"})
+
+    def test_secondary_mapping_is_not_coverage(self):
+        intent = Intent("", "", [self.est.all_scope], "EMEA", ["Net Sales"])
+        for asset in ("AST-0069", "AST-0008"):
+            with self.subTest(asset):
+                x = assess(self.est, intent, self.est.assets[asset])
+                self.assertEqual((x["covered"], x["missing"], x["secondary_only"]), ([], ["Net Sales"], ["Net Sales"]))
+                self.assertFalse(x["repairable"])
+
+    def test_reuse_and_repair_targets_cover_every_requested_kpi_as_primary(self):
+        checked = 0
+        for result in self.runs:
+            rec = result["recommendation"]
+            if rec["action"] in ("reuse", "repair_and_reuse", "retire_and_reuse"):
+                checked += 1
+                for metric in result["intent"]["kpis"]:
+                    self.assertTrue(self.primary(rec["target"]["id"], metric), (result["text"], metric))
+        self.assertGreater(checked, 0)
+
+    def test_extend_targets_cover_at_least_half_as_primary(self):
+        checked = 0
+        for result in self.runs:
+            rec = result["recommendation"]
+            if rec["action"] == "extend":
+                checked += 1
+                hits = [m for m in result["intent"]["kpis"] if self.primary(rec["target"]["id"], m)]
+                self.assertGreaterEqual(len(hits) / len(result["intent"]["kpis"]), 0.5, result["text"])
+        self.assertGreater(checked, 0)
+
+    def test_secondary_rows_are_shown_cited_and_not_counted(self):
+        checked = 0
+        for result in self.runs:
+            rec = result["recommendation"]
+            if not rec["target"]:
+                continue
+            cov = rec["target"]["coverage"]
+            cited = {e["id"] for e in rec["evidence"] if e["table"] == "Asset_KPI_Map"}
+            for c in cov["covered"] + cov["secondary_only"]:
+                self.assertTrue(self.est.exists("Asset_KPI_Map", c["map_id"]), c)
+                self.assertIn(c["map_id"], cited)
+            for c in cov["secondary_only"]:
+                checked += 1
+                self.assertEqual(c["usage_role"], "secondary")
+                self.assertIn(c["kpi"], cov["missing"])
+        self.assertGreater(checked, 0)
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")

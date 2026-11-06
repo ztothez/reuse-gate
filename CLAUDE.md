@@ -48,7 +48,7 @@ Bayer's evaluation weights: 30% problem fit and business value, 25% governance a
 pip install openpyxl
 python3 -I load_estate.py <data-pack>.xlsx estate.db
 python3 test_recommend.py
-python3 run_batch.py estate.db          # expect: 79/150 new builds avoided, 1434 citations, 0 invalid
+python3 run_batch.py estate.db          # expect: 57/150 new builds avoided, 1098 citations, 0 invalid
 python3 -I warmup.py
 python3 -I server.py estate.db 8000
 python3 -I export_mock.py estate.db mock_api.json
@@ -56,8 +56,8 @@ python3 -I export_mock.py estate.db mock_api.json
 Front end (Lovable project folder): `npm install --no-package-lock` (the repo keeps Lovable's `bun.lock`), `.env.local` with `VITE_API_URL=http://localhost:8000`, `npm run dev`. Needs Node 20.19+ or 22.12+.
 
 ## Current results (baseline, rule-based parser)
-150 requests: new_build 71, extend 52, human_review 17, repair_and_reuse 5, migrate 5.
-79/150 (53%) avoid a new build; 5 assets proposed for retirement and 7 to consolidate later. No ground truth exists in the pack, so the
+150 requests: new_build 93, extend 31, human_review 17, repair_and_reuse 4, migrate 5.
+57/150 (38%) avoid a new build; 2 assets proposed for retirement and 2 to consolidate later. A target must cover a requested KPI as primary. No ground truth exists in the pack, so the
 honest metrics are rule compliance and citation validity. Reuse-as-is is 0 because the estate is deliberately messy.
 "alive" = lifecycle active AND at least 100 views in the last 3 months (lifecycle status does not correlate with usage in the data).
 The 150 requests are only 10 distinct texts: cache LLM outputs by request text.

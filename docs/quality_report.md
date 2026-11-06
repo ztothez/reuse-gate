@@ -7,10 +7,10 @@ and that a failure is named and explained. They do not measure whether a spec ma
 wanted. The rule-based parser ran here, with no LLM, so a rerun gives the same numbers.
 
 - Business requests run: 150
-- Specs generated (new_build and extend with a semantic model): 123
-- Specs passing every gate: 11/123 (9%)
-- Specs blocked by at least one gate: 112
-- Specs blocked only because no owner could be proposed (the approver names one): 60
+- Specs generated (new_build and extend with a semantic model): 124
+- Specs passing every gate: 13/124 (10%)
+- Specs blocked by at least one gate: 111
+- Specs blocked only because no owner could be proposed (the approver names one): 80
 - Crashes: 0 (any exception other than the expected no-spec outcome would stop this run)
 
 A blocked spec is the system working as designed: the estate is deliberately messy, and the gate names what must
@@ -21,37 +21,57 @@ be fixed before release.
 | Gate | Specs failing |
 | --- | --- |
 | canonical_kpis | 0 |
-| certified_healthy_model | 52 |
-| owner_and_review_date | 60 |
+| certified_healthy_model | 31 |
+| owner_and_review_date | 80 |
 | measures_in_catalog | 0 |
 | no_alive_duplicate | 0 |
 | valid_extend_target | 0 |
-| evidence_cited | 60 |
+| evidence_cited | 80 |
 
 ## Most common failure reasons
 
-- `certified_healthy_model` (20): SM-034: endorsement is promoted, refresh status is failed
-- `certified_healthy_model` (6): SM-017: endorsement is none
+- `certified_healthy_model` (8): SM-017: endorsement is none
+- `certified_healthy_model` (4): SM-002: endorsement is none
 - `certified_healthy_model` (4): SM-050: endorsement is none
-- `certified_healthy_model` (4): SM-033: refresh status is warning
-- `certified_healthy_model` (3): SM-028: endorsement is none, refresh status is failed
-- `owner_and_review_date` (60): no active owner could be proposed
-- `evidence_cited` (60): no citation for ['owner']
+- `certified_healthy_model` (4): SM-049: endorsement is promoted
+- `certified_healthy_model` (3): SM-036: endorsement is promoted
+- `owner_and_review_date` (80): no active owner could be proposed
+- `evidence_cited` (80): no citation for ['owner']
 
 ## Fix these semantic models first
 
 Specs blocked per model. One repair unblocks all of them.
 
-- SM-065 (All Pharma): 60 specs blocked. Endorsement certified, refresh healthy, owner OWN-037 is inactive.
-- SM-034 (Nubeqa): 20 specs blocked. Endorsement promoted, refresh failed, owner OWN-029 is inactive.
-- SM-017 (Hyrnuo): 6 specs blocked. Endorsement none, refresh healthy, owner OWN-027 is inactive.
+- SM-065 (All Pharma): 80 specs blocked. Endorsement certified, refresh healthy, owner OWN-037 is inactive.
+- SM-017 (Hyrnuo): 8 specs blocked. Endorsement none, refresh healthy, owner OWN-027 is inactive.
+- SM-002 (All Pharma): 4 specs blocked. Endorsement none, refresh healthy, owner OWN-040 is inactive.
 - SM-050 (All Pharma): 4 specs blocked. Endorsement none, refresh healthy, owner OWN-045 is active.
-- SM-033 (Beyonttra): 4 specs blocked. Endorsement certified, refresh warning, owner OWN-021 is active.
+- SM-049 (Kerendia): 4 specs blocked. Endorsement promoted, refresh healthy, owner OWN-023 is active.
 
 ## Requests with no spec
 
 These decisions do not create a new artifact, or lack a model to build on.
 
 - 17: human_review: DashboardSpec is available only for new_build and extend
-- 5: repair_and_reuse: DashboardSpec is available only for new_build and extend
 - 5: migrate: DashboardSpec is available only for new_build and extend
+- 4: repair_and_reuse: DashboardSpec is available only for new_build and extend
+
+## For information: canonical definitions only
+
+The rule in use lets a primary row on a conflicting or local definition qualify, because repairing the definition is
+cheaper than a new build, and the result lists that repair. This table measures a stricter version where only a primary
+row on the canonical definition counts. It is information only: **the rule has not changed.**
+
+| Measure | Rule in use | Canonical only |
+| --- | --- | --- |
+| New builds avoided | 57/150 | 33/150 |
+| new_build | 93 | 117 |
+| extend | 31 | 11 |
+| repair_and_reuse | 4 | 0 |
+| reuse | 0 | 0 |
+| migrate | 5 | 5 |
+| human_review | 17 | 17 |
+| Citations | 1098 | 928 |
+| Assets to retire | 2 | 0 |
+| Assets to consolidate later | 2 | 1 |
+| Specs passing every gate | 13/124 | 25/128 |

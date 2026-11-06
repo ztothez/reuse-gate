@@ -7,7 +7,7 @@ from estate import Estate
 from pipeline import rec_json
 from recommend import parse_request, recommend
 from spec import build_spec
-from spec_gate import batch, check
+from spec_gate import batch, canonical_only, check, report
 
 DB = Path(__file__).parent / "estate.db"
 
@@ -113,6 +113,15 @@ class SpecGateTest(unittest.TestCase):
     def test_citation_of_a_row_that_does_not_exist(self):
         evidence = {**self.good["evidence"], "kpis": [{"table": "KPI_Catalog", "id": "KPI-999", "note": "fake"}]}
         self.assertEqual(self.failed(self.broken(evidence=evidence)), {"evidence_cited"})
+
+    def test_canonical_only_comparison_does_not_change_the_rule(self):
+        before = (dict(self.est.kpi_roles), batch(self.est))
+        strict = canonical_only(self.est)
+        batch(strict)
+        self.assertEqual((self.est.kpi_roles, batch(self.est)), before)
+        self.assertTrue(any(role == "primary" and self.est.kpis[key[1]]["definition_status"] != "canonical" for key, role in self.est.kpi_roles.items()))
+        self.assertFalse(any(role == "primary" and self.est.kpis[key[1]]["definition_status"] != "canonical" for key, role in strict.kpi_roles.items()))
+        self.assertIn("the rule has not changed", report(self.est, batch(self.est)))
 
     def test_batch_covers_all_requests_and_reruns_identically(self):
         first, second = batch(self.est), batch(self.est)

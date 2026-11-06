@@ -10,8 +10,8 @@ The LLM never decides: it fills allow-listed fields, then the deterministic rule
 
 | Backend | Status | Valid | Products | KPIs | Kind | All 3 | Asks | All 4 | Usable | Action agrees | Off-list values | Median s | Max s | Failures |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| featherless/GLM-5.2 | completed | 9/10 | 9 | 5 | 9 | 5 | 6 | 5 | 7 | 6/7 | 0 | 24.94 | 74.17 | {'invalid_output': 1} |
-| aitta/Llama-3.3-70B | completed | 10/10 | 10 | 6 | 10 | 6 | 6 | 6 | 6 | 3/6 | 6 | 2.39 | 2.58 | none |
+| featherless/GLM-5.2 | completed | 9/10 | 9 | 5 | 9 | 5 | 6 | 5 | 7 | 5/7 | 0 | 24.94 | 74.17 | {'invalid_output': 1} |
+| aitta/Llama-3.3-70B | completed | 10/10 | 10 | 6 | 10 | 6 | 6 | 6 | 6 | 4/6 | 6 | 2.39 | 2.58 | none |
 | aitta/gpt-oss-120b | completed | 10/10 | 10 | 6 | 10 | 6 | 7 | 6 | 6 | 6/6 | 0 | 7.28 | 12.07 | none |
 | aitta/gemma-4-31b | completed | 9/10 | 9 | 7 | 9 | 7 | 7 | 7 | 7 | 7/7 | 0 | 35.1 | 45.76 | {'request_failed': 1} |
 

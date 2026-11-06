@@ -123,15 +123,17 @@ def resolve_market(est, req, text, model_market=None):
 
 def target_coverage(est, intent, asset_id):
     """Which requested KPIs the target covers, from Asset_KPI_Map only. Never from the asset name."""
-    covered = []
+    rows = []
     for kid in est.asset_kpis.get(asset_id, []):
         k = est.kpis[kid]
         if k["canonical_metric"] in intent.kpis:
-            covered.append({"kpi": k["canonical_metric"], "map_id": f"{asset_id}:{kid}", "kpi_id": kid, "kpi_name": k["kpi_name"],
-                            "definition_status": k["definition_status"], "usage_role": est.kpi_roles[(asset_id, kid)]})
-    covered.sort(key=lambda c: (intent.kpis.index(c["kpi"]), c["kpi_id"]))
+            rows.append({"kpi": k["canonical_metric"], "map_id": f"{asset_id}:{kid}", "kpi_id": kid, "kpi_name": k["kpi_name"],
+                         "definition_status": k["definition_status"], "usage_role": est.kpi_roles[(asset_id, kid)]})
+    rows.sort(key=lambda c: (intent.kpis.index(c["kpi"]), c["kpi_id"]))
+    covered = [c for c in rows if c["usage_role"] == "primary"]
     names = {c["kpi"] for c in covered}
-    return {"requested": list(intent.kpis), "covered": covered, "missing": [k for k in intent.kpis if k not in names], "note": NAME_NOTE}
+    return {"requested": list(intent.kpis), "covered": covered, "secondary_only": [c for c in rows if c["kpi"] not in names],
+            "missing": [k for k in intent.kpis if k not in names], "note": NAME_NOTE}
 
 
 def _guard_notes(est, text):
@@ -377,9 +379,13 @@ def market_ok(est, ctx, asset_market):
 
 def assess(est, intent, a):
     aid = a["asset_id"]
-    have = {}
+    have, secondary = {}, set()
     for kid in est.asset_kpis.get(aid, []):
-        have.setdefault(est.kpis[kid]["canonical_metric"], []).append(kid)
+        metric = est.kpis[kid]["canonical_metric"]
+        if est.kpi_roles[(aid, kid)] == "primary":  # a secondary mapping is incidental, so it is not coverage
+            have.setdefault(metric, []).append(kid)
+        else:
+            secondary.add(metric)
     covered = [k for k in intent.kpis if k in have]
     missing = [k for k in intent.kpis if k not in have]
     variants = [k for k in covered if est.canonical.get(k) not in have[k]]
@@ -416,6 +422,7 @@ def assess(est, intent, a):
         "asset": a,
         "covered": covered,
         "missing": missing,
+        "secondary_only": [k for k in missing if k in secondary],
         "fatal": fatal,
         "fixable": fixable,
         "alive": not fatal,
@@ -548,10 +555,10 @@ def recommend(est, intent):
         rec.rationale.append(f"{k['kpi_name']} conflicts with the approved {k['canonical_metric']}, so the canonical definition is used")
     if rec.target:
         cov = target_coverage(est, intent, rec.target)
-        listed = "; ".join(f"{c['kpi']} (Asset_KPI_Map {c['map_id']}, {c['definition_status']})" for c in cov["covered"]) or "none"
-        rec.rationale.append(f"{COVERAGE_PREFIX} {listed}" + (f"; not covered: {', '.join(cov['missing'])}" if cov["missing"] else ""))
+        listed = "; ".join(f"{c['kpi']} (Asset_KPI_Map {c['map_id']}, primary, {c['definition_status']})" for c in cov["covered"]) or "none"
+        rec.rationale.append(f"{COVERAGE_PREFIX} {listed}" + (f"; not covered as primary: {', '.join(cov['missing'])}" if cov["missing"] else ""))
         rec.rationale.append(NAME_NOTE)
-        rec.evidence += [("Asset_KPI_Map", c["map_id"], f"{c['kpi_name']} ({c['definition_status']}), role {c['usage_role']}") for c in cov["covered"]]
+        rec.evidence += [("Asset_KPI_Map", c["map_id"], f"{c['kpi_name']} ({c['definition_status']}), role {c['usage_role']}") for c in cov["covered"] + cov["secondary_only"]]
     return rec
 
 
@@ -613,7 +620,7 @@ def _decide(est, intent):
         rec.action, rec.target = "repair_and_reuse", best["asset"]["asset_id"]
         rec.repair = best["fixable"]
         rec.rationale = [
-            f"{best['asset']['asset_name']} is alive and covers {intent.kpis}, but has governance gaps",
+            f"{best['asset']['asset_name']} is alive and covers {intent.kpis} as primary KPIs, but has governance gaps",
             "closing the gaps is cheaper than a new build and avoids another overlapping asset",
         ]
         rec.evidence = _evidence_for(est, best) + [_rule(est, "RULE-001"), _rule(est, "RULE-005")]
@@ -625,9 +632,9 @@ def _decide(est, intent):
         if len(best["covered"]) / len(intent.kpis) >= 0.5:
             rec.action, rec.target = "extend", best["asset"]["asset_id"]
             rec.build_on = est.asset_model(rec.target)
-            rec.repair = [f"add canonical KPI(s): {best['missing']}"] + best["fixable"]
+            rec.repair = [f"add or promote to primary, with canonical definitions: {best['missing']}"] + best["fixable"]
             rec.rationale = [
-                f"{best['asset']['asset_name']} is alive and covers {best['covered']}; only {best['missing']} is missing",
+                f"{best['asset']['asset_name']} is alive and covers {best['covered']} as primary KPIs; {best['missing']} is not covered as primary",
                 "extend it on its existing semantic model instead of creating a new asset",
             ]
             rec.evidence = _evidence_for(est, best) + [_rule(est, "RULE-001"), _rule(est, "RULE-002")]

@@ -110,7 +110,7 @@ export function ResultView({ result, onAnswers, rechecking }: { result: Recommen
           </dl>
           {rec.target.coverage && (
             <div className="mt-4 border-t pt-4 text-sm">
-              <p className="font-medium">Requested KPIs this report covers</p>
+              <p className="font-medium">Requested KPIs this report covers as primary</p>
               {rec.target.coverage.covered.length > 0 && (
                 <div className="mt-2 overflow-x-auto">
                   <table className="w-full">
@@ -128,8 +128,11 @@ export function ResultView({ result, onAnswers, rechecking }: { result: Recommen
                   </table>
                 </div>
               )}
+              {(rec.target.coverage.secondary_only?.length ?? 0) > 0 && (
+                <p className="mt-2 flex flex-wrap items-center gap-1"><span className="text-muted-foreground">Secondary only, not counted:</span> {rec.target.coverage.secondary_only!.map((c) => <Chip key={c.map_id} mono>{c.map_id}</Chip>)}</p>
+              )}
               {rec.target.coverage.missing.length > 0 && (
-                <p className="mt-2 flex flex-wrap items-center gap-1"><span className="text-muted-foreground">Not covered:</span> {rec.target.coverage.missing.map((k) => <Chip key={k}>{k}</Chip>)}</p>
+                <p className="mt-2 flex flex-wrap items-center gap-1"><span className="text-muted-foreground">Not covered as primary:</span> {rec.target.coverage.missing.map((k) => <Chip key={k}>{k}</Chip>)}</p>
               )}
               <p className="mt-2 text-xs text-muted-foreground">{rec.target.coverage.note[0]?.toUpperCase()}{rec.target.coverage.note.slice(1)}.</p>
             </div>

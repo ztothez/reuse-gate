@@ -19,10 +19,12 @@ class RecommendTest(unittest.TestCase):
             cls.runs.append((intent, recommend(cls.est, intent)))
 
     def test_documented_baseline(self):  # README and CLAUDE.md state these numbers
-        self.assertEqual(sum(len(rec.evidence) for _, rec in self.runs), 1434)
-        self.assertEqual(len({a for _, rec in self.runs for a in rec.retire}), 5)
-        self.assertEqual(len({a for _, rec in self.runs for a in rec.consolidate}), 7)
-        self.assertEqual(sum(rec.action != "new_build" for _, rec in self.runs), 79)
+        self.assertEqual(sum(len(rec.evidence) for _, rec in self.runs), 1098)
+        self.assertEqual(len({a for _, rec in self.runs for a in rec.retire}), 2)
+        self.assertEqual(len({a for _, rec in self.runs for a in rec.consolidate}), 2)
+        self.assertEqual(sum(rec.action != "new_build" for _, rec in self.runs), 57)
+        actions = [rec.action for _, rec in self.runs]
+        self.assertEqual((actions.count("new_build"), actions.count("extend"), actions.count("repair_and_reuse")), (93, 31, 4))
 
     def test_every_request_parses_to_products_and_kpis(self):
         for intent, _ in self.runs:

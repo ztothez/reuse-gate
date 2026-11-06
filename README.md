@@ -33,7 +33,8 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
 - An ad hoc request has its market read from the text: market names, regions and aliases such as US, UK, Europe or APAC (`catalog.json`).
   Naming no market means Global, and the requester is asked to confirm. Several markets become their shared region, or Global if
   they span regions, again with a question. The 150 batch requests keep the market in their own metadata.
-- Coverage comes only from `Asset_KPI_Map`, and the target card lists each covered KPI with its map id (`AST-0069:KPI-002`).
+- Coverage comes only from `Asset_KPI_Map`, and a target must cover a requested KPI as a primary one. The target card lists each covered
+  KPI with its map id (`AST-0209:KPI-002`).
   Asset names are not used for matching because they do not reflect coverage. The one exception is a request to reuse a report
   by name, which looks up that report and still judges it on usage and lifecycle.
 - The 150 business requests contain only 10 distinct texts, so LLM results are evaluated on those 10.
@@ -43,8 +44,8 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
 ```bash
 pip install openpyxl                                  # only needed to rebuild estate.db
 python3 -I load_estate.py <data-pack>.xlsx estate.db  # optional, estate.db is committed
-python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases test_speech
-python3 run_batch.py estate.db                        # expect 79/150 new builds avoided, 1434 citations, 0 invalid
+python3 -m unittest discover -p 'test_*.py'
+python3 run_batch.py estate.db                        # expect 57/150 new builds avoided, 1098 citations, 0 invalid
 python3 -I spec_gate.py estate.db                     # writes docs/quality_report.md
 python3 -I edge_cases.py estate.db docs/edge_cases.md
 python3 -I warmup.py                                  # wakes the live models before a demo
@@ -78,9 +79,9 @@ data pack has no ground truth to measure that against.
 
 Current result on the 150 business requests, from `docs/quality_report.md`:
 
-- 123 specs generated. The other 27 decisions create no new artifact (human_review, repair_and_reuse, migrate).
-- 11/123 (9%) pass every gate, and the rest are blocked with a named reason. No crashes.
-- 60 are blocked only because no active owner could be proposed, and all of them build on SM-065, the one certified, healthy, portfolio-wide model. Its owner is inactive, so assigning one owner clears them.
+- 124 specs generated. The other 26 decisions create no new artifact (human_review, repair_and_reuse, migrate).
+- 13/124 (10%) pass every gate, and the rest are blocked with a named reason. No crashes.
+- 80 are blocked only because no active owner could be proposed, and all of them build on SM-065, the one certified, healthy, portfolio-wide model. Its owner is inactive, so assigning one owner clears them.
 
 The low pass rate reflects the deliberately messy estate. It is what the gates are for: the report lists which semantic models to fix first.
 
@@ -89,7 +90,7 @@ confirms that a rerun of the batch gives identical results. Full results: [docs/
 
 ### Retire or consolidate later
 
-Overlapping assets are those in the request's scope that cover every requested KPI, other than the target. Each one goes on exactly one
+Overlapping assets are those in the request's scope that cover every requested KPI as primary, other than the target. Each one goes on exactly one
 list, so nothing is dropped, and each cites its own `Analytics_Assets`, `Asset_Usage` and `Asset_KPI_Map` rows.
 
 | List | Rule | Note |
@@ -111,23 +112,23 @@ human_review or a cited decision, and never in a crash or an invented product, K
 | Case | Request | Outcome | Explanation |
 | --- | --- | --- | --- |
 | Ambiguous request | Can you make me a useful dashboard for the team? | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
-| No product named | We need net sales and budget variance by country. | repair_and_reuse, 28 citations, asks the requester | All Pharma Supply is alive and covers ['Net Sales', 'Budget Variance'], but has governance gaps |
+| No product named | We need net sales and budget variance by country. | extend, 19 citations, asks the requester | All Pharma Demand - US is alive and covers ['Budget Variance'] as primary KPIs; ['Net Sales'] is not covered as primary |
 | No KPI named | Please build a new Kerendia report for our leadership meeting. | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
 | Unknown product | Create a net sales dashboard for Zyntrex in Germany. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Zyntrex, so nothing can be matched |
 | Another division, no catalog loaded | Build a net sales dashboard for Claritin in Consumer Health. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Claritin, Consumer, Health, so nothing can be matched |
-| Conflicting KPI definitions | Build a Xarelto report showing Net Sales Local and Net Sales v2. | repair_and_reuse, 83 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Conflicting KPI definitions | Build a Xarelto report showing Net Sales Local and Net Sales v2. | repair_and_reuse, 33 citations, asks the requester | Xarelto Budget New is alive and covers ['Net Sales'] as primary KPIs, but has governance gaps |
 | Retired asset by id | Please reuse AST-0002 for our launch review. | human_review, 8 citations, asks the requester | Hyrnuo Launch Monthly (AST-0002) is not a reuse target: lifecycle status is candidate_retire; legacy Tableau content, not a reuse target |
 | Retired asset by name | Please bring back the Kerendia Inventory Copy report. | human_review, 10 citations, asks the requester | Kerendia Inventory Copy (AST-0005) is not a reuse target: lifecycle status is legacy; legacy Tableau content, not a reuse target |
 | Asset that does not exist | Please reuse report AST-9999 for net sales of Nubeqa. | human_review, asks the requester | AST-9999 does not exist in the asset catalog |
-| Market named: country | Create a Nubeqa net sales dashboard for Germany. | new_build, 20 citations | no alive, governed asset covers enough of the request |
-| Market named: region | Create a Nubeqa net sales dashboard for EMEA. | repair_and_reuse, 45 citations | All Pharma Supply is alive and covers ['Net Sales'], but has governance gaps |
-| Market named: alias | Create a Nubeqa net sales dashboard for the US. | new_build, 19 citations | no alive, governed asset covers enough of the request |
-| No market named | Create a Nubeqa net sales dashboard. | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
-| Several markets named | Nubeqa net sales for Japan and Brazil, please. | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Market named: country | Create a Nubeqa net sales dashboard for Germany. | new_build, 12 citations | no alive, governed asset covers enough of the request |
+| Market named: region | Create a Nubeqa net sales dashboard for EMEA. | repair_and_reuse, 24 citations | Nubeqa Inventory Monthly is alive and covers ['Net Sales'] as primary KPIs, but has governance gaps |
+| Market named: alias | Create a Nubeqa net sales dashboard for the US. | new_build, 16 citations | no alive, governed asset covers enough of the request |
+| No market named | Create a Nubeqa net sales dashboard. | repair_and_reuse, 41 citations, asks the requester | Nubeqa Inventory Monthly is alive and covers ['Net Sales'] as primary KPIs, but has governance gaps |
+| Several markets named | Nubeqa net sales for Japan and Brazil, please. | repair_and_reuse, 41 citations, asks the requester | Nubeqa Inventory Monthly is alive and covers ['Net Sales'] as primary KPIs, but has governance gaps |
 | Empty text | (empty) | human_review, asks the requester | the request is empty or too short to act on |
 | Very short text | help | human_review, asks the requester | the request is empty or too short to act on |
 | Punctuation only | ?!?!?!?!?!?! | human_review, asks the requester | the request is empty or too short to act on |
-| Very long text | Net sales for Nubeqa. Lorem ipsum dolor sit amet. Lorem ipsum dolor... | repair_and_reuse, 97 citations, asks the requester | All Pharma Market Access Monthly is alive and covers ['Net Sales'], but has governance gaps |
+| Very long text | Net sales for Nubeqa. Lorem ipsum dolor sit amet. Lorem ipsum dolor... | repair_and_reuse, 41 citations, asks the requester | Nubeqa Inventory Monthly is alive and covers ['Net Sales'] as primary KPIs, but has governance gaps |
 | Non-English, Finnish | Tarvitsen raportin tuotteen myynnista maittain. | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
 | Non-English, German | Ich brauche einen Bericht zum Umsatz nach Land. | human_review, asks the requester | not in the loaded Pharmaceuticals catalog: Bericht, Umsatz, Land, so nothing can be matched |
 | Non-English, Japanese | 製品別の売上ダッシュボードが必要です。 | human_review, 1 citations, asks the requester | no KPI could be identified, so no existing report can be matched yet |
@@ -193,15 +194,15 @@ each time, and approved decisions record them in the log.
 
 | Backend | Status | Valid | Products | KPIs | Kind | All 3 | Asks | All 4 | Usable | Action agrees | Off-list values | Median s | Max s | Failures |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| featherless/GLM-5.2 | completed | 9/10 | 9 | 5 | 9 | 5 | 6 | 5 | 7 | 6/7 | 0 | 24.94 | 74.17 | {'invalid_output': 1} |
-| aitta/Llama-3.3-70B | completed | 10/10 | 10 | 6 | 10 | 6 | 6 | 6 | 6 | 3/6 | 6 | 2.39 | 2.58 | none |
+| featherless/GLM-5.2 | completed | 9/10 | 9 | 5 | 9 | 5 | 6 | 5 | 7 | 5/7 | 0 | 24.94 | 74.17 | {'invalid_output': 1} |
+| aitta/Llama-3.3-70B | completed | 10/10 | 10 | 6 | 10 | 6 | 6 | 6 | 6 | 4/6 | 6 | 2.39 | 2.58 | none |
 | aitta/gpt-oss-120b | completed | 10/10 | 10 | 6 | 10 | 6 | 7 | 6 | 6 | 6/6 | 0 | 7.28 | 12.07 | none |
 | aitta/gemma-4-31b | completed | 9/10 | 9 | 7 | 9 | 7 | 7 | 7 | 7 | 7/7 | 0 | 35.1 | 45.76 | {'request_failed': 1} |
 
 Measured live on the 10 distinct request texts, with the final prompts. **Agreement is not accuracy:** there is no ground truth, and a disagreement can mean the model is right.
 
 - `openai/gpt-oss-120b` had the cleanest record: every response valid, and every usable intent led to the same action as the rules. It is the primary live backend.
-- `zai-org/GLM-5.2` and `google/gemma-4-31b-it` each failed to give a valid response on one request. GLM-5.2 is the live fallback, because its action agreement is close and Featherless is a separate provider.
+- `zai-org/GLM-5.2` and `google/gemma-4-31b-it` each failed to give a valid response on one request. GLM-5.2 is the live fallback because Featherless is a separate provider, not because it agrees most: `google/gemma-4-31b-it` agreed on more actions but was slower.
 - `meta-llama/Llama-3.3-70B-Instruct` was the fastest but differed most on actions. It tended to widen a named product to the whole portfolio, so a deterministic guard now makes a product named in the text beat the model.
 - The first version of the prompts made models ask a question on nearly every request and failed to produce explanations from Llama. The live evaluation found both.
 
@@ -307,6 +308,18 @@ curl -X POST http://localhost:5678/webhook/reuse-gate-approval -H "X-Webhook-Key
 
 The digest ends in a **Format digest** node with `subject` and `message`. Connect it to your email or Teams node.
 
+## Known limitations
+
+- **Secondary KPI rows are shown but not counted:** a target must cover a requested KPI as primary. Secondary rows appear on the target
+  card and are cited, but they do not make a report a match. A primary row on a conflicting definition still qualifies, and the result
+  lists the repair. [docs/quality_report.md](docs/quality_report.md) measures the stricter canonical-only version for information.
+- **Duplicates are KPI-based only:** an asset counts as a duplicate if it covers the same requested KPIs, so a report with the same KPIs for
+  a different audience or product counts as a duplicate. A person should check this before approving a retirement.
+- **Migration targets come from the backlog:** a migration target is the legacy workbook the migration backlog selects, not a KPI match, so
+  the primary rule does not apply to it.
+- **The primary and secondary split is nearly even:** the data pack has 742 primary and 712 secondary rows, so "primary" is a stricter
+  filter, but it does not prove a report fits the request.
+
 ## Honest limitations
 
 - **No ground truth:** the pack has no labelled answers, so the metrics are rule compliance, citation validity, gate results
@@ -320,8 +333,6 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   assets from markets nobody asked for. The requester is told. The Intent stage shows the choice so a person can catch it, but nothing forces them to.
 - **Prompt injection detection is a regex** and can be evaded. What protects the decision is that the model cannot set it. LLM
   explanations are not checked for accuracy and are labelled as AI-generated.
-- **Duplicates are judged on KPIs only:** an asset counts as a duplicate if it covers the same requested KPIs, so a report with the same
-  KPIs for a different audience or product counts as a duplicate. A person should check this before approving a retirement.
 - **Region is not checked:** model selection matches product scope, not `region_scope`.
 - **Fallback is slower:** GLM-5.2 took a median of about 25 seconds per call in the evaluation, and a request makes two calls.
 - **Gates can run after approval:** `/approve` records a decision without checking gates, so a gate failure blocks release of the

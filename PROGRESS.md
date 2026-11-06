@@ -5,11 +5,10 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| Python tests (`test_recommend`, `test_llm`, `test_spec`, `test_n8n`, `test_spec_gate`, `test_edge_cases`, `test_speech`) | 130 pass |
-| `test_smoke.py` | passes |
-| Frontend tests (`npm test`), TypeScript | 24 pass, no type errors |
-| Baseline (`run_batch.py`) | 79/150 avoid a new build, 1434 citations, 0 invalid, 5 assets to retire, 7 to consolidate later. A test enforces these numbers |
-| Spec gates over 150 requests | 123 specs, 11 pass every gate, 112 blocked with a named reason, 0 crashes |
+| All Python tests (`python3 -m unittest discover -p 'test_*.py'`) | 138 pass |
+| Frontend tests (`npm test`), TypeScript | 25 pass, no type errors |
+| Baseline (`run_batch.py`) | 57/150 avoid a new build, 1098 citations, 0 invalid. New builds 93, extend 31, repair 4, retire 2, consolidate later 2. A test enforces these numbers |
+| Spec gates over 150 requests | 124 specs, 13 pass every gate, 111 blocked with a named reason, 0 crashes |
 | Edge cases | 24 cases, all end in a safe, explained outcome |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
 
@@ -31,6 +30,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
 - **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. Checked against the spec as far as it was received: key only from `ELEVENLABS_API_KEY`, POST with `audio/mpeg`, disk cache by sha256 of the text. The received spec ended mid-sentence.
 - **Radar ping:** `POST /radar-ping` returns the digest with no key for a Knative PingSource. Read-only, and it ignores the body.
+- **Primary KPI rule:** a target must cover a requested KPI as primary. Secondary rows are shown and cited but not counted. The canonical-only version (33/150) is measured in `docs/quality_report.md` for information, and the rule does not use it.
 - **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
@@ -50,7 +50,7 @@ See "Honest limitations" in `README.md`.
 
 ## How to run
 ```bash
-python3 -m unittest test_recommend test_llm test_spec test_n8n test_spec_gate test_edge_cases test_speech
+python3 -m unittest discover -p 'test_*.py'
 python3 run_batch.py estate.db
 python3 -I spec_gate.py estate.db
 python3 -I edge_cases.py estate.db docs/edge_cases.md

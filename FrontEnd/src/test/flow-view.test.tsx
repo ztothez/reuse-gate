@@ -44,6 +44,17 @@ describe("target card", () => {
   });
 });
 
+describe("secondary KPI mappings", () => {
+  it("shows them on the target card as not counted", () => {
+    const result = exampleRequests.map(mockRecommend).find((r) => r.recommendation.target?.coverage)!;
+    const row = { kpi: "Net Sales", map_id: "AST-1:KPI-2", kpi_id: "KPI-2", kpi_name: "Net Sales", definition_status: "canonical", usage_role: "secondary" };
+    const target = { ...result.recommendation.target!, coverage: { ...result.recommendation.target!.coverage!, covered: [], secondary_only: [row], missing: ["Net Sales"] } };
+    render(<ResultView result={{ ...result, recommendation: { ...result.recommendation, target } }} />);
+    expect(screen.getByText(/Secondary only, not counted/)).toBeInTheDocument();
+    expect(screen.getByText("AST-1:KPI-2")).toBeInTheDocument();
+  });
+});
+
 describe("retire and consolidate lists", () => {
   const assets = (prefix: string, n: number) =>
     Array.from({ length: n }, (_, i) => ({ id: `${prefix}-${i}`, name: `${prefix} ${i}`, reason: `why ${prefix} ${i}`, citations: [] }));

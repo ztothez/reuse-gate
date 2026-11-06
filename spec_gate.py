@@ -5,6 +5,7 @@ They do not measure whether a spec matches what the requester privately had in m
 
 Usage: python3 -I spec_gate.py <db> [docs/quality_report.md]
 """
+import copy
 import sys
 from collections import Counter, defaultdict
 from datetime import date
@@ -127,6 +128,29 @@ def batch(est):
     return rows
 
 
+def canonical_only(est):
+    """A copy of the estate where a primary row on a non-canonical definition no longer counts. For comparison only."""
+    strict = copy.copy(est)
+    strict.kpi_roles = {key: "secondary" if est.kpis[key[1]]["definition_status"] != "canonical" else role
+                        for key, role in est.kpi_roles.items()}
+    return strict
+
+
+def _summary(est, rows):
+    actions = Counter(r["action"] for r in rows)
+    specs = [r for r in rows if r["spec"]]
+    results = [recommend(est, parse_request(est, req)) for req in est.requests]
+    return {
+        "New builds avoided": f"{len(rows) - actions['new_build']}/{len(rows)}",
+        "new_build": actions["new_build"], "extend": actions["extend"], "repair_and_reuse": actions["repair_and_reuse"],
+        "reuse": actions["reuse"], "migrate": actions["migrate"], "human_review": actions["human_review"],
+        "Citations": sum(len(r.evidence) for r in results),
+        "Assets to retire": len({a for r in results for a in r.retire}),
+        "Assets to consolidate later": len({a for r in results for a in r.consolidate}),
+        "Specs passing every gate": f"{sum(r['passed'] for r in specs)}/{len(specs)}",
+    }
+
+
 def report(est, rows):
     total, specs = len(rows), [r for r in rows if r["spec"]]
     passed = [r for r in specs if r["passed"]]
@@ -180,6 +204,14 @@ def report(est, rows):
                      f"{m['refresh_status']}, owner {m['owner_id']} is {owner.get('status', 'missing')}.")
     lines += ["", "## Requests with no spec", "", "These decisions do not create a new artifact, or lack a model to build on.", ""]
     lines += [f"- {n}: {reason}" for reason, n in skips.most_common()]
+    strict = canonical_only(est)
+    current, stricter = _summary(est, rows), _summary(strict, batch(strict))
+    lines += ["", "## For information: canonical definitions only", "",
+              "The rule in use lets a primary row on a conflicting or local definition qualify, because repairing the definition is",
+              "cheaper than a new build, and the result lists that repair. This table measures a stricter version where only a primary",
+              "row on the canonical definition counts. It is information only: **the rule has not changed.**", "",
+              "| Measure | Rule in use | Canonical only |", "| --- | --- | --- |"]
+    lines += [f"| {k} | {current[k]} | {stricter[k]} |" for k in current]
     return "\n".join(lines) + "\n"
 
 

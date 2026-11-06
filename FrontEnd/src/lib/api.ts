@@ -12,6 +12,7 @@ export interface Asset {
 export interface Coverage {
   requested: string[];
   covered: { kpi: string; map_id: string; kpi_id: string; kpi_name: string; definition_status: string; usage_role: string }[];
+  secondary_only?: Coverage["covered"];
   missing: string[];
   note: string;
 }
