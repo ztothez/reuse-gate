@@ -1,0 +1,13 @@
+# Knative Eventing PingSource: calls the radar endpoint every weekday morning.
+# PingSource can only POST without headers, so it calls a small unauthenticated /radar-ping endpoint (same data as the public /radar).
+apiVersion: sources.knative.dev/v1
+kind: PingSource
+metadata:
+  name: reuse-gate-radar-ping
+spec:
+  schedule: "0 6 * * 1-5"
+  timezone: Europe/Helsinki
+  contentType: application/json
+  data: '{"source":"pingsource","job":"radar-digest"}'
+  sink:
+    uri: http://reuse-gate.ztothez-dev.svc.cluster.local/radar-ping

@@ -1,0 +1,59 @@
+# OpenShift Pipelines (Tekton): verify the deployed image, then roll it out.
+# Stage 1 runs the unit tests inside the built image. Stage 2 is a governance gate:
+# every recommendation must have an action, a rationale and cited evidence rows.
+# Stage 3 restarts the Deployment and waits for it to become ready.
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: reuse-gate-verify
+spec:
+  params:
+    - name: image
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
+  tasks:
+    - name: unit-tests
+      taskSpec:
+        steps:
+          - name: unittest
+            image: $(params.image)
+            workingDir: /opt/app-root/src
+            script: |
+              python3 -m unittest discover -p 'test_*.py' -v
+      params:
+        - {name: image, value: $(params.image)}
+    - name: governance-gate
+      runAfter: [unit-tests]
+      taskSpec:
+        steps:
+          - name: gate
+            image: $(params.image)
+            workingDir: /opt/app-root/src
+            script: |
+              python3 - <<'PY'
+              import server
+              from estate import Estate
+              server.EST = Estate("estate.db")
+              samples = [
+                  "I need a dashboard for Nubeqa net sales by region in EMEA",
+                  "Please build a new report for market access coverage by product",
+                  "We need a monthly supply-risk dashboard by medicine and country",
+              ]
+              for text in samples:
+                  rec = server.do_recommend(text)["recommendation"]
+                  assert rec["action"], "missing action"
+                  assert rec["rationale"], "missing rationale"
+                  assert rec["evidence"], "recommendation without cited evidence"
+                  print("PASS", rec["action"], len(rec["evidence"]), "citations")
+              PY
+      params:
+        - {name: image, value: $(params.image)}
+    - name: rollout
+      runAfter: [governance-gate]
+      taskSpec:
+        steps:
+          - name: restart
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            script: |
+              oc rollout restart deployment/reuse-gate
+              oc rollout status deployment/reuse-gate --timeout=180s

@@ -1,0 +1,29 @@
+# The same decision service served through KServe, so OpenShift AI manages it like a model.
+# Custom predictor container speaking the KServe v1 protocol (kserve_predictor.py).
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: reuse-gate-kserve
+  labels:
+    opendatahub.io/dashboard: "true"        # show it in the OpenShift AI dashboard
+    networking.kserve.io/visibility: exposed # expose a route (KServe raw deployment mode)
+  annotations:
+    serving.kserve.io/deploymentMode: RawDeployment
+spec:
+  predictor:
+    minReplicas: 1
+    maxReplicas: 2
+    containers:
+      - name: kserve-container
+        image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
+        imagePullPolicy: Always
+        command: ["python3", "kserve_predictor.py"]
+        env:
+          - {name: MODEL_NAME, value: reuse-gate-kserve}
+          - {name: PORT, value: "8080"}
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources:
+          requests: {cpu: 50m, memory: 128Mi}
+          limits: {cpu: 500m, memory: 512Mi}

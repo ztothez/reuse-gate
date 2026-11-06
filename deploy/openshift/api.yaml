@@ -41,7 +41,7 @@ metadata:
   name: reuse-gate
 spec:
   to: {kind: Service, name: reuse-gate}
-  port: {targetPort: 80}
+  port: {targetPort: 8080}
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
