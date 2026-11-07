@@ -41,10 +41,15 @@ class LLMClientTest(unittest.TestCase):
                 with self.assertRaises(LLMGatedError):
                     client.chat([{"role": "user", "content": "a"}])
             self.assertEqual(spy.call_count, 1, "403 must not retry")
+            with patch("urllib.request.urlopen") as spy, self.assertRaises(LLMError) as ctx:
+                client.chat([{"role": "user", "content": "a2"}])
+            self.assertEqual((spy.call_count, ctx.exception.code), (0, "cooling_down"), "the breaker skips a failed tier")
+            client._skip_until = 0
             with patch("urllib.request.urlopen", side_effect=http_error(503)) as spy:
                 with self.assertRaises(LLMError):
                     client.chat([{"role": "user", "content": "b"}])
             self.assertEqual(spy.call_count, 2, "503 retries once")
+            client._skip_until = 0
             client.max_calls = client.calls
             with self.assertRaises(LLMBudgetError):
                 client.chat([{"role": "user", "content": "c"}])

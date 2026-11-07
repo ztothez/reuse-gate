@@ -9,8 +9,9 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
 from reuse_gate import clarify, faithfulness
+from reuse_gate import decision as backends
 from reuse_gate.llm import LLM
-from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage
+from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage, tier_trail
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
@@ -63,6 +64,14 @@ def rec_json(est, intent, rec):
             "evidence": [{"table": t, "id": i, "note": n} for t, i, n in rec.evidence],
         },
     }
+
+
+def decide_local(est, intent, human_review):
+    """The deterministic decision in this process. The KServe predictor runs this same function."""
+    rec = recommend(est, intent)
+    if human_review:
+        rec.evidence.append(_rule(est, "RULE-008"))
+    return rec_json(est, intent, rec)
 
 
 def _within(seconds, fn):
@@ -131,7 +140,8 @@ def stages(est, req, intent, rec, result, source, as_of):
 
     out.append(_stage(
         "Decision", "ok", decision["action"].replace("_", " "),
-        {"assets_checked": checked, "kpis": parsed["kpis"], "decided_by": "deterministic rules, no LLM"},
+        {"assets_checked": checked, "kpis": parsed["kpis"], "decided_by": "deterministic rules, no LLM",
+         "decision_backend": result.get("decision_backend")},
         {"action": decision["action"], "target": (decision["target"] or {}).get("id"), "build_on": decision["build_on"],
          "retire": [a["id"] for a in decision["retire"][:MAX_SHOWN]], "retire_more": max(len(decision["retire"]) - MAX_SHOWN, 0),
          "consolidate_later": [a["id"] for a in decision["consolidate_later"][:MAX_SHOWN]],
@@ -180,33 +190,42 @@ def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
     apply_answers(est, intent, read)
     before = clarify.snapshot(parse_request(est, req)) if answers and not rounds else None
     loop = clarify.advance(intent, read, answers, rounds, before)
-    rec = recommend(est, intent)
-    if loop["status"] == "human_review":
-        rec.evidence.append(_rule(est, "RULE-008"))
-    result = rec_json(est, intent, rec)
+    result, backend, backend_reason = backends.decide(est, intent, loop["status"] == "human_review", decide_local)
+    result["decision_backend"] = backend
+    if backend_reason:
+        result["decision_backend_reason"] = backend_reason
     result["loop"] = loop
     result["text"] = read.base_text[:MAX_TEXT]
     result["answers"] = read.applied
-    result["ai"] = {"source": source, "intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
+    result["ai"] = {"source": source, "intent_source": source, "explanation": list(result["recommendation"]["rationale"]), "explanation_source": "rules",
                     "model": parsed.model, "cached": parsed.cached, "reason": parsed.reason,
-                    "notice": RULES_NOTICES.get(parsed.reason), "guard": None}
+                    "notice": RULES_NOTICES.get(parsed.reason), "guard": None,
+                    "tier": parsed.tier, "explanation_tier": "rules",
+                    "tiers_failed": [{**f, "call": "intent"} for f in parsed.failures]}
     if source == "llm":
         decision = result["recommendation"]
         store = getattr(client, "answers", None)
         target = (decision["target"] or {}).get("id")
-        lines = None
+        lines, tier = None, "saved"
         if parsed.cached:  # a saved answer never leads to a model call
             lines = store.explanation(intent.text, decision["action"], target) if not answers else None
         else:
+            def explain():
+                try:
+                    return client.explain(intent.text, result["intent"], explain_brief(decision)), *tier_trail(client)
+                except Exception:  # the rule rationale stands in, so a failed explanation is never an error
+                    return None, None, tier_trail(client)[1]
             try:
-                lines = _within(deadline - time.monotonic(), lambda: client.explain(intent.text, result["intent"], explain_brief(decision)))
-            except Exception:  # the rule rationale stands in, so a failed explanation is never an error
-                lines = None
+                lines, tier, failed = _within(deadline - time.monotonic(), explain)
+            except Exception:
+                lines, failed = None, [{"tier": None, "reason": "deadline"}]
+            result["ai"]["tiers_failed"] += [{**f, "call": "explanation"} for f in failed]
         if lines:
             guard = faithfulness.check(est, result, lines)
             result["ai"]["guard"] = "passed" if guard["passed"] else "replaced"
             if guard["passed"]:
                 result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
+                result["ai"]["explanation_tier"] = tier or "unknown"
                 if store and not answers and not parsed.cached:
                     store.put_explanation(intent.text, decision["action"], target, lines)
             else:  # an explanation that states something the decision and its rows do not support is not shown
@@ -221,6 +240,6 @@ def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
             for q in result["intent"]["questions"] + loop["rounds"][-1]["questions"]:
                 if q["text"] in wording:
                     q["phrased"] = wording[q["text"]]
-    result["ai"]["speech"] = speech_script(rec.action, result["ai"]["explanation"])
-    result["pipeline"] = stages(est, req, intent, rec, result, source, as_of or date.today().isoformat())
+    result["ai"]["speech"] = speech_script(result["recommendation"]["action"], result["ai"]["explanation"])
+    result["pipeline"] = stages(est, req, intent, None, result, source, as_of or date.today().isoformat())
     return result

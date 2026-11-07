@@ -15,6 +15,78 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 | PipelineRun `reuse-gate-verify-bsqjv` | Succeeded: unit tests (179 run, 4 skipped because frontend and deploy files are not in the image), governance gate, rollout |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
 
+## OpenShift AI recon (2026-11-07, read only)
+- **Quota in `ztothez-dev`:** long-running pods (`compute-deploy`): requests 3 CPU and 30Gi memory, limits 30 CPU and 30Gi,
+  0 GPU. In use: requests 210m CPU and 352Mi, limits 1300m and 1280Mi. Build pods (`compute-build`): requests 3 CPU and 14Gi.
+  Storage: 10 PVCs and 80Gi, with 1 PVC (`workbench-storage`, 20Gi, gp3, RWO) in use. Ephemeral storage 15Gi.
+  LimitRange: default request 10m CPU and 64Mi, default limit 1 CPU and 1000Mi per container, no maximum.
+- **Serving runtimes:** none in the project. The cluster offers templates in `redhat-ods-applications`, including
+  `vllm-cpu-x86-runtime-template` (`registry.redhat.io/rhaii/vllm-cpu-rhel9`, format `vLLM`, `--model=/mnt/models`),
+  `vllm-cpu-runtime-template`, `kserve-ovms`, `mlserver-runtime-template` and GPU variants. None in the `openshift` namespace.
+  The live InferenceService YAML is saved in `deploy/openshift/backup/inferenceservice-reuse-gate-kserve.live.yaml`.
+- **What `reuse-gate-kserve` serves:** the Reuse Gate decision service itself, not a language model. It is a custom predictor
+  container (`backend/reuse_gate/kserve_predictor.py`, same image as the API) in KServe `Standard` (raw deployment) mode,
+  with no ServingRuntime object. It speaks the KServe v1 protocol: `GET /v1/models/reuse-gate-kserve` answers
+  `{"name": "reuse-gate-kserve", "ready": true}`, and `POST /v1/models/reuse-gate-kserve:predict` with
+  `{"instances": [{"text": "..."}]}` returns `{"predictions": [...]}`, one full recommendation per instance. It has no model
+  keys, so its intent is always read by the rules (`ai.source` = `rules`). Checked live: a Nubeqa request returned
+  `repair_and_reuse` on `AST-0209` with 24 citations. In-cluster address: `http://reuse-gate-kserve-predictor.ztothez-dev.svc.cluster.local`
+  (port 80 to 8080), reachable from the API under the project's `allow-same-namespace` NetworkPolicy.
+- **Does the live API call `reuse-gate-kserve`?** No. The live API decides in-process: `server.do_recommend` calls
+  `pipeline.run_request` in the API pod, and no code in the API calls the InferenceService. The KServe service runs the same
+  code in parallel, and only direct calls to its route use it.
+- **LLM clients:** both CSC Aitta and Featherless are OpenAI-compatible (`POST {base}/chat/completions`, Bearer key).
+  Base URLs and model names are constants in `backend/reuse_gate/llm.py` (`AITTA_URL`, `FEATHERLESS_URL`, `PRIMARY_MODEL`,
+  `FALLBACK_MODEL`). Keys come only from the environment (`AITTA_API_KEY`, `FEATHERLESS_API_KEY` or `Featherless_AP_KEY`),
+  which on the cluster comes from the secret `reuse-gate-llm`. Timeouts come from `LLM_TIMEOUT` and `LLM_FALLBACK_TIMEOUT`.
+
+## OpenShift AI dashboard recognition (applied 2026-11-07)
+`reuse-gate-kserve` now selects a real ServingRuntime, `reuse-gate-decision-runtime` (display name, `opendatahub.io/dashboard`,
+model format `reuse-gate-decision` v1, protocol v1), instead of an inline container, and has a display name and description.
+Applied after the backup in `deploy/openshift/backup/`. Verified: InferenceService `Ready`, `PredictorReady`, model state `Loaded`,
+new predictor pod 3/3 (KServe added its model agent), and `:predict` gives the same answer (`repair_and_reuse`, `AST-0209`, 24
+citations). Not verified: how the dashboard's Deployments page now shows it, since this session has no browser login. No hardware
+profile is set: the project cannot list `hardwareprofiles`, so the field stays empty, which is expected for a custom CPU runtime.
+Restore: `oc apply -f deploy/openshift/backup/inferenceservice-reuse-gate-kserve.live.yaml` after removing `status` and `resourceVersion`.
+
+## Red Hat OpenShift AI work (2026-11-07, not rolled out)
+See `docs/openshift.md`. Done and tested locally: env-driven model tiers with the answering and failed tiers in every result;
+an optional Together AI tier; `REUSE_GATE_DECISION_BACKEND=kserve` with a recorded local fallback and a parity test; `/healthz`;
+a state volume with startup reload; pipeline evaluation and security gates; probes, non-root read-only API pods; `wake.sh` and
+`rollout.sh`; the write token on `/approve` and `/remediate` only; load-time cleaning of asset and KPI names. Applied live: the
+ServingRuntime for `reuse-gate-kserve`. In-cluster model tier: measured and rejected (no-go), trial service deleted.
+
+## Bayer constraints for the Red Hat work
+Sources: `Bayer_SinceAI2026/Since_AI_Bayer_Challenge_Brief_FINAL.pdf` (and the same text in the docx),
+`Analytics_Dashboard_Factory_Hackathon.pdf` (Bayer's technical talk), `Red_Hat_SinceAI2026_FINAL_BUILDER_GUIDE-2.pdf`.
+
+a) **Confidentiality.** The Bayer brief has no NDA or confidentiality clause. It says: "No proprietary Bayer data is required.
+   Use synthetic, anonymized or public data", and the data pack is "mock BI estate; no Bayer data". Bayer's judge confirmed the
+   data pack may be in the public repo (see CLAUDE.md). The Red Hat guide asks for "a short, team-approved, non-confidential
+   demo" and says "do not disclose protected client datasets or NDA-covered materials". What our demo and docs show:
+
+   | Shown | Where | Allowed? |
+   | --- | --- | --- |
+   | Asset ids and names (`AST-0209`, `Nubeqa Inventory Monthly`, `Xarelto Budget New`, `All Pharma Demand - US`, `Hyrnuo Launch Monthly`, `Kerendia Inventory Copy`, ...) | README, docs, UI, demo | Yes: synthetic records in the SinceAI data pack |
+   | Owner names (for example `Nina Garcia`) and `@synthetic.example` emails | UI and API only; no owner name appears in the docs | Yes: synthetic records (`synthetic_record = 1`), not real people |
+   | Product names (Nubeqa, Kerendia, Eylea, Xarelto, Lynkuet, Beyonttra, Hyrnuo) | everywhere | Yes: the pack takes them from Bayer's public annual report ("used only for realistic product naming") |
+   | Figures (57/150, 1098 citations, 13/124 specs, 360/451/510 assets) | README, docs, evaluation | Yes: computed by us from the synthetic pack, not Bayer figures |
+   | Bayer's reference flow and legend (Prompt, `/grill-me`, Intent, `/explore`, `/to-spec`, Spec, `.PBIP`) | README mapping section | Yes as a description: presented to all builders in Bayer's talk, no confidentiality marking. The PDFs themselves are not committed, and the demo should not show the slides without Bayer's approval |
+   | The Bayer contact's name and email | not in the repo | Keep it out |
+
+   No conflict found, so no docs needed fixing.
+b) **Hosting, data location, security, BI integration.** The brief sets no hosting or data location requirement. It asks the
+   README to cover "data assumptions, AI approach, governance controls and enterprise-BI integration", and names Bayer's
+   "Tableau-to-Power BI migration". The talk places the source and sandbox workspace in Microsoft Fabric and ends in a `.PBIP`
+   report. So the OpenShift story must not claim that Bayer's BI runs on OpenShift: Reuse Gate is the decision and governance
+   layer next to Power BI and Fabric, and real requests would carry estate metadata to whichever model tier is configured.
+c) **Bayer's wording for the business problem:** "Enterprise self-service BI creates speed, but also dashboard sprawl, duplicate
+   logic, unclear ownership and technical debt." "Build a prototype that helps organizations create, reuse, maintain or retire
+   analytics products intelligently while preserving governance and business value." Guiding question: "turn business questions
+   into fewer, better, maintainable and governed analytics products - without multiplying dashboards, inconsistent KPIs and
+   technical debt". Approaches: "recommendations to reuse, consolidate or retire analytics assets", "human-in-the-loop
+   approval". Success: "reduce analytics sprawl while preserving ownership, KPI consistency, human oversight and lifecycle control."
+
 ## Done
 1. **State check:** this file.
 2. **Frontend end to end:** ran against the live API in headless Chromium: request, flow view, approval, spec and gates, Radar, Decision log, with no console errors. Response shapes match `data/mock_api.json`, and the new fields (`pipeline`, `gates`) are additive.
@@ -57,7 +129,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - The failure paths are tested with simulated failures and local servers, not against a real Aitta 429.
 - n8n ran on a throwaway local instance. The digest is not connected to email or Teams, and the PingSource's scheduled run has not been observed.
 - `data/mock_api.json` has `owners`, `radar.ownership_bottlenecks` and `work_items`, but the frontend copy must be synced with `cp data/mock_api.json frontend/src/data/mock_api.json`. The frontend has no screen for work items, `/remediate` or the record.
-- Work items and the decision log are files in the pod with no volume, so a restart loses them.
+- Work items and the decision log are files in the live pod with no volume, so a restart loses them. `api.yaml` adds the PVC `reuse-gate-state`; not applied yet.
 - The live API and UI do not have the clarification loop yet. Model wording is tested with a fake client, not a real model.
 - `MESSY-21` ("not Xarelto") stays wrong: the rules do not read negation. The messy vocabulary was written with those prompts in view.
 - The UI's Decision log is stored per browser in `localStorage`, so a fresh browser shows it empty even when the API's `GET /log` has entries.

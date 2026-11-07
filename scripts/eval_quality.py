@@ -2,8 +2,14 @@
 """Quality evaluation: generation, retrieval, intent and decisions, and the data pack. Writes data/evaluation.json.
 
 Usage: python3 -I scripts/eval_quality.py data/estate.db [--out data/evaluation.json] [--gold data/gold_labels.csv]
-Keys come from the environment only, as in eval_runner.py; this script never reads .env. Without AITTA_API_KEY the
+Keys come from the environment only, as in eval_runner.py; this script never reads .env. Without the provider's key the
 model-based metrics are reported as not run. Model answers are cached under .llm_cache, so a rerun costs little.
+
+Providers, from the environment (defaults: both on CSC Aitta, generator openai/gpt-oss-120b, judges tried in JUDGES order):
+  EVAL_GENERATOR_PROVIDER, EVAL_GENERATOR_BASE_URL, EVAL_GENERATOR_MODEL
+  EVAL_JUDGE_PROVIDER, EVAL_JUDGE_BASE_URL, EVAL_JUDGE_MODEL
+Provider is aitta (key AITTA_API_KEY), together (TOGETHER_API_KEY) or featherless (FEATHERLESS_API_KEY or Featherless_AP_KEY). For example:
+  EVAL_GENERATOR_PROVIDER=together EVAL_JUDGE_PROVIDER=together EVAL_JUDGE_MODEL=meta-llama/Llama-3.3-70B-Instruct-Turbo
 """
 import argparse
 import json
@@ -23,7 +29,7 @@ import score_gold  # noqa: E402
 from reuse_gate import faithfulness  # noqa: E402
 from reuse_gate.answers import AnswerStore  # noqa: E402
 from reuse_gate.estate import Estate  # noqa: E402
-from reuse_gate.llm import AITTA_URL, LLM, NoLLM  # noqa: E402
+from reuse_gate.llm import AITTA_URL, FEATHERLESS_URL, LLM, TOGETHER_URL, LLMError, NoLLM  # noqa: E402
 from reuse_gate.pipeline import explain_brief, run_request  # noqa: E402
 from reuse_gate.recommend import parse_request, recommend, target_coverage  # noqa: E402
 from reuse_gate.remediate import simulate, snapshot_id  # noqa: E402
@@ -31,6 +37,9 @@ from reuse_gate.spec_gate import _summary, batch, canonical_only, estate_impact 
 
 GENERATOR = "openai/gpt-oss-120b"
 JUDGES = ("meta-llama/Llama-3.3-70B-Instruct", "google/gemma-4-31b-it")  # different families from the generator and GLM
+PROVIDERS = {"aitta": ("CSC Aitta", AITTA_URL, "AITTA_API_KEY"), "together": ("Together AI", TOGETHER_URL, "TOGETHER_API_KEY"),
+             "featherless": ("Featherless", FEATHERLESS_URL, ("FEATHERLESS_API_KEY", "Featherless_AP_KEY"))}
+DESIGNED_PROVIDER = "aitta"  # the evaluation was designed for CSC Aitta
 JUDGE_PROMPT = ROOT / "data/judge_prompt.txt"
 MIN_JUDGED = 30
 AS_OF = "2026-11-07"
@@ -78,7 +87,7 @@ def explanation_cases(est, generator):
         try:
             lines = generator.explain(text, result["intent"], explain_brief(result["recommendation"]))
         except Exception as exc:  # one failure must not hide the rest
-            print(f"explain failed for {text[:40]}: {type(exc).__name__}", file=sys.stderr)
+            print(f"explain failed for {text[:40]!r}: {failure(generator, exc)}", file=sys.stderr)
             continue
         cases.append((result, lines, "generated"))
     return cases
@@ -107,8 +116,30 @@ def judge(client, est, result, lines, prompt):
     return value["faithful"]
 
 
+def role(kind):
+    """(provider id, display name, base URL, key env, model or None) for the generator or the judge, from EVAL_<KIND>_*."""
+    provider = os.environ.get(f"EVAL_{kind}_PROVIDER", DESIGNED_PROVIDER).strip().lower()
+    if provider not in PROVIDERS:
+        raise SystemExit(f"EVAL_{kind}_PROVIDER must be one of {', '.join(PROVIDERS)}")
+    name, url, key_env = PROVIDERS[provider]
+    if isinstance(key_env, tuple):  # the first name that is set, else the first name
+        key_env = next((k for k in key_env if os.environ.get(k)), key_env[0])
+    return provider, name, os.environ.get(f"EVAL_{kind}_BASE_URL") or url, key_env, os.environ.get(f"EVAL_{kind}_MODEL") or None
+
+
+def provider_note(provider, name, what):
+    if provider == DESIGNED_PROVIDER:
+        return ""
+    return f" The {what} ran on {name}, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
+
+
 def generation(est, generator, judge_client, judge_model):
     cases = explanation_cases(est, generator)
+    gen_provider, gen_name, _, gen_key, _ = role("GENERATOR")
+    judge_provider, judge_name, _, judge_key, _ = role("JUDGE")
+    gen_model = getattr(generator, "model", None) or GENERATOR
+    used = f" Generated explanations by {gen_model} on {gen_name}." if generator else ""
+    gen_note = provider_note(gen_provider, gen_name, "generator") if generator else ""
     distinct = {" ".join(lines) for _, lines, _ in cases}
     checks = [faithfulness.check(est, r, l) for r, l, _ in cases]
     passed = sum(c["passed"] for c in checks)
@@ -116,18 +147,18 @@ def generation(est, generator, judge_client, judge_model):
     basis = ", ".join(f"{n} {s}" for s, n in sources.items()) or "none"
     out = [
         metric("faithfulness_deterministic", "Faithfulness (deterministic claim check)", ratio(passed, len(checks)), "share", len(checks),
-               "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites",
+               "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites" + used,
                f"AI explanations: {basis}",
                "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is "
                "attached to the right asset, or that the explanation is complete. "
-               + ("" if generator else "No AITTA_API_KEY in the environment, so only the saved chip explanations were checked.")),
+               + ("" if generator else f"No {gen_key} in the environment, so only the saved chip explanations were checked.") + gen_note),
         metric("guard_replacement_rate", "Guard replacement rate", ratio(len(checks) - passed, len(checks)), "share", len(checks),
-               "share of AI explanations the pipeline guard would replace with the rules explanation", f"AI explanations: {basis}",
+               "share of AI explanations the pipeline guard would replace with the rules explanation" + used, f"AI explanations: {basis}",
                "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, "
-               "and says nothing about requests unlike these."),
+               "and says nothing about requests unlike these." + gen_note),
         metric("answer_relevance", "Answer relevance", round(sum(relevance(r, l) for r, l, _ in cases) / len(cases), 3) if cases else None, "share",
-               len(cases), "mean share of required items named: the action, the target and each requested KPI", f"AI explanations: {basis}",
-               "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing."),
+               len(cases), "mean share of required items named: the action, the target and each requested KPI" + used, f"AI explanations: {basis}",
+               "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing." + gen_note),
     ]
     judged = None
     if judge_client and len(distinct) >= MIN_JUDGED:
@@ -140,14 +171,17 @@ def generation(est, generator, judge_client, judge_model):
             try:
                 verdicts.append(judge(judge_client, est, result, lines, prompt))
             except Exception as exc:
-                print(f"judge failed: {type(exc).__name__}", file=sys.stderr)
+                print(f"judge failed: {failure(judge_client, exc)}", file=sys.stderr)
         judged = metric("faithfulness_judge", "Faithfulness (LLM judge)", ratio(sum(verdicts), len(verdicts)), "share", len(verdicts),
-                        f"{judge_model} judges each distinct explanation against the decision and cited rows; prompt in data/judge_prompt.txt",
-                        f"{len(distinct)} distinct explanations by {GENERATOR}",
-                        "A model's opinion, not ground truth: the judge can miss or invent problems, and it was not calibrated against human labels.")
+                        f"{judge_model} on {judge_name} judges each distinct explanation against the decision and cited rows; prompt in data/judge_prompt.txt."
+                        + (f" Explanations by {gen_model} on {gen_name}." if generator else ""),
+                        f"{len(distinct)} distinct explanations by {gen_model}",
+                        "A model's opinion, not ground truth: the judge can miss or invent problems, and it was not calibrated against human labels."
+                        + provider_note(judge_provider, judge_name, "judge") + gen_note)
     if judged is None:
-        why = "no AITTA_API_KEY in the environment" if not judge_client else f"only {len(distinct)} distinct explanations, fewer than {MIN_JUDGED}"
-        judged = metric("faithfulness_judge", "Faithfulness (LLM judge)", None, "share", 0, f"{JUDGES[0]} as judge; prompt in data/judge_prompt.txt",
+        why = f"no {judge_key} in the environment" if not judge_client else f"only {len(distinct)} distinct explanations, fewer than {MIN_JUDGED}"
+        planned = role("JUDGE")[4] or JUDGES[0]
+        judged = metric("faithfulness_judge", "Faithfulness (LLM judge)", None, "share", 0, f"{planned} as judge; prompt in data/judge_prompt.txt",
                         "not run", f"Not run: {why}. Run scripts/eval_quality.py with the key in the environment.")
     out.insert(1, judged)
     return {"group": "generation", "metrics": out}
@@ -407,19 +441,62 @@ def impact(est):
     ]}
 
 
-def clients():
-    key = os.environ.get("AITTA_API_KEY", "")
+def failure(client, exc):
+    """provider, model, HTTP status and a short reason. Never the key, never more than 120 characters of a reply."""
+    status = getattr(exc, "status", None)
+    reason = getattr(exc, "detail", "") or getattr(exc, "code", "") or type(exc).__name__
+    return (f"{getattr(client, 'provider_name', '?')} {getattr(client, 'model', '?')}: "
+            f"HTTP {status if status else '-'} {getattr(exc, 'code', type(exc).__name__)}: {reason}")[:300]
+
+
+def one_provider(kind):
+    """The client for one role: exactly the configured provider and model, no fallback, no circuit breaker, its own cache.
+    None when the role's key is not in the environment."""
+    provider, name, url, key_env, model = role(kind)
+    key = os.environ.get(key_env, "")
     if not key:
-        return None, None, None
-    generator = LLM(AITTA_URL, key, GENERATOR, timeout=300, retries=1)
-    for model in JUDGES:
-        judge_client = LLM(AITTA_URL, key, model, timeout=300, retries=1)
-        try:
-            judge_client.json_chat([{"role": "user", "content": 'Return JSON only: {"faithful": true, "unsupported_claims": []}'}], temperature=0, max_tokens=50)
-            return generator, judge_client, model
-        except Exception as exc:
-            print(f"judge {model} unavailable: {type(exc).__name__}", file=sys.stderr)
-    return generator, None, None
+        print(f"{kind.lower()}: not configured, no {key_env} in the environment", file=sys.stderr)
+        return None
+    client = LLM(url, key, model or (GENERATOR if kind == "GENERATOR" else JUDGES[0]), timeout=300, retries=1,
+                 cache_dir=Path(os.environ.get("LLM_CACHE_DIR", ".llm_cache")) / f"eval-{provider}", tier=provider)
+    client.fallback, client.breaker, client.provider_name = None, False, provider  # one provider per role, every call tried
+    return client
+
+
+def preflight(kind, client):
+    """One tiny call before the real run. Stops the script with the provider, model, status and reason if it fails."""
+    client.use_cache = False  # a cached answer would prove nothing about the provider today
+    try:
+        reply = client.chat([{"role": "user", "content": "Reply with the word ready."}], temperature=0, max_tokens=300)
+    except LLMError as exc:
+        raise SystemExit(f"{kind} preflight failed: {failure(client, exc)}. Nothing was evaluated or written.")
+    finally:
+        client.use_cache = True
+    if not reply.strip():
+        raise SystemExit(f"{kind} preflight failed: {client.provider_name} {client.model}: empty reply. Nothing was evaluated or written.")
+    print(f"{kind} OK {client.provider_name} {client.model}", flush=True)
+
+
+def clients():
+    """Generator and judge from EVAL_GENERATOR_* and EVAL_JUDGE_*, each checked with one call first. Keys only from the
+    environment, never printed."""
+    generator, judge_client = one_provider("GENERATOR"), one_provider("JUDGE")
+    for kind, client in (("generator", generator), ("judge", judge_client)):
+        if client:
+            preflight(kind, client)
+    return generator, judge_client, judge_client.model if judge_client else None
+
+
+DETERMINISTIC_GROUPS = ("impact", "retrieval", "intent and decisions", "data")
+MODEL_WORDS = re.compile(r"aitta|together|featherless|gpt-oss|glm|llama|gemma|qwen|\bllm\b|\bjudge", re.I)
+
+
+def deterministic(evaluation):
+    """{group: {metric id: metric}} for the metrics a run without keys must reproduce exactly. Leaves out the generation group
+    (model explanations, the judge, guard stats on generated text), the human-labelled group, and any metric whose method names
+    a model or provider."""
+    return {g["group"]: {m["id"]: m for m in g["metrics"] if not MODEL_WORDS.search(m["method"])}
+            for g in evaluation["groups"] if g["group"] in DETERMINISTIC_GROUPS}
 
 
 def evaluate(est, gold=None, generator=None, judge_client=None, judge_model=None):

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T11:50:15+00:00",
+  "generated_at": "2026-11-07T13:50:21+00:00",
   "estate_snapshot": "sha256:d20e45cf782bc0b0d83f1f25829ea005589789251dfb128fcf296ea80035406f",
   "groups": [
     {
@@ -105,10 +105,10 @@
           "name": "Faithfulness (deterministic claim check)",
           "value": 1.0,
           "unit": "share",
-          "n": 6,
-          "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites",
-          "basis": "AI explanations: 6 saved chip",
-          "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete. No AITTA_API_KEY in the environment, so only the saved chip explanations were checked."
+          "n": 9,
+          "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites Generated explanations by openai/gpt-oss-120b on Together AI.",
+          "basis": "AI explanations: 6 saved chip, 3 generated",
+          "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete.  The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
         },
         {
           "id": "faithfulness_judge",
@@ -118,27 +118,27 @@
           "n": 0,
           "method": "meta-llama/Llama-3.3-70B-Instruct as judge; prompt in data/judge_prompt.txt",
           "basis": "not run",
-          "caveat": "Not run: no AITTA_API_KEY in the environment. Run scripts/eval_quality.py with the key in the environment."
+          "caveat": "Not run: only 6 distinct explanations, fewer than 30. Run scripts/eval_quality.py with the key in the environment."
         },
         {
           "id": "guard_replacement_rate",
           "name": "Guard replacement rate",
           "value": 0.0,
           "unit": "share",
-          "n": 6,
-          "method": "share of AI explanations the pipeline guard would replace with the rules explanation",
-          "basis": "AI explanations: 6 saved chip",
-          "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these."
+          "n": 9,
+          "method": "share of AI explanations the pipeline guard would replace with the rules explanation Generated explanations by openai/gpt-oss-120b on Together AI.",
+          "basis": "AI explanations: 6 saved chip, 3 generated",
+          "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these. The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
         },
         {
           "id": "answer_relevance",
           "name": "Answer relevance",
           "value": 1.0,
           "unit": "share",
-          "n": 6,
-          "method": "mean share of required items named: the action, the target and each requested KPI",
-          "basis": "AI explanations: 6 saved chip",
-          "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing."
+          "n": 9,
+          "method": "mean share of required items named: the action, the target and each requested KPI Generated explanations by openai/gpt-oss-120b on Together AI.",
+          "basis": "AI explanations: 6 saved chip, 3 generated",
+          "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing. The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
         }
       ]
     },

@@ -171,7 +171,7 @@ class WorkItemTest(Api):
 class WriteTokenTest(Api):
     TOKEN = "s3cret-code"
 
-    def test_writes_need_the_code_and_reads_stay_open(self):
+    def test_approve_and_remediate_need_the_code_and_work_items_stay_open(self):
         _, made = self.call("/requests", {"text": "Create a Nubeqa net sales dashboard for Germany."})
         rid = made["request_id"]
         approve = {"request_id": rid, "decision": "approve", "approver": "A", "owner": "B"}
@@ -179,8 +179,10 @@ class WriteTokenTest(Api):
             with self.subTest(code=code):
                 self.assertEqual(self.call("/approve", approve, code)[0], 401)
                 self.assertEqual(self.call("/remediate", {"request_id": rid, "remediations": [FIX]}, code)[0], 401)
-                self.assertEqual(self.call("/requests", {"request_id": rid, "answers": []}, code)[0], 401)
-        self.assertEqual(self.call("/requests", {"request_id": rid, "answers": []}, self.TOKEN)[0], 200)
+                self.assertEqual(self.call("/requests", {"request_id": rid, "answers": []}, code)[0], 200, "a requester re-checks without a code")
+        answer = [{"field": "market", "question": "Which market?", "answer": "Germany"}]
+        self.assertEqual(self.call("/requests", {"request_id": rid, "answers": answer})[0], 200, "answering questions needs no code")
+        self.assertEqual(self.call("/remediate", {"request_id": rid, "remediations": [FIX]}, self.TOKEN)[0], 200)
         self.assertEqual(self.call("/approve", approve, self.TOKEN)[0], 200)
         for path in ("/requests", f"/requests/{rid}", "/log", "/radar", "/owners"):
             self.assertEqual(self.call(path)[0], 200, path)

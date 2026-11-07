@@ -1,11 +1,19 @@
-# OpenShift Pipelines (Tekton): verify the deployed image, then roll it out.
-# Stage 1 runs the unit tests inside the built image. Stage 2 is a governance gate:
-# every recommendation must have an action, a rationale and cited evidence rows.
-# Stage 3 restarts the Deployment and waits for it to become ready.
+# OpenShift Pipelines (Tekton): verify the built image, then roll it out. Every gate runs inside the image it verifies.
+# 1 unit-tests       the backend test suite (tests that need repo-only files skip themselves)
+# 2 governance-gate  every recommendation has an action, a rationale and cited evidence rows
+# 3 evaluation-gate  offline evaluation must meet the minimums in scripts/check_evaluation.py (faithfulness, guard,
+#                    citation validity, retrieval), and so must the data/evaluation.json shipped in the image
+# 4 security-gate    security unit tests, then scripts/security_check.py against the API started inside the task, with
+#                    gate-only throwaway values for the write token and n8n key so a leak would be caught
+# 5 rollout          restarts the API and the KServe predictor (both run :latest) and waits for them
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: reuse-gate-verify
+  labels:
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: pipeline
+    app.kubernetes.io/part-of: reuse-gate
 spec:
   params:
     - name: image
@@ -14,21 +22,29 @@ spec:
   tasks:
     - name: unit-tests
       taskSpec:
+        params:
+          - {name: image, type: string}
         steps:
           - name: unittest
             image: $(params.image)
             workingDir: /opt/app-root/src
+            env:
+              - {name: LLM_MODE, value: rules}
             script: |
-              python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py' -v
+              python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'
       params:
         - {name: image, value: $(params.image)}
     - name: governance-gate
       runAfter: [unit-tests]
       taskSpec:
+        params:
+          - {name: image, type: string}
         steps:
           - name: gate
             image: $(params.image)
             workingDir: /opt/app-root/src
+            env:
+              - {name: LLM_MODE, value: rules}
             script: |
               python3 - <<'PY'
               from reuse_gate import server
@@ -48,12 +64,56 @@ spec:
               PY
       params:
         - {name: image, value: $(params.image)}
-    - name: rollout
+    - name: evaluation-gate
       runAfter: [governance-gate]
+      taskSpec:
+        params:
+          - {name: image, type: string}
+        steps:
+          - name: gate
+            image: $(params.image)
+            workingDir: /opt/app-root/src
+            env:
+              - {name: LLM_MODE, value: rules}
+            script: |
+              set -e
+              python3 -I scripts/check_evaluation.py data/estate.db
+              python3 -I scripts/check_evaluation.py data/estate.db --file data/evaluation.json
+      params:
+        - {name: image, value: $(params.image)}
+    - name: security-gate
+      runAfter: [evaluation-gate]
+      taskSpec:
+        params:
+          - {name: image, type: string}
+        steps:
+          - name: gate
+            image: $(params.image)
+            workingDir: /opt/app-root/src
+            script: |
+              set -e
+              export LLM_MODE=rules REUSE_GATE_STATE_DIR=$(mktemp -d) LLM_CACHE_DIR=$(mktemp -d)
+              python3 -m unittest discover -s backend/tests -t backend -p 'test_security.py'
+              export REUSE_GATE_WRITE_TOKEN=gate-only-token-$RANDOM$RANDOM N8N_API_KEY=gate-only-n8n-$RANDOM$RANDOM
+              LOG=$(mktemp)
+              python3 -m reuse_gate.server data/estate.db 8796 2> "$LOG" &
+              PID=$!
+              trap 'kill $PID 2>/dev/null' EXIT
+              for i in $(seq 1 50); do
+                python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8796/healthz', timeout=1)" 2>/dev/null && break
+                sleep 0.2
+              done
+              python3 -I scripts/security_check.py http://127.0.0.1:8796 --secret-env REUSE_GATE_WRITE_TOKEN N8N_API_KEY --log "$LOG" --rate --write-token-env REUSE_GATE_WRITE_TOKEN
+      params:
+        - {name: image, value: $(params.image)}
+    - name: rollout
+      runAfter: [security-gate]
       taskSpec:
         steps:
           - name: restart
             image: registry.redhat.io/openshift4/ose-cli:latest
             script: |
-              oc rollout restart deployment/reuse-gate
-              oc rollout status deployment/reuse-gate --timeout=180s
+              set -e
+              oc rollout restart deployment/reuse-gate deployment/reuse-gate-kserve-predictor
+              oc rollout status deployment/reuse-gate --timeout=240s
+              oc rollout status deployment/reuse-gate-kserve-predictor --timeout=240s

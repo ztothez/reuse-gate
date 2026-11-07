@@ -1,0 +1,54 @@
+# In-cluster model tier trial: a small open instruct model on OpenShift AI's vLLM CPU ServingRuntime, as the "incluster" tier.
+# Result: NO-GO, and the trial service was deleted. Measurements in docs/llm_trial_measurements.json and docs/openshift.md.
+# Kept so the trial can be repeated; not applied by apply.sh or rollout.sh. Internal only (no route).
+# Measured with storageUri hf://Qwen/Qwen2.5-0.5B-Instruct and then hf://Qwen/Qwen2.5-1.5B-Instruct (below).
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: vllm-cpu-trial-runtime
+  labels:
+    opendatahub.io/dashboard: "true"
+    app.kubernetes.io/part-of: reuse-gate
+  annotations:
+    openshift.io/display-name: vLLM CPU (x86) ServingRuntime for KServe
+    opendatahub.io/template-display-name: vLLM CPU (x86) ServingRuntime for KServe
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/kserve-runtime: vllm
+spec:
+  multiModel: false
+  supportedModelFormats:
+    - {name: vLLM, autoSelect: true}
+  containers:
+    - name: kserve-container
+      image: registry.redhat.io/rhaii/vllm-cpu-rhel9@sha256:db9adba1176fea8d2e6bbc8621ca3e8aa0d69b92036f846af2ac692355114af1
+      command: [python, -m, vllm.entrypoints.openai.api_server]
+      args: ["--port=8080", "--model=/mnt/models", "--served-model-name={{.Name}}", "--max-model-len=4096"]
+      env:
+        - {name: HF_HOME, value: /tmp/hf_home}
+        - {name: VLLM_CPU_KVCACHE_SPACE, value: "2"}
+      ports:
+        - {containerPort: 8080, protocol: TCP}
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: reuse-gate-llm-trial
+  labels:
+    opendatahub.io/dashboard: "true"
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: llm-trial
+    app.kubernetes.io/part-of: reuse-gate
+  annotations:
+    openshift.io/display-name: Reuse Gate in-cluster model trial (Qwen2.5-1.5B-Instruct, CPU)
+    serving.kserve.io/deploymentMode: RawDeployment
+spec:
+  predictor:
+    minReplicas: 1
+    maxReplicas: 1
+    model:
+      modelFormat: {name: vLLM}
+      runtime: vllm-cpu-trial-runtime
+      storageUri: hf://Qwen/Qwen2.5-1.5B-Instruct
+      resources:
+        requests: {cpu: "2", memory: 6Gi}
+        limits: {cpu: "4", memory: 10Gi}

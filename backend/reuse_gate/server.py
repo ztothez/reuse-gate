@@ -17,8 +17,11 @@ GET  /requests/{id}                                    -> one work item with its
 POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
-With REUSE_GATE_WRITE_TOKEN set, POST /approve, /remediate and work item re-checks need a matching X-Access-Code header.
-GET  /health
+State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
+startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
+With REUSE_GATE_WRITE_TOKEN set, POST /approve and /remediate need a matching X-Access-Code header. Creating, re-checking and
+answering a work item through /requests stay open, so a requester can answer questions without a code; they are rate limited.
+GET  /health, /healthz                                 -> ok, the decision backend in use and whether reuse-gate-kserve answers
 GET  /n8n/radar-digest
 POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
 POST /n8n/approval
@@ -38,7 +41,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
-from reuse_gate import security, workitems
+from reuse_gate import decision, security, workitems
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
 from reuse_gate.spec import build_spec
@@ -48,7 +51,7 @@ from reuse_gate.transcribe import MAX_BYTES as MAX_AUDIO, TranscribeError, trans
 
 EST = None
 LOG = []
-LOG_FILE = "decision_log.jsonl"
+LOG_FILE = "decision_log.jsonl"  # moved into REUSE_GATE_STATE_DIR at startup
 LLM_CLIENT = None
 N8N_API_KEY = os.environ.get("N8N_API_KEY", "")
 EVALUATION = Path(__file__).resolve().parents[2] / "data" / "evaluation.json"
@@ -69,9 +72,38 @@ def register_decision(body, context=None):
     entry = {**body, "registered_id": "REG-" + uuid.uuid4().hex[:8].upper(),
              "time": datetime.now(timezone.utc).isoformat(), "record": decision_record(EST, context or body)}
     LOG.append(entry)
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        with open(LOG_FILE, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError as exc:  # the decision is still answered and kept in memory
+        sys.stderr.write(f"decision log not written: {type(exc).__name__}\n")
     return entry
+
+
+def load_log(path):
+    """Approvals from an earlier run of this process, so GET /log survives a restart. Unreadable lines are skipped."""
+    entries = []
+    try:
+        lines = Path(path).read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return entries
+    for line in lines:
+        try:
+            entry = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(entry, dict):
+            entries.append(entry)
+    return entries
+
+
+def open_store(path):
+    """The work item store at path, or an in-memory one when the file cannot be read."""
+    try:
+        return workitems.Store(path)
+    except OSError as exc:
+        print(f"WARNING: work items are kept in memory only, {path} is not readable: {type(exc).__name__}", file=sys.stderr)
+        return workitems.Store()
 
 
 def write_authorized(handler):
@@ -215,8 +247,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path.startswith("/requests/"):
             item = STORE.get(url.path[len("/requests/"):])
             return self._send(200, workitems.detail(item)) if item else self._send(404, {"error": "no such request"})
-        if self.path == "/health":
-            self._send(200, {"ok": True, "assets": len(EST.assets)})
+        if self.path in ("/health", "/healthz"):  # always 200 while the process serves, so probes never fail on KServe
+            self._send(200, {"ok": True, "assets": len(EST.assets), **decision.health()})
         elif self.path == "/radar":
             self._send(200, radar(EST))
         elif self.path == "/evaluation":
@@ -355,8 +387,6 @@ class Handler(BaseHTTPRequestHandler):
             new = workitems.new_id()
             item = STORE.create(run_item(new, text.strip(), answers or [], rounds or []), requester and requester[:100], request_id=new)
             return self._send(200, {"request_id": item["request_id"], "status": item["status"], "result": item["result"]})
-        if not write_authorized(self):
-            return self._send(401, {"error": "access code required"})
         item = STORE.get(rid) if isinstance(rid, str) else None
         if not item:
             return self._send(404, {"error": "no such request"})
@@ -375,15 +405,19 @@ if __name__ == "__main__":
     load_env()
     N8N_API_KEY = os.environ.get("N8N_API_KEY") or os.environ.get("n8n_API_KEY", "")
     EST = Estate(sys.argv[1], os.environ.get("CATALOG_PATH", DEFAULT_CATALOG))
+    if EST.name_issues:
+        print(f"WARNING: {len(EST.name_issues)} display name(s) cleaned at load: {', '.join(i for _, i, _ in EST.name_issues[:20])}", file=sys.stderr)
     LLM_CLIENT = live_client()
     WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
     if not WRITE_TOKEN:
-        print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve, remediate and work item updates are open to anyone", file=sys.stderr)
-    STORE = workitems.Store(Path(LOG_FILE).parent / "requests.jsonl")
+        print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve and remediate are open to anyone", file=sys.stderr)
+    state = Path(os.environ.get("REUSE_GATE_STATE_DIR") or ".")
+    LOG_FILE = str(state / "decision_log.jsonl")
+    LOG[:] = load_log(LOG_FILE)
+    STORE = open_store(state / "requests.jsonl")
     LIMITER = security.RateLimiter(enabled=os.environ.get("RATE_LIMITS", "on") != "off")
     seeded = seed_samples()
-    if seeded:
-        print(f"Seeded {seeded} sample work items")
+    print(f"State in {state.resolve()}: {len(LOG)} approval(s), {len(STORE.items)} work item(s){f', {seeded} sample(s) seeded' if seeded else ''}")
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
     print(f"Reuse Gate API on http://0.0.0.0:{port}")
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()

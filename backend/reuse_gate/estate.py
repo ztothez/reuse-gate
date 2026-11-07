@@ -3,7 +3,9 @@
 Division vocabulary (KPI phrases, the all-products scope) lives in data/catalog.json, not in code.
 """
 import json
+import re
 import sqlite3
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
@@ -21,6 +23,31 @@ ID_COLUMN = {
     "Products": "product_id",
     "Markets": "market_id",
 }
+
+
+MAX_NAME = 120  # longer display names are cut; the data pack's longest asset name is far shorter
+NAME_FIELDS = (("assets", "asset_name"), ("kpis", "kpi_name"))  # display names that reach the rationale, the UI and Listen
+
+
+def clean_name(value, row_id):
+    """A display name safe to show and read aloud: (clean value, list of issues). Ids and canonical metrics are never changed.
+
+    Control and format characters (NUL, bidi overrides, zero-width) are removed, whitespace is collapsed, an instruction-like
+    name is withheld and replaced by its id, and an over-long name is cut.
+    """
+    from reuse_gate.recommend import INJECTION  # recommend imports modules that import this one
+    if not isinstance(value, str):
+        return value, []
+    issues = []
+    text = "".join(ch for ch in value if not unicodedata.category(ch).startswith("C") or ch in "\t\n")
+    if text != value:
+        issues.append("control characters removed")
+    text = re.sub(r"\s+", " ", text).strip()
+    if INJECTION.search(text):
+        return f"[name withheld: {row_id}]", issues + ["instruction-like wording"]
+    if len(text) > MAX_NAME:
+        text, issues = text[: MAX_NAME - 3].rstrip() + "...", issues + [f"longer than {MAX_NAME} characters"]
+    return text, issues
 
 
 def _rows(con, sql, params=()):
@@ -67,6 +94,12 @@ class Estate:
             )
         }
         self.max_views = max((u["views"] for u in self.usage.values()), default=1) or 1
+        self.name_issues = []  # (table attribute, id, issues) for every display name cleaned at load
+        for attr, column in NAME_FIELDS:
+            for row_id, row in getattr(self, attr).items():
+                row[column], issues = clean_name(row[column], row_id)
+                if issues:
+                    self.name_issues.append((attr, row_id, issues))
 
     def views(self, asset_id):
         return (self.usage.get(asset_id) or {}).get("views", 0)

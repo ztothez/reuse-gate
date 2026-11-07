@@ -220,8 +220,9 @@ fallback:
 
 The API uses `openai/gpt-oss-120b` on CSC Aitta (`AITTA_API_KEY`), with automatic fallback to `zai-org/GLM-5.2` on Featherless
 (`FEATHERLESS_API_KEY`). A timeout, HTTP error, gated model, empty reply or invalid JSON moves that call to the fallback, and a
-failed primary is skipped for 120 seconds so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
+failed tier (any tier, and the Aitta embeddings) is skipped for 120 seconds (`LLM_TIER_COOLDOWN_S`) so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
 (`LLM_MAX_CALLS`) stops instead of moving the spending to the fallback. The UI names the model that wrote each explanation.
+The two providers are the default tiers of a configurable chain, see "Portability to OpenShift AI".
 
 Run `python3 -I scripts/warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
 primary is ready, 1 if only the fallback is, and 2 if neither is. `backend/reuse_gate/llm.py` also keeps an on-disk response cache.
@@ -343,12 +344,13 @@ and all 80 then pass every gate (specs passing every gate would go from 13/124 t
 `POST /requests` keeps a request as a work item with a status: `clarifying`, `awaiting_approval`, `human_review`, `approved`
 or `rejected`. Re-checks reuse the item's stored answers and rounds. `/approve` and `/remediate` take the item's `request_id`,
 set its status and add to its activity trail; a remediation is recorded as simulated. `GET /requests` lists items, newest first.
-Items are stored as JSON lines in `requests.jsonl` next to the decision log, at most 500. An empty store is seeded with the
+Items are stored as JSON lines in `requests.jsonl` next to the decision log (in `REUSE_GATE_STATE_DIR`, on a volume in the cluster), at most 500. An empty store is seeded with the
 10 example chips as samples (`SAMPLE-01` to `SAMPLE-10`, requester "Sample user"), from saved answers and with no model call.
 `/recommend` is unchanged and creates no work item.
 
-With `REUSE_GATE_WRITE_TOKEN` set, `/approve`, `/remediate` and work item re-checks need the same value in an `X-Access-Code`
-header. Reading, creating requests, `/recommend` and `/speak` stay open. Without it the API logs a warning at startup and stays
+With `REUSE_GATE_WRITE_TOKEN` set, only `/approve` and `/remediate` need the same value in an `X-Access-Code` header. Creating a
+work item, re-checking it and answering its clarification questions through `/requests` stay open, so a requester never needs
+the code; they are rate limited per address like every other write. Reading, `/recommend` and `/speak` stay open too. Without it the API logs a warning at startup and stays
 open as before. This is a shared code, not user accounts: it stops casual changes, not a determined insider.
 
 ### What-if remediation and the decision record
@@ -382,7 +384,8 @@ against any running API, and `python3 -I scripts/secret_scan.py` scans the track
 
 ### Access governance: design only, NOT IMPLEMENTED
 
-**None of this exists in the prototype. The API has no login, `/approve` trusts the name it is given, and CORS is open.**
+**None of this exists in the prototype. The API has no login, and `/approve` trusts the name it is given.** CORS is limited to
+the deployed UI and localhost, and approvals can require a shared access code, but neither is identity.
 A real deployment would need:
 
 - Single sign-on, with the approver taken from the session and not typed in.
@@ -416,9 +419,13 @@ The xlsx stands in for live metadata. Each sheet would map to a source: `Analyti
 
 ### OpenShift
 
+What runs where, the KServe decision path, model tier portability, reliability, known limits, the Red Hat evidence text and a
+console shot list: [docs/openshift.md](docs/openshift.md). Final rollout: `sh deploy/openshift/rollout.sh`; before a demo:
+`sh deploy/openshift/wake.sh`.
+
 Scheduled radar digest: Knative PingSource calls /radar-ping on weekdays
 
-The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references
+The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` (`AITTA_API_KEY`, `FEATHERLESS_API_KEY`, `TOGETHER_API_KEY`) and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references
 in `deploy/openshift/api.yaml`. Without them it runs on the rule baseline. The KServe predictor has no keys, so it serves the decision logic only.
 
 `POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
@@ -434,6 +441,56 @@ EXPORT=$(mktemp -d) && git archive HEAD:frontend | tar -x -C "$EXPORT"
 oc start-build reuse-gate-ui --from-dir="$EXPORT" --follow
 oc rollout restart deploy/reuse-gate-ui
 ```
+
+### Portability to OpenShift AI
+
+The decision engine and the KServe endpoint run on OpenShift today, while the language models are external providers in the demo.
+
+The model chain is configured only by environment variables, so a tier moves into the cluster without a code change. Tiers are
+tried in the listed order, and the rule baseline always answers last. Every result says which tier answered
+(`ai.tier`, `ai.explanation_tier`: a tier name, `saved` for a saved answer, or `rules`) and which tiers failed and why
+(`ai.tiers_failed`: `[{tier, call, reason}]`, short codes such as `timeout`, `http_401`, `http_503`, `unreachable`,
+`invalid_json`, `cooling_down`; never a key or a URL).
+
+| Variable | Meaning | Default |
+| --- | --- | --- |
+| `REUSE_GATE_LLM_TIERS` | Comma-separated tier names, in order | `aitta,featherless` |
+| `REUSE_GATE_LLM_<TIER>_BASE_URL` | OpenAI-compatible base URL, ending in `/v1` | `aitta`: `https://aitta-api.csc.fi/openai/v1`; `featherless`: `https://api.featherless.ai/v1` |
+| `REUSE_GATE_LLM_<TIER>_MODEL` | Model name sent in the request | `aitta`: `openai/gpt-oss-120b`; `featherless`: `zai-org/GLM-5.2` |
+| `REUSE_GATE_LLM_<TIER>_API_KEY` | Bearer key, from a Secret only | `aitta`: `AITTA_API_KEY`; `featherless`: `FEATHERLESS_API_KEY` or `Featherless_AP_KEY` |
+| `REUSE_GATE_LLM_<TIER>_TIMEOUT_S` | Seconds per call | `aitta`: `LLM_TIMEOUT` (20); `featherless`: `LLM_FALLBACK_TIMEOUT` (40); other tiers: `LLM_TIMEOUT` |
+
+Built-in tiers: `aitta` (CSC Aitta, Finland), `featherless`, and `together` (Together AI, US, off by default; `TOGETHER_API_KEY`,
+`TOGETHER_BASE_URL` default `https://api.together.xyz/v1`, `TOGETHER_MODEL` default `openai/gpt-oss-120b`). Together is an outage fallback
+while Aitta is down (`REUSE_GATE_LLM_TIERS=together,featherless`), not a data sovereignty option: it is a US provider and receives the
+same briefs as the others, including the target's owner name. All of them are external to the cluster.
+
+A tier with no base URL or model is skipped. The built-in external tiers are also skipped without a key; any other tier, such as
+a vLLM endpoint inside the cluster, may run without one. `LLM_MODE=rules` still turns every tier off. With none of these variables
+set, the chain is exactly the previous one.
+
+Example: a vLLM ServingRuntime on OpenShift AI as the first tier, with the external providers behind it.
+
+```yaml
+# InferenceService "reuse-gate-llm" on the vLLM CPU (or CUDA) ServingRuntime from the OpenShift AI dashboard, then in the API Deployment:
+env:
+  - {name: REUSE_GATE_LLM_TIERS, value: "incluster,aitta,featherless"}
+  - {name: REUSE_GATE_LLM_INCLUSTER_BASE_URL, value: "http://reuse-gate-llm-predictor.ztothez-dev.svc.cluster.local/v1"}
+  - {name: REUSE_GATE_LLM_INCLUSTER_MODEL, value: "reuse-gate-llm"}   # vLLM's --served-model-name
+  - {name: REUSE_GATE_LLM_INCLUSTER_TIMEOUT_S, value: "20"}
+```
+
+Setting `REUSE_GATE_LLM_TIERS=incluster` alone keeps every request and decision brief inside the cluster.
+
+**Decision backend.** `REUSE_GATE_DECISION_BACKEND=kserve` makes the API send each parsed intent to the KServe InferenceService
+`reuse-gate-kserve` (`REUSE_GATE_KSERVE_URL`, `REUSE_GATE_KSERVE_MODEL`, `REUSE_GATE_KSERVE_TIMEOUT_S`, default 5 seconds) and use
+the decision it returns. The predictor runs the same deterministic code and also returns the hash of its `estate.db`; if that differs, or
+the call fails, the API decides locally. Every result says `"decision_backend": "kserve"`, `"local"` or `"local_fallback"` (with
+`decision_backend_reason`). The default is `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it on the cluster and checks
+`/healthz` afterwards. `GET /health` and `GET /healthz` report the backend and whether KServe answers.
+A test gives the identical decision in both modes on the 21 messy prompts (through every clarification round) and the 10 distinct
+request texts. How to turn it on: [deploy/openshift/enable-kserve-path.md](deploy/openshift/enable-kserve-path.md). Details, data flows and
+what was measured are in [docs/openshift.md](docs/openshift.md).
 
 ### n8n: approval webhook and radar digest
 

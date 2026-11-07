@@ -68,6 +68,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -121,6 +122,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -350,7 +354,8 @@
               "Forecast Variance",
               "Market Access Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -570,6 +575,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -622,6 +628,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: human review. the migration backlog marks the remaining legacy workbooks for human review, so a person must decide."
       },
       "pipeline": [
@@ -824,7 +833,8 @@
               "Net Sales Growth",
               "Commercial Reach Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "human_review",
@@ -976,6 +986,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -1029,6 +1040,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only. 1 low-usage, uncertified duplicates: retire after the new asset is live."
       },
       "pipeline": [
@@ -1238,7 +1252,8 @@
               "Market Access Coverage",
               "Reimbursement Status Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -1522,6 +1537,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -1576,6 +1592,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: extend. All Pharma Market Access Monthly is alive and covers On-Time In-Full as primary KPIs; Inventory Coverage is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -1799,7 +1818,8 @@
               "On-Time In-Full",
               "Inventory Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -2089,6 +2109,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -2143,6 +2164,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: extend. Kerendia Gross-to-Net Monthly is alive and covers Net Sales as primary KPIs; Net Sales Growth is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -2365,7 +2389,8 @@
               "Net Sales",
               "Net Sales Growth"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -2614,6 +2639,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -2667,6 +2693,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -2865,7 +2894,8 @@
               "Budget Variance",
               "Gross-to-Net Rate"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -3105,6 +3135,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -3157,6 +3188,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -3372,7 +3406,8 @@
               "Net Sales",
               "Net Sales Growth"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -3673,6 +3708,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -3728,6 +3764,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: extend. All Pharma Executive - US is alive and covers Market Access Coverage, Launch Adoption Index as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -3981,7 +4020,8 @@
               "Market Access Coverage",
               "Launch Adoption Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -4296,6 +4336,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -4350,6 +4391,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: repair and reuse. All Pharma Executive Legacy is alive and covers Reimbursement Status Coverage, Launch Adoption Index as primary KPIs, but has governance gaps. closing the gaps is cheaper than a new build and avoids another overlapping asset."
       },
       "pipeline": [
@@ -4580,7 +4624,8 @@
               "Reimbursement Status Coverage",
               "Launch Adoption Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "repair_and_reuse",
@@ -4779,6 +4824,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -4834,6 +4880,9 @@
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
         "guard": null,
+        "tier": "rules",
+        "explanation_tier": "rules",
+        "tiers_failed": [],
         "speech": "Recommendation: extend. All Pharma Budget Legacy is alive and covers Demand Forecast Accuracy, Inventory Coverage as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -5087,7 +5136,8 @@
               "Demand Forecast Accuracy",
               "Inventory Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -6667,6 +6717,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "clear",
             "rounds_used": 0,
@@ -6720,6 +6771,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. The active, certified Nubeqa Gross-to\u2011Net Monthly report already provides Net Sales Growth and Market Access Coverage, so we should extend it to add Forecast Variance as a primary KPI and replace the non\u2011canonical KPI variants. This follows governance rules to reuse existing assets and prioritize canonical KPIs, while also fixing the failed refresh of its underlying semantic model."
           },
           "pipeline": [
@@ -6970,7 +7024,8 @@
                   "Forecast Variance",
                   "Market Access Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -7311,6 +7366,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -7424,6 +7480,9 @@
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
             "guard": null,
+            "tier": "rules",
+            "explanation_tier": "rules",
+            "tiers_failed": [],
             "speech": "Recommendation: migrate. backlog path for Xarelto Launch - US is REBUILD_ON_SHARED_MODEL; migrate it onto SM-024. 1 other overlapping assets to consolidate later: migrate users first, owner review required."
           },
           "pipeline": [
@@ -7727,7 +7786,8 @@
                   "Net Sales Growth",
                   "Commercial Reach Index"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "migrate",
@@ -8059,6 +8119,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -8166,6 +8227,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. We\u2019ll extend the existing All Pharma Executive Legacy dashboard to include Market Access Coverage as a primary KPI, since it already serves Reimbursement Status Coverage and is heavily used, rather than building a new report. The two low\u2011usage duplicate apps will be retired, and we\u2019ll promote the missing KPI to primary while fixing owner and semantic model issues."
           },
           "pipeline": [
@@ -8507,7 +8571,8 @@
                   "Market Access Coverage",
                   "Reimbursement Status Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -8886,6 +8951,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -8996,6 +9062,9 @@
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
             "guard": null,
+            "tier": "rules",
+            "explanation_tier": "rules",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. All Pharma Market Access Monthly is alive and covers On-Time In-Full as primary KPIs; Inventory Coverage is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
           },
           "pipeline": [
@@ -9285,7 +9354,8 @@
                   "On-Time In-Full",
                   "Inventory Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -9668,6 +9738,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -9778,6 +9849,9 @@
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
             "guard": null,
+            "tier": "rules",
+            "explanation_tier": "rules",
+            "tiers_failed": [],
             "speech": "Recommendation: repair and reuse. Kerendia Gross-to-Net New is alive and covers Net Sales, Net Sales Growth as primary KPIs, but has governance gaps. closing the gaps is cheaper than a new build and avoids another overlapping asset."
           },
           "pipeline": [
@@ -10072,7 +10146,8 @@
                   "Net Sales",
                   "Net Sales Growth"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "repair_and_reuse",
@@ -10333,6 +10408,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -10445,6 +10521,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. The system recommends extending the existing All Pharma Inventory v2 report instead of creating a new one because it is already active, widely used, and already provides the Gross\u2011to\u2011Net Rate and Budget Variance KPIs. By adding Net Sales as a primary KPI (and correcting the Budget Variance definition), the request is fulfilled while following the governance rule to reuse assets before building new ones. This approach avoids duplicate work and keeps the semantic model consistent."
           },
           "pipeline": [
@@ -10758,7 +10837,8 @@
                   "Gross-to-Net Rate",
                   "Budget Variance"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -11094,6 +11174,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -11202,6 +11283,9 @@
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
             "guard": null,
+            "tier": "rules",
+            "explanation_tier": "rules",
+            "tiers_failed": [],
             "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
           },
           "pipeline": [
@@ -11476,7 +11560,8 @@
                   "Net Sales",
                   "Net Sales Growth"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "new_build",
@@ -11858,6 +11943,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -11968,6 +12054,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. The recommendation is to extend the existing All Pharma Executive \u2013 US Power\u202fBI dashboard because it already includes the Market Access Coverage and Launch Adoption Index KPIs. You should add the missing Net Sales KPI as a primary, canonical metric and replace the non\u2011canonical Launch Adoption Index variant with its canonical definition."
           },
           "pipeline": [
@@ -12286,7 +12375,8 @@
                   "Net Sales",
                   "Launch Adoption Index"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -12729,6 +12819,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -12838,6 +12929,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: repair and reuse. We recommend fixing the governance issues (switch to the canonical KPI, resolve the refresh warning and improve AI\u2011readiness) and then reusing the existing Beyonttra Demand \u2013 EMEA report instead of building a new one. The report already covers the requested Launch Adoption Index and Reimbursement Status Coverage KPIs, is certified, active, and has high user adoption, making repair cheaper and avoiding duplication. After repair, it can serve the country\u2011level launch\u2011readiness and reimbursement progress needs."
           },
           "pipeline": [
@@ -13164,7 +13258,8 @@
                   "Launch Adoption Index",
                   "Reimbursement Status Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "repair_and_reuse",
@@ -13447,6 +13542,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -13557,6 +13653,9 @@
             "reason": null,
             "notice": null,
             "guard": "passed",
+            "tier": "saved",
+            "explanation_tier": "saved",
+            "tiers_failed": [],
             "speech": "Recommendation: extend. We\u2019ll extend the existing All Pharma Budget Legacy Power\u202fBI report (AST\u20110088) to add Net\u202fSales as a primary KPI, because it already provides the requested Demand Forecast Accuracy and Inventory Coverage and is an active, widely used asset. Reusing this report follows the governance rule to reuse before building new assets and ensures all KPIs are sourced from canonical definitions."
           },
           "pipeline": [
@@ -13877,7 +13976,8 @@
                   "Demand Forecast Accuracy",
                   "Inventory Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -14138,7 +14238,7 @@
     }
   },
   "evaluation": {
-    "generated_at": "2026-11-07T11:50:15+00:00",
+    "generated_at": "2026-11-07T13:50:21+00:00",
     "estate_snapshot": "sha256:d20e45cf782bc0b0d83f1f25829ea005589789251dfb128fcf296ea80035406f",
     "groups": [
       {
@@ -14244,10 +14344,10 @@
             "name": "Faithfulness (deterministic claim check)",
             "value": 1.0,
             "unit": "share",
-            "n": 6,
-            "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites",
-            "basis": "AI explanations: 6 saved chip",
-            "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete. No AITTA_API_KEY in the environment, so only the saved chip explanations were checked."
+            "n": 9,
+            "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites Generated explanations by openai/gpt-oss-120b on Together AI.",
+            "basis": "AI explanations: 6 saved chip, 3 generated",
+            "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete.  The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
           },
           {
             "id": "faithfulness_judge",
@@ -14257,27 +14357,27 @@
             "n": 0,
             "method": "meta-llama/Llama-3.3-70B-Instruct as judge; prompt in data/judge_prompt.txt",
             "basis": "not run",
-            "caveat": "Not run: no AITTA_API_KEY in the environment. Run scripts/eval_quality.py with the key in the environment."
+            "caveat": "Not run: only 6 distinct explanations, fewer than 30. Run scripts/eval_quality.py with the key in the environment."
           },
           {
             "id": "guard_replacement_rate",
             "name": "Guard replacement rate",
             "value": 0.0,
             "unit": "share",
-            "n": 6,
-            "method": "share of AI explanations the pipeline guard would replace with the rules explanation",
-            "basis": "AI explanations: 6 saved chip",
-            "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these."
+            "n": 9,
+            "method": "share of AI explanations the pipeline guard would replace with the rules explanation Generated explanations by openai/gpt-oss-120b on Together AI.",
+            "basis": "AI explanations: 6 saved chip, 3 generated",
+            "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these. The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
           },
           {
             "id": "answer_relevance",
             "name": "Answer relevance",
             "value": 1.0,
             "unit": "share",
-            "n": 6,
-            "method": "mean share of required items named: the action, the target and each requested KPI",
-            "basis": "AI explanations: 6 saved chip",
-            "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing."
+            "n": 9,
+            "method": "mean share of required items named: the action, the target and each requested KPI Generated explanations by openai/gpt-oss-120b on Together AI.",
+            "basis": "AI explanations: 6 saved chip, 3 generated",
+            "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing. The generator ran on Together AI, which differs from the earlier design (CSC Aitta), so it is not directly comparable with earlier runs."
           }
         ]
       },

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Black-box security checks against a running Reuse Gate API. Prints a pass/fail table; exit 1 if anything fails.
 
-Usage: python3 -I scripts/security_check.py http://localhost:8000 [--secret-env NAME ...] [--log FILE] [--rate]
+Usage: python3 -I scripts/security_check.py http://localhost:8000 [--secret-env NAME ...] [--log FILE] [--rate] [--write-token-env NAME]
 --secret-env names environment variables whose values must never appear in any response (values are read from this
 script's own environment and never printed). --log scans the server's log file for the same values. --rate checks the
-/speak rate limit, which spends the limit for this address for a minute.
+/speak rate limit, which spends the limit for this address for a minute. --write-token-env names the variable holding the
+server's REUSE_GATE_WRITE_TOKEN: then /approve and /remediate must refuse a missing or wrong code and accept the right one,
+while creating, re-checking and answering a work item stay open.
 """
 import argparse
 import json
@@ -25,6 +27,8 @@ INJECTIONS = [
 TRICKY_TEXT = "Nubeqa net sales <script>alert(1)</script> **bold** [x](javascript:alert(1)) 製品 \U0001F642 ‮evil \x00end"
 LEAKS = ("Traceback", 'File "', "<html", "<!DOCTYPE", "BaseHTTP", "Python/")
 ALLOWED_ORIGIN, BAD_ORIGIN = "http://localhost:8080", "https://evil.example"
+LIVE_UI = "https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com"
+MORE_ORIGINS = (LIVE_UI, "http://localhost:8081", "http://127.0.0.1:5173")  # the deployed UI and local dev on any port
 
 
 class Checker:
@@ -53,7 +57,20 @@ class Checker:
         except ValueError:
             return None
 
-    def run(self, rate=False, log=None):
+    def write_scope(self, token):
+        """With a write token set: approve and remediate need it; work items stay open to requesters."""
+        _, _, made = self.call("/requests", {"text": "Create a Nubeqa net sales dashboard for Germany."})
+        rid = json.loads(made).get("request_id", "")
+        answered = self.call("/requests", {"request_id": rid, "answers": [{"field": "market", "question": "Which market?", "answer": "Germany"}]})[0]
+        fix = {"request_id": rid, "remediations": [{"type": "assign_owner", "target": "SM-065", "owner_id": "OWN-039"}]}
+        approve = {"request_id": rid, "decision": "approve", "approver": "Gate", "owner": "Gate"}
+        refused = [self.call(path, body, headers=h)[0] for path, body in (("/approve", approve), ("/remediate", fix))
+                   for h in ({}, {"X-Access-Code": "wrong-code"})]
+        accepted = self.call("/approve", approve, headers={"X-Access-Code": token})[0]
+        self.check("write token guards only /approve and /remediate", set(refused) == {401} and accepted == 200 and answered == 200 and rid,
+                   f"without or wrong code {sorted(set(refused))}, right code {accepted}, work item create and answer {200 if rid else 'failed'}/{answered}")
+
+    def run(self, rate=False, log=None, token=None):
         status, hdrs, _ = self.call("/health")
         self.check("health answers", status == 200, f"HTTP {status}")
         want = {"X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer"}
@@ -65,6 +82,9 @@ class Checker:
         _, bad_h, _ = self.call("/health", headers={"Origin": BAD_ORIGIN})
         _, pre, _ = self.call("/recommend", method="OPTIONS", headers={"Origin": BAD_ORIGIN, "Access-Control-Request-Method": "POST"})
         self.check("CORS allows the listed origin", ok_h.get("Access-Control-Allow-Origin") == ALLOWED_ORIGIN, ok_h.get("Access-Control-Allow-Origin", "none"))
+        granted = {o: self.call("/health", headers={"Origin": o})[1].get("Access-Control-Allow-Origin") for o in MORE_ORIGINS}
+        self.check("CORS allows the deployed UI and any localhost port", all(granted[o] == o for o in MORE_ORIGINS),
+                   ", ".join(o for o in MORE_ORIGINS if granted[o] == o) or "none")
         self.check("CORS refuses other origins", "Access-Control-Allow-Origin" not in bad_h and "Access-Control-Allow-Origin" not in pre,
                    bad_h.get("Access-Control-Allow-Origin", "no grant"))
 
@@ -98,6 +118,8 @@ class Checker:
         self.call("/transcribe", raw=b"\x1aE\xdf\xa3" + b"\0" * 100, headers={"Content-Type": "audio/webm"})
         self.call("/approve", {"request_id": "X", "decision": "approve", "approver": "a", "owner": "b"})
         self.call("/requests/WI-NOPE")
+        if token:
+            self.write_scope(token)
 
         leaks = [p for p, h, b in self.seen if any(x in b or x in h for x in LEAKS)]
         self.check("error bodies have no stack traces or HTML", not leaks, f"{len(self.seen)} responses checked" + (f"; leak in {leaks[:3]}" if leaks else ""))
@@ -134,8 +156,12 @@ def main(argv=None):
     ap.add_argument("--secret-env", nargs="*", default=[])
     ap.add_argument("--log")
     ap.add_argument("--rate", action="store_true")
+    ap.add_argument("--write-token-env")
     args = ap.parse_args(argv)
-    rows = Checker(args.base, [os.environ.get(n, "") for n in args.secret_env]).run(args.rate, args.log)
+    token = os.environ.get(args.write_token_env, "") if args.write_token_env else None
+    if args.write_token_env and not token:
+        ap.error(f"{args.write_token_env} is empty in this environment")
+    rows = Checker(args.base, [os.environ.get(n, "") for n in args.secret_env]).run(args.rate, args.log, token)
     print(table(rows))
     print(f"\n{sum(ok for _, ok, _ in rows)}/{len(rows)} passed")
     return 0 if all(ok for _, ok, _ in rows) else 1

@@ -12,9 +12,17 @@ EMBED_MODEL = "intfloat/multilingual-e5-large"  # best result in docs/embedding_
 THRESHOLD = float(os.environ.get("KPI_MATCH_THRESHOLD", "0.8"))
 
 
+_EMBEDDERS = {}  # one per key, so the embeddings circuit breaker remembers a failure across requests
+
+
 def embedder_from_env():
     key = os.environ.get("AITTA_API_KEY", "")
-    return LLM("https://aitta-api.csc.fi/openai/v1", key, EMBED_MODEL, timeout=call_timeout()) if key else None
+    if not key:
+        return None
+    if key not in _EMBEDDERS:
+        _EMBEDDERS.clear()
+        _EMBEDDERS[key] = LLM("https://aitta-api.csc.fi/openai/v1", key, EMBED_MODEL, timeout=call_timeout(), tier="aitta-embeddings")
+    return _EMBEDDERS[key]
 
 
 def _cosine(a, b):
