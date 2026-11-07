@@ -133,6 +133,75 @@ export interface GateResult {
   passed: boolean;
   gates: { gate: string; passed: boolean; detail: string }[];
 }
+export interface Owner {
+  owner_id: string;
+  owner_name: string;
+  role: string;
+  scope: string;
+}
+export interface OwnerAssignment {
+  type: "assign_owner";
+  target: string;
+  owner_id: string;
+}
+export interface GateSnapshot {
+  passed: boolean | null;
+  gates: GateResult["gates"];
+}
+export interface RemediationPayload {
+  request_id?: string;
+  intent?: IntentSnapshot;
+  remediations: OwnerAssignment[];
+  owner?: string;
+  review_by?: string;
+  as_of?: string;
+}
+export interface RemediationResult {
+  applied: "simulated";
+  estate_snapshot: string;
+  request_id: string | null;
+  intent_source: string;
+  as_of: string;
+  decision: { action: Action; target: string | Asset | null; build_on: string | null };
+  remediations: (OwnerAssignment & {
+    target_table: string;
+    owner_name: string;
+    from_owner_id: string | null;
+    from_status: string | null;
+    citations: string[];
+  })[];
+  before: { owner: string | null; gates: GateSnapshot };
+  after: { owner: string | null; gates: GateSnapshot };
+  diff: { gate: string; before: boolean; after: boolean; detail_before: string; detail_after: string }[];
+  fixed: string[];
+  still_failing: string[];
+  passed_before: boolean | null;
+  passed_after: boolean | null;
+}
+export interface OwnershipBottleneck extends Owner {
+  status: string;
+  specs_blocked: number;
+  requests_blocked: string[];
+  semantic_models: string[];
+  assets_owned: number;
+  fix: string;
+  citations: string[];
+  citations_total: number;
+}
+export interface DecisionRecord {
+  estate_snapshot: string;
+  request_text: string;
+  approver: string;
+  owner: string;
+  review_by: string;
+  decision: string;
+  rounds: LoopRound[];
+  intent: IntentSnapshot;
+  recommendation: RecommendResult["recommendation"];
+  gates: GateSnapshot | null;
+  remediation: RemediationResult | null;
+  note?: string;
+}
 export interface DashboardSpec {
   title: string;
   purpose: string;
@@ -157,6 +226,7 @@ export interface RadarAsset {
   reason: string;
 }
 export interface Radar {
+  ownership_bottlenecks?: OwnershipBottleneck[];
   totals: {
     assets: number;
     kpis: number;
@@ -171,6 +241,9 @@ export interface Radar {
   dead_assets: RadarAsset[];
 }
 export interface ApprovePayload {
+  intent?: IntentSnapshot;
+  rounds?: LoopRound[];
+  remediations?: OwnerAssignment[];
   request_id: string;
   decision: "approve" | "reject";
   approver: string;
@@ -184,6 +257,7 @@ export interface ApprovePayload {
 }
 // One row of GET /log: the approve body plus what the API adds.
 export interface LogRecord extends ApprovePayload {
+  record?: DecisionRecord;
   registered_id: string;
   time: string;
   mode?: "demo";
@@ -193,7 +267,7 @@ export interface Health {
   assets?: number | undefined;
 }
 
-const data = mock as unknown as { requests: RecommendResult[]; radar: Radar };
+const data = mock as unknown as { requests: RecommendResult[]; radar: Radar; owners: Owner[] };
 export const exampleRequests = data.requests.map((r) => r.text);
 
 const API = (import.meta.env["VITE_API_URL"] as string | undefined)?.replace(/\/$/, "");
@@ -346,3 +420,29 @@ export const generateSpec = (result: RecommendResult, owner: string, reviewBy: s
       };
     },
   );
+
+export const getOwners = () => call<Owner[]>("/owners", undefined, () => data.owners);
+export const canRemediate = () => Boolean(API) && !demo;
+
+// A simulation must come from the live API. Never fabricate a remediation fallback.
+export async function remediate(payload: RemediationPayload): Promise<RemediationResult> {
+  if (!canRemediate()) throw new Error("This simulation needs the live API.");
+  let response: Response;
+  try {
+    response = await fetch(`${API}/remediate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw new Error("Could not recheck gates. Check the API connection and try again.");
+  }
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(typeof body?.error === "string" ? body.error : "Could not recheck gates. The simulation needs the live API with /remediate available.");
+  }
+  if (body?.applied !== "simulated" || !Array.isArray(body.before?.gates?.gates) || !Array.isArray(body.after?.gates?.gates)) {
+    throw new Error("The API did not confirm a simulated gate check. Try again.");
+  }
+  return body as RemediationResult;
+}
