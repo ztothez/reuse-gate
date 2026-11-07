@@ -29,6 +29,7 @@ describe("approval readiness", () => {
     for (const step of ["Request confirmed", "Evidence checked", "Gates", "Owner"]) expect(steps.getByText(step)).toBeInTheDocument();
     expect(steps.getByText("No open questions")).toBeInTheDocument();
     expect(steps.getByText("6 cited rows")).toBeInTheDocument();
+    expect(steps.getByText("5 of 7 gates passing")).toBeInTheDocument();
     expect(steps.getByText("owner_and_review_date, evidence_cited")).toBeInTheDocument();
     expect(await screen.findByText("Active owner required")).toBeInTheDocument();
     expect(screen.getByText(/Original blocker/)).toBeInTheDocument();

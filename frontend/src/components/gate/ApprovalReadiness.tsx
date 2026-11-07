@@ -76,6 +76,7 @@ export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy
         <li className="min-w-0 rounded-md bg-muted p-3">
           <p className="font-semibold">Gates</p>
           <p className="mt-1">{gates?.passed === true ? simulation && simulationCurrent ? "Passed in simulation" : "Passed" : gates?.passed === false ? "Blocked" : gates?.passed === null ? "No spec gates" : "Not available"}</p>
+          {gates && gates.passed !== null && gates.gates.length > 0 && <p className="mt-1 text-xs">{gates.gates.filter((gate) => gate.passed).length} of {gates.gates.length} gates passing</p>}
           {failed.length > 0 && <p className="mt-1 break-all text-xs">{failed.map((gate) => gate.gate).join(", ")}</p>}
         </li>
         <li className="min-w-0 rounded-md bg-muted p-3">
