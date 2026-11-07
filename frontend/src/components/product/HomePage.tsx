@@ -6,10 +6,13 @@ import { RequestList } from "./RequestList";
 import { ListState, PageHeading, STATUS } from "./shared";
 import { AdminSettings } from "./AdminSettings";
 import { ImpactLine } from "./Impact";
+import { AnalystHome, DeveloperHome } from "./RoleHomes";
 import { NewRequestForm } from "./RequestPages";
 export function HomePage() {
   const [role] = useLens();
   if (role === "admin") return <AdminSettings />;
+  if (role === "analyst") return <AnalystHome />;
+  if (role === "developer") return <DeveloperHome />;
   return <WorkHome role={role === "approver" ? "approver" : "requester"} />;
 }
 function WorkHome({ role }: { role: "requester" | "approver" }) {

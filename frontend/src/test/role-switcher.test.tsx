@@ -110,3 +110,21 @@ describe("viewing as", () => {
     ).toBeGreaterThan(0);
   });
 });
+
+describe("role home pages", () => {
+  afterEach(() => {
+    cleanup();
+    localStorage.clear();
+  });
+  it("gives the analyst an evidence workspace and the developer a build queue", async () => {
+    localStorage.setItem(ROLE_KEY, "analyst");
+    await renderProduct("/");
+    expect(await screen.findByRole("heading", { name: "Evidence workspace" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Conflicting KPI definitions" }),
+    ).toBeInTheDocument();
+    fireEvent.change(select(), { target: { value: "developer" } });
+    expect(await screen.findByRole("heading", { name: "Build queue" })).toBeInTheDocument();
+    expect((await screen.findAllByRole("link", { name: "Open spec" })).length).toBeGreaterThan(0);
+  });
+});
