@@ -1,48 +1,115 @@
+# Reuse Gate API: Deployment, state volume, Service and Route.
+# Keys come only from the Secrets reuse-gate-llm, reuse-gate-elevenlabs, reuse-gate-n8n and reuse-gate-access
+# (deploy/openshift/secrets.template.yaml shows their keys with placeholder values). Every reference is optional:
+# without a model key the API runs on the rule baseline and says so.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reuse-gate-state
+  labels:
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: api-state
+    app.kubernetes.io/part-of: reuse-gate
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: gp3
+  resources:
+    requests: {storage: 1Gi}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reuse-gate
-  labels: {app: reuse-gate}
+  labels:
+    app: reuse-gate
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: reuse-gate
 spec:
   replicas: 1
+  strategy:
+    type: Recreate  # the state volume is ReadWriteOnce, so the old pod lets go before the new one starts
   selector:
-    matchLabels: {app: reuse-gate}
+    matchLabels: {app: reuse-gate}  # unchanged: a Deployment's selector cannot be edited in place
   template:
     metadata:
-      labels: {app: reuse-gate}
+      labels:
+        app: reuse-gate
+        app.kubernetes.io/name: reuse-gate
+        app.kubernetes.io/component: api
+        app.kubernetes.io/part-of: reuse-gate
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
       containers:
         - name: api
           image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
-          # Keys come from secrets. optional: the API runs rules-only, and Listen says so, if a secret is missing.
           env:
+            # Work items, the decision log and the model and audio caches live on the volume and survive pod recycling.
+            - {name: REUSE_GATE_STATE_DIR, value: /var/lib/reuse-gate}
+            - {name: LLM_CACHE_DIR, value: /var/lib/reuse-gate/cache}
+            # Decisions run on the KServe InferenceService; any failure decides in this pod and the result says local_fallback.
+            - {name: REUSE_GATE_DECISION_BACKEND, value: kserve}
+            - {name: REUSE_GATE_KSERVE_URL, value: "http://reuse-gate-kserve-predictor.ztothez-dev.svc.cluster.local"}
+            - {name: REUSE_GATE_KSERVE_MODEL, value: reuse-gate-kserve}
+            # Model tiers in order. While Aitta is down: oc set env deploy/reuse-gate REUSE_GATE_LLM_TIERS=together,featherless
+            - {name: REUSE_GATE_LLM_TIERS, value: "aitta,featherless"}
             - name: AITTA_API_KEY
               valueFrom:
                 secretKeyRef: {name: reuse-gate-llm, key: AITTA_API_KEY, optional: true}
             - name: FEATHERLESS_API_KEY
               valueFrom:
                 secretKeyRef: {name: reuse-gate-llm, key: FEATHERLESS_API_KEY, optional: true}
+            - name: TOGETHER_API_KEY
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-llm, key: TOGETHER_API_KEY, optional: true}
             - name: ELEVENLABS_API_KEY
               valueFrom:
                 secretKeyRef: {name: reuse-gate-elevenlabs, key: ELEVENLABS_API_KEY, optional: true}
             - name: N8N_API_KEY
               valueFrom:
                 secretKeyRef: {name: reuse-gate-n8n, key: N8N_API_KEY, optional: true}
+            - name: REUSE_GATE_WRITE_TOKEN
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-access, key: REUSE_GATE_WRITE_TOKEN, optional: true}
           readinessProbe:
-            httpGet: {path: /health, port: 8080}
+            httpGet: {path: /healthz, port: 8080}
+            periodSeconds: 10
+            timeoutSeconds: 3
           livenessProbe:
-            httpGet: {path: /health, port: 8080}
-            initialDelaySeconds: 10
+            httpGet: {path: /healthz, port: 8080}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
           resources:
             requests: {cpu: 50m, memory: 128Mi}
             limits: {cpu: 500m, memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true  # the app writes only to /var/lib/reuse-gate and /tmp
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: state, mountPath: /var/lib/reuse-gate}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: state
+          persistentVolumeClaim: {claimName: reuse-gate-state}
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: reuse-gate
+  labels:
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: reuse-gate
 spec:
   selector: {app: reuse-gate}
   ports:
@@ -53,6 +120,10 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: reuse-gate
+  labels:
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: reuse-gate
   annotations:
     haproxy.router.openshift.io/timeout: 90s  # above LLM_REQUEST_DEADLINE, or a slow failover gets a 504 from the router
 spec:

@@ -6,6 +6,7 @@ marked samples, from saved answers only, so seeding never calls a model.
 """
 import json
 import os
+import sys
 import threading
 import uuid
 from datetime import datetime, timezone
@@ -111,16 +112,19 @@ class Store:
         evicted = self._trim()
         if not self.path:
             return
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        if evicted or self._lines > 2 * len(self.items) + 50:  # rewrite so dropped items and old snapshots do not come back
-            tmp = self.path.with_suffix(".tmp")
-            tmp.write_text("".join(json.dumps(i, default=str) + "\n" for i in self.items.values()), encoding="utf-8")
-            os.replace(tmp, self.path)
-            self._lines = len(self.items)
-        else:
-            with open(self.path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(item, default=str) + "\n")
-            self._lines += 1
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            if evicted or self._lines > 2 * len(self.items) + 50:  # rewrite so dropped items and old snapshots do not come back
+                tmp = self.path.with_suffix(".tmp")
+                tmp.write_text("".join(json.dumps(i, default=str) + "\n" for i in self.items.values()), encoding="utf-8")
+                os.replace(tmp, self.path)
+                self._lines = len(self.items)
+            else:
+                with open(self.path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(item, default=str) + "\n")
+                self._lines += 1
+        except OSError as exc:  # the item stays in memory; a read-only or missing volume must not fail the request
+            sys.stderr.write(f"work item not written: {type(exc).__name__}\n")
 
     def _trim(self):
         extra = len(self.items) - self.max_items

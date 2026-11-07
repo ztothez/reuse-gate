@@ -222,6 +222,7 @@ if __name__ == "__main__":
     unittest.main()
 
 
+@unittest.skipUnless((ROOT / "frontend/Containerfile").exists() and (ROOT / ".gitignore").exists(), "repo files are not in the image")
 class ContainerTest(unittest.TestCase):
     """Static checks of both images: non-root, and nothing secret copied in."""
 

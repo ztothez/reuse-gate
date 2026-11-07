@@ -17,6 +17,8 @@ GET  /requests/{id}                                    -> one work item with its
 POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
+State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
+startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
 With REUSE_GATE_WRITE_TOKEN set, POST /approve, /remediate and work item re-checks need a matching X-Access-Code header.
 GET  /health, /healthz                                 -> ok, the decision backend in use and whether reuse-gate-kserve answers
 GET  /n8n/radar-digest
@@ -48,7 +50,7 @@ from reuse_gate.transcribe import MAX_BYTES as MAX_AUDIO, TranscribeError, trans
 
 EST = None
 LOG = []
-LOG_FILE = "decision_log.jsonl"
+LOG_FILE = "decision_log.jsonl"  # moved into REUSE_GATE_STATE_DIR at startup
 LLM_CLIENT = None
 N8N_API_KEY = os.environ.get("N8N_API_KEY", "")
 EVALUATION = Path(__file__).resolve().parents[2] / "data" / "evaluation.json"
@@ -69,9 +71,38 @@ def register_decision(body, context=None):
     entry = {**body, "registered_id": "REG-" + uuid.uuid4().hex[:8].upper(),
              "time": datetime.now(timezone.utc).isoformat(), "record": decision_record(EST, context or body)}
     LOG.append(entry)
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        with open(LOG_FILE, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except OSError as exc:  # the decision is still answered and kept in memory
+        sys.stderr.write(f"decision log not written: {type(exc).__name__}\n")
     return entry
+
+
+def load_log(path):
+    """Approvals from an earlier run of this process, so GET /log survives a restart. Unreadable lines are skipped."""
+    entries = []
+    try:
+        lines = Path(path).read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return entries
+    for line in lines:
+        try:
+            entry = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(entry, dict):
+            entries.append(entry)
+    return entries
+
+
+def open_store(path):
+    """The work item store at path, or an in-memory one when the file cannot be read."""
+    try:
+        return workitems.Store(path)
+    except OSError as exc:
+        print(f"WARNING: work items are kept in memory only, {path} is not readable: {type(exc).__name__}", file=sys.stderr)
+        return workitems.Store()
 
 
 def write_authorized(handler):
@@ -379,11 +410,13 @@ if __name__ == "__main__":
     WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
     if not WRITE_TOKEN:
         print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve, remediate and work item updates are open to anyone", file=sys.stderr)
-    STORE = workitems.Store(Path(LOG_FILE).parent / "requests.jsonl")
+    state = Path(os.environ.get("REUSE_GATE_STATE_DIR") or ".")
+    LOG_FILE = str(state / "decision_log.jsonl")
+    LOG[:] = load_log(LOG_FILE)
+    STORE = open_store(state / "requests.jsonl")
     LIMITER = security.RateLimiter(enabled=os.environ.get("RATE_LIMITS", "on") != "off")
     seeded = seed_samples()
-    if seeded:
-        print(f"Seeded {seeded} sample work items")
+    print(f"State in {state.resolve()}: {len(LOG)} approval(s), {len(STORE.items)} work item(s){f', {seeded} sample(s) seeded' if seeded else ''}")
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
     print(f"Reuse Gate API on http://0.0.0.0:{port}")
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
