@@ -15,10 +15,11 @@ from reuse_gate.spec_gate import check
 from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
 
 MAX_CANDIDATES = 5
-REQUEST_DEADLINE = float(os.environ.get("LLM_REQUEST_DEADLINE", "45"))  # model time for one request, whatever the calls add up to
+REQUEST_DEADLINE = float(os.environ.get("LLM_REQUEST_DEADLINE", "60"))  # model time for one request, whatever the calls add up to
 RULES_NOTICES = {
     "off": "AI models are off on this server, so the rule baseline answered.",
     "guard": "This request was not sent to a model, so the rule baseline answered.",
+    "saved_rules": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
     "busy": "AI models are at capacity right now, so the rule baseline answered. Try again in a minute for an AI reading.",
     "budget": "The AI call budget for this server is spent, so the rule baseline answered.",
     "unusable": "The AI model could not read this request, so the rule baseline answered.",

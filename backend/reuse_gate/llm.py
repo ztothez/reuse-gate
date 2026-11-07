@@ -62,8 +62,13 @@ PRIMARY_COOLDOWN = 120  # seconds to skip a failed primary, so a person is not k
 
 
 def call_timeout():
-    """Seconds one live model call may take, so a person is never left waiting on one provider."""
+    """Seconds one call to the primary or the embeddings may take, so a person is never left waiting on one provider."""
     return float(os.environ.get("LLM_TIMEOUT", "20"))
+
+
+def fallback_timeout():
+    """GLM-5.2 is slower: 7 of 9 evaluated parses finished within 40 seconds, and only 2 within 20."""
+    return float(os.environ.get("LLM_FALLBACK_TIMEOUT", "40"))
 
 
 def live_backends(timeout=None, retries=None):
@@ -71,7 +76,7 @@ def live_backends(timeout=None, retries=None):
     aitta = os.environ.get("AITTA_API_KEY", "")
     featherless = os.environ.get("FEATHERLESS_API_KEY") or os.environ.get("Featherless_AP_KEY", "")
     primary = LLM(AITTA_URL, aitta, PRIMARY_MODEL, timeout=timeout or call_timeout(), retries=retries or 0) if aitta else None
-    fallback = LLM(FEATHERLESS_URL, featherless, FALLBACK_MODEL, timeout=timeout or call_timeout(), retries=retries or 0) if featherless else None
+    fallback = LLM(FEATHERLESS_URL, featherless, FALLBACK_MODEL, timeout=timeout or fallback_timeout(), retries=retries or 0) if featherless else None
     return primary, fallback
 
 

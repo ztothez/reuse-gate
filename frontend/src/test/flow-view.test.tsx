@@ -58,6 +58,11 @@ describe("source line", () => {
     expect(screen.getByText("Recommendation")).toBeInTheDocument();
   });
 
+  it("marks a chip's saved rule-based reading as rules", () => {
+    render(<ResultView result={withAi({ source: "rules", reason: "saved_rules", cached: true, model: null, notice: "Saved reading." })} />);
+    expect(screen.getByRole("note")).toHaveTextContent("Source: rules, saved answer.");
+  });
+
   it("names the model and a saved answer", () => {
     render(<ResultView result={withAi({ source: "llm", model: "openai/gpt-oss-120b", cached: true, reason: null, notice: null })} />);
     expect(screen.getByRole("note")).toHaveTextContent("Source: AI (openai/gpt-oss-120b), saved answer.");

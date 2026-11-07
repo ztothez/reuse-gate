@@ -340,9 +340,23 @@ def intent_lists(est):
 class Parsed:
     intent: Intent
     source: str  # llm or rules
-    reason: str | None = None  # why the rules answered: off, guard, busy, budget, unusable, unavailable, timeout
+    reason: str | None = None  # why the rules answered: off, guard, saved_rules, busy, budget, unusable, unavailable, timeout
     model: str | None = None
     cached: bool = False
+
+
+def rules_intent_record(intent):
+    """A rules-parsed intent as JSON, for an example request the model could not read."""
+    return {"products": intent.products, "market": intent.market, "kpis": intent.kpis, "kind": intent.kind,
+            "questions": [{"text": q, "field": getattr(q, "field", "model")} for q in intent.clarifications],
+            "variants": intent.variants, "named_assets": intent.named_assets, "missing_assets": intent.missing_assets,
+            "blocked": intent.blocked}
+
+
+def saved_rules_intent(req, text, record):
+    return Intent(req["request_id"], text, list(record["products"]), record["market"], list(record["kpis"]), record["kind"],
+                  [Question(q["field"], q["text"]) for q in record["questions"]], list(record["variants"]),
+                  list(record["named_assets"]), list(record["missing_assets"]), record["blocked"])
 
 
 def parse_with_reason(est, req, client=None, embedder=None):
@@ -357,6 +371,9 @@ def parse_with_reason(est, req, client=None, embedder=None):
         return Parsed(parse_request(est, req), "rules", "guard")
     text = req["request_text"][:MAX_TEXT]
     store = getattr(client, "answers", None)
+    entry = store.get(text) if store else None
+    if entry and entry.get("source") == "rules":
+        return Parsed(saved_rules_intent(req, text, entry["intent"]), "rules", "saved_rules", None, True)
     saved = store.intent(text) if store else None
     match_notes = []
     try:

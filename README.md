@@ -251,8 +251,8 @@ only who read the request and who wrote the explanation.
 | Situation | What happens |
 | --- | --- |
 | Aitta returns 429 or 5xx, times out, drops the connection, truncates a response, or returns an empty or invalid reply | That call moves to GLM-5.2 on Featherless. Aitta is skipped for the next 120 seconds |
-| A model call takes too long | Each call is limited to 20 seconds (`LLM_TIMEOUT`) with no retries. Embeddings have the same limit |
-| Calls add up | One request gets at most 45 seconds of model time in total (`LLM_REQUEST_DEADLINE`), then the rules answer |
+| A model call takes too long | No retries. Aitta and embeddings get 20 seconds per call (`LLM_TIMEOUT`), and the slower GLM-5.2 gets 40 (`LLM_FALLBACK_TIMEOUT`) |
+| Calls add up | One request gets at most 60 seconds of model time in total (`LLM_REQUEST_DEADLINE`), then the rules answer. The OpenShift route waits 90 seconds, so the router never cuts this off |
 | Both providers fail | The rule baseline answers with the same citations. The API returns 200 and the UI shows "Source: rules" and the reason, never an error page |
 | A crowd arrives | At most 4 model calls run at once across the server (`LLM_MAX_CONCURRENT`). Others get the rules at once, without queueing or touching the fallback |
 | The same request comes again | Answers are saved by the sha256 of the normalized text (spacing and case ignored), so it makes no model call |
@@ -262,14 +262,14 @@ only who read the request and who wrote the explanation.
 Every saved answer still passes the allow list when it is read, and a saved explanation is used only for the same decision it was written for. Text
 flagged as prompt injection is never answered from a saved answer. Run `python3 -I scripts/warmup.py` before a demo to load the models.
 
-Rebuild the chip file with `python3 -I scripts/prewarm.py data/estate.db`, which calls the live models. `--from-cache` builds it from saved responses with
-no call. The committed file was built that way, from real `openai/gpt-oss-120b` responses, so it holds the intents but no AI explanations: a chip's
-explanation comes from the rules until the file is rebuilt live. For 4 of the 10 chips the model gave no usable product or KPI, so they show "Source: rules".
+Rebuild the chip file with `python3 -I scripts/prewarm.py data/estate.db`, which calls the live models. Chips the model could read hold its intent and
+explanation. A chip the model could not read holds its rules-parsed intent, marked `source: rules`, so no chip is ever worse than the baseline and the UI
+says which is which. `--fill-rules` applies that step to the current file with no model call.
 
 **Limits of this design:** the capacity limit is global, not per IP, because a client address behind the OpenShift router can be spoofed, so one person
-can use all 4 slots. It limits calls at the same moment, not calls per minute. A 20-second limit also makes the fallback less likely to help: in the
-evaluation only 2 of 9 GLM-5.2 parses finished within 20 seconds, so during an Aitta outage many requests will end in the rules. That is safe, and raising
-`LLM_TIMEOUT` trades waiting time for more AI answers. These paths are tested with simulated failures and a real slow local server, not against a real Aitta 429.
+can use all 4 slots. It limits calls at the same moment, not calls per minute. A person can wait up to 60 seconds during an Aitta outage, and in the
+evaluation 2 of 9 GLM-5.2 parses took longer than the 40-second limit, so some requests still end in the rules. The failure paths are tested with simulated
+failures and a real slow local server, not against a real Aitta 429.
 
 ## Deployment and governance
 

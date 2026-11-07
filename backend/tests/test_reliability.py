@@ -4,6 +4,7 @@ import http.client
 import io
 import json
 import os
+import re
 import socket
 import tempfile
 import threading
@@ -20,7 +21,7 @@ from reuse_gate.answers import PREWARMED, AnswerStore, key, normalize
 from reuse_gate.estate import Estate
 from reuse_gate.llm import LLM, LLMBusyError, LLMError, NoLLM, live_client
 from reuse_gate.pipeline import run_request
-from reuse_gate.recommend import clean_llm_intent, parse_request, recommend, Intent
+from reuse_gate.recommend import Intent, clean_llm_intent, parse_request, recommend, rules_intent_record
 
 ROOT = Path(__file__).resolve().parents[2]
 DB = ROOT / "data" / "estate.db"
@@ -106,10 +107,14 @@ class FallbackTest(Isolated):
         with patch.dict(os.environ, env, clear=True):
             client = live_client()
             self.assertEqual((client.timeout, client.retries), (20, 0))
-            self.assertEqual((client.fallback.timeout, client.fallback.retries), (20, 0))
+            self.assertEqual((client.fallback.timeout, client.fallback.retries), (40, 0))
             self.assertEqual(kpi_match.embedder_from_env().timeout, 20)
-        with patch.dict(os.environ, {**env, "LLM_TIMEOUT": "7"}, clear=True):
-            self.assertEqual(live_client().timeout, 7)
+        self.assertEqual(pipeline.REQUEST_DEADLINE, 60)
+        with patch.dict(os.environ, {**env, "LLM_TIMEOUT": "7", "LLM_FALLBACK_TIMEOUT": "9"}, clear=True):
+            client = live_client()
+            self.assertEqual((client.timeout, client.fallback.timeout), (7, 9))
+        with patch.dict(os.environ, {"Featherless_AP_KEY": "f", "LLM_CACHE_DIR": self.tmp}, clear=True):
+            self.assertEqual(live_client().timeout, 40)
 
     def test_a_real_slow_server_times_out_and_the_real_fallback_answers(self):
         release = threading.Event()
@@ -421,7 +426,50 @@ class PrewarmedChipsTest(WithEstate):
         for text in self.chips:
             entry = self.saved[key(text)]
             self.assertEqual(entry["text"], normalize(text))
-            self.assertEqual(entry["model"], "openai/gpt-oss-120b")
+            self.assertIn(entry["source"], ("llm", "rules"))
+            self.assertEqual(entry["model"], "openai/gpt-oss-120b" if entry["source"] == "llm" else None)
+
+    def test_a_chip_marked_llm_has_a_usable_intent(self):
+        for text in self.chips:
+            entry = self.saved[key(text)]
+            if entry["source"] == "llm":
+                products, _, kpis, _, _ = clean_llm_intent(self.est, self.req(text), entry["intent"])
+                self.assertTrue(products and kpis, text)
+
+    def test_a_chip_marked_rules_holds_exactly_the_rules_parsed_intent(self):
+        checked = 0
+        for text in self.chips:
+            entry = self.saved[key(text)]
+            if entry["source"] != "rules":
+                continue
+            checked += 1
+            self.assertEqual(entry["intent"], rules_intent_record(parse_request(self.est, self.req(text))), text)
+        self.assertGreater(checked, 0)
+
+    def test_no_chip_is_worse_than_the_baseline(self):
+        client = self.live()
+        for text in self.chips:
+            with self.subTest(text):
+                saved, baseline = run_request(self.est, self.req(text), client), run_request(self.est, self.req(text), NoLLM())
+                self.assertNotEqual(saved["ai"]["reason"], "unusable")
+                self.assertTrue(saved["intent"]["kpis"] or not baseline["intent"]["kpis"])
+                self.assertTrue(saved["recommendation"]["evidence"] or not baseline["recommendation"]["evidence"])
+                if self.saved[key(text)]["source"] == "rules":
+                    self.assertEqual(saved["recommendation"], baseline["recommendation"])
+                    self.assertEqual(saved["intent"], baseline["intent"])
+                    self.assertEqual(saved["ai"]["source"], "rules")
+                    self.assertEqual((saved["ai"]["reason"], saved["ai"]["cached"], saved["ai"]["model"]), ("saved_rules", True, None))
+                    self.assertIn("No model was called", saved["ai"]["notice"])
+                    self.assertEqual(saved["ai"]["explanation_source"], "rules")
+
+    def test_clarifications_still_work_on_a_saved_rules_chip(self):
+        client = self.live()
+        text = next(t for t in self.chips if self.saved[key(t)]["source"] == "rules" and self.saved[key(t)]["intent"]["questions"])
+        first = run_request(self.est, self.req(text), client)
+        question = next(q for q in first["intent"]["questions"] if q["field"] == "market")
+        second = run_request(self.est, self.req(text), client, answers=[{"field": "market", "question": question["text"], "answer": "Germany"}])
+        self.assertEqual(second["intent"]["market"], "DE")
+        self.assertNotIn(question["text"], second["intent"]["clarifications"])
 
     def test_every_chip_answers_with_no_model_call_and_is_cited(self):
         client = self.live()
@@ -431,7 +479,8 @@ class PrewarmedChipsTest(WithEstate):
                     started = time.monotonic()
                     result = run_request(self.est, self.req(text), client)
                     self.assertLess(time.monotonic() - started, 1)
-                    self.assertEqual(result["ai"]["reason"] in (None, "unusable"), True)
+                    self.assertIn(result["ai"]["reason"], (None, "saved_rules"))
+                    self.assertTrue(result["ai"]["cached"])
                     self.assertTrue(result["recommendation"]["rationale"])
                     self.assertCited(result)
         spy.assert_not_called()
@@ -450,9 +499,9 @@ class PrewarmedChipsTest(WithEstate):
         for text in self.chips:
             with self.subTest(text):
                 req = self.req(text)
-                products, market, kpis, kind, _ = clean_llm_intent(self.est, req, self.saved[key(text)]["intent"])
-                if not products or not kpis:
+                if self.saved[key(text)]["source"] == "rules":
                     continue
+                products, market, kpis, kind, _ = clean_llm_intent(self.est, req, self.saved[key(text)]["intent"])
                 expected = recommend(self.est, Intent("R", text, products, market or "Global", kpis, kind))
                 result = run_request(self.est, req, self.live())
                 self.assertEqual(result["recommendation"]["action"], expected.action)
@@ -461,10 +510,37 @@ class PrewarmedChipsTest(WithEstate):
         result = run_request(self.est, self.req(self.chips[0]), NoLLM())
         self.assertEqual((result["ai"]["source"], result["ai"]["reason"]), ("rules", "off"))
 
+    def test_saved_chips_keep_their_ai_explanations(self):
+        with_text = [e for e in self.saved.values() if e["source"] == "llm" and e["explanation"]]
+        self.assertTrue(with_text)
+        client = self.live()
+        for text in self.chips:
+            entry = self.saved[key(text)]
+            if entry["source"] == "llm" and entry["explanation"]:
+                result = run_request(self.est, self.req(text), client)
+                self.assertEqual((result["ai"]["explanation"], result["ai"]["explanation_source"]), (entry["explanation"], "llm"))
+
     def test_image_copies_the_file(self):
         containerfile = ROOT / "Containerfile"
         if containerfile.exists():
             self.assertIn("data/prewarmed_answers.json", containerfile.read_text(encoding="utf-8"))
+
+
+@unittest.skipUnless((ROOT / "deploy/openshift/api.yaml").exists(), "deploy is not in the OpenShift image; this runs in the full local suite")
+class ManifestTest(unittest.TestCase):
+    def setUp(self):
+        self.text = (ROOT / "deploy/openshift/api.yaml").read_text(encoding="utf-8")
+
+    def test_keys_are_optional_secret_references_and_never_literal(self):
+        for env, secret in (("AITTA_API_KEY", "reuse-gate-llm"), ("FEATHERLESS_API_KEY", "reuse-gate-llm"),
+                            ("ELEVENLABS_API_KEY", "reuse-gate-elevenlabs"), ("N8N_API_KEY", "reuse-gate-n8n")):
+            with self.subTest(env):
+                self.assertIn(f"- name: {env}\n              valueFrom:\n                secretKeyRef: {{name: {secret}, key: {env}, optional: true}}", self.text)
+        self.assertNotRegex(self.text, r"(?m)^\s*value:")
+
+    def test_the_route_waits_longer_than_the_request_deadline(self):
+        seconds = int(re.search(r"haproxy\.router\.openshift\.io/timeout: (\d+)s", self.text).group(1))
+        self.assertGreater(seconds, pipeline.REQUEST_DEADLINE)
 
 
 if __name__ == "__main__":

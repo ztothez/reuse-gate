@@ -17,6 +17,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0287",
   "text": "please build a new report for market access coverage and reimbursement status by product."
  },
@@ -24,17 +25,29 @@
   "action": "migrate",
   "explanation": null,
   "intent": {
-   "clarifications": [
-    "Which KPI(s) should be included in the report?"
-   ],
+   "blocked": null,
    "kind": "migration",
-   "kpis": [],
-   "market": "",
+   "kpis": [
+    "Net Sales",
+    "Net Sales Growth",
+    "Commercial Reach Index"
+   ],
+   "market": "Global",
+   "missing_assets": [],
+   "named_assets": [],
    "products": [
     "Xarelto"
-   ]
+   ],
+   "questions": [
+    {
+     "field": "market",
+     "text": "no market was named: searched all markets (Global), please confirm"
+    }
+   ],
+   "variants": []
   },
-  "model": "openai/gpt-oss-120b",
+  "model": null,
+  "source": "rules",
   "target": "AST-0059",
   "text": "please create a power bi replacement for our legacy tableau xarelto commercial workbook."
  },
@@ -57,6 +70,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0088",
   "text": "we need one executive view combining net sales, forecast accuracy and inventory coverage for bayer pharma."
  },
@@ -64,15 +78,28 @@
   "action": "new_build",
   "explanation": null,
   "intent": {
-   "clarifications": [],
+   "blocked": null,
    "kind": "new_report",
-   "kpis": [],
-   "market": "",
+   "kpis": [
+    "Net Sales",
+    "Net Sales Growth"
+   ],
+   "market": "Global",
+   "missing_assets": [],
+   "named_assets": [],
    "products": [
     "All Pharma"
-   ]
+   ],
+   "questions": [
+    {
+     "field": "market",
+     "text": "no market was named: searched all markets (Global), please confirm"
+    }
+   ],
+   "variants": []
   },
-  "model": "openai/gpt-oss-120b",
+  "model": null,
+  "source": "rules",
   "target": null,
   "text": "i need a dashboard comparing product performance across oncology brands and markets."
  },
@@ -96,6 +123,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0215",
   "text": "can you create a country-level beyonttra report for launch readiness and reimbursement progress?"
  },
@@ -120,6 +148,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0034",
   "text": "can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?"
  },
@@ -143,6 +172,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0142",
   "text": "create a global nubeqa dashboard showing sales growth, forecast variance and market access by country."
  },
@@ -165,6 +195,7 @@
    ]
   },
   "model": "openai/gpt-oss-120b",
+  "source": "llm",
   "target": "AST-0357",
   "text": "can we build a launch dashboard for lynkuet with market access, first sales and adoption indicators?"
  },
@@ -172,17 +203,28 @@
   "action": "extend",
   "explanation": null,
   "intent": {
-   "clarifications": [
-    "Which KPI should be used for the supply-risk dashboard (e.g., Inventory Coverage or On-Time In-Full)?"
-   ],
+   "blocked": null,
    "kind": "new_report",
-   "kpis": [],
-   "market": "",
+   "kpis": [
+    "On-Time In-Full",
+    "Inventory Coverage"
+   ],
+   "market": "Global",
+   "missing_assets": [],
+   "named_assets": [],
    "products": [
     "All Pharma"
-   ]
+   ],
+   "questions": [
+    {
+     "field": "market",
+     "text": "no market was named: searched all markets (Global), please confirm"
+    }
+   ],
+   "variants": []
   },
-  "model": "openai/gpt-oss-120b",
+  "model": null,
+  "source": "rules",
   "target": "AST-0008",
   "text": "we need a monthly supply-risk dashboard by medicine and country."
  },
@@ -190,17 +232,28 @@
   "action": "repair_and_reuse",
   "explanation": null,
   "intent": {
-   "clarifications": [
-    "Which KPI(s) should be included in the report?"
-   ],
+   "blocked": null,
    "kind": "new_report",
-   "kpis": [],
-   "market": "North America",
+   "kpis": [
+    "Net Sales",
+    "Net Sales Growth"
+   ],
+   "market": "Global",
+   "missing_assets": [],
+   "named_assets": [],
    "products": [
     "Kerendia"
-   ]
+   ],
+   "questions": [
+    {
+     "field": "market",
+     "text": "several markets were named (EMEA, North America): searched Global, please confirm"
+    }
+   ],
+   "variants": []
   },
-  "model": "openai/gpt-oss-120b",
+  "model": null,
+  "source": "rules",
   "target": "AST-0292",
   "text": "i need a new kerendia management report for monthly performance in emea and north america."
  }

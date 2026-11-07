@@ -16,6 +16,20 @@ spec:
           image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
           ports:
             - containerPort: 8080
+          # Keys come from secrets. optional: the API runs rules-only, and Listen says so, if a secret is missing.
+          env:
+            - name: AITTA_API_KEY
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-llm, key: AITTA_API_KEY, optional: true}
+            - name: FEATHERLESS_API_KEY
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-llm, key: FEATHERLESS_API_KEY, optional: true}
+            - name: ELEVENLABS_API_KEY
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-elevenlabs, key: ELEVENLABS_API_KEY, optional: true}
+            - name: N8N_API_KEY
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-n8n, key: N8N_API_KEY, optional: true}
           readinessProbe:
             httpGet: {path: /health, port: 8080}
           livenessProbe:
@@ -39,6 +53,8 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: reuse-gate
+  annotations:
+    haproxy.router.openshift.io/timeout: 90s  # above LLM_REQUEST_DEADLINE, or a slow failover gets a 504 from the router
 spec:
   to: {kind: Service, name: reuse-gate}
   port: {targetPort: 8080}
