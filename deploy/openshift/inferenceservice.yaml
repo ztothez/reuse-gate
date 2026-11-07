@@ -1,29 +1,67 @@
-# The same decision service served through KServe, so OpenShift AI manages it like a model.
-# Custom predictor container speaking the KServe v1 protocol (backend/reuse_gate/kserve_predictor.py).
+# The decision service served through KServe, so OpenShift AI manages it like a model.
+# A ServingRuntime for the custom predictor container (backend/reuse_gate/kserve_predictor.py, KServe v1 protocol),
+# and an InferenceService that selects it by model format. The "model" is the deterministic decision logic and the
+# estate database baked into the image, so there is no storageUri.
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: reuse-gate-decision-runtime
+  labels:
+    opendatahub.io/dashboard: "true"
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: decision-runtime
+    app.kubernetes.io/part-of: reuse-gate
+  annotations:
+    openshift.io/display-name: Reuse Gate decision runtime (KServe v1, CPU)
+    opendatahub.io/template-display-name: Reuse Gate decision runtime (KServe v1, CPU)
+    opendatahub.io/runtime-version: "1.0"
+    opendatahub.io/apiProtocol: REST
+spec:
+  multiModel: false
+  protocolVersions: [v1]
+  supportedModelFormats:
+    - {name: reuse-gate-decision, version: "1", autoSelect: true}
+  containers:
+    - name: kserve-container
+      image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
+      imagePullPolicy: Always
+      command: ["python3", "-m", "reuse_gate.kserve_predictor"]
+      env:
+        - {name: MODEL_NAME, value: reuse-gate-kserve}
+        - {name: PORT, value: "8080"}
+      ports:
+        - {containerPort: 8080, protocol: TCP}
+      readinessProbe:
+        httpGet: {path: /v1/models/reuse-gate-kserve, port: 8080}
+      livenessProbe:
+        httpGet: {path: /healthz, port: 8080}
+        initialDelaySeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        capabilities: {drop: [ALL]}
+---
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   name: reuse-gate-kserve
   labels:
     opendatahub.io/dashboard: "true"        # show it in the OpenShift AI dashboard
-    networking.kserve.io/visibility: exposed # expose a route (KServe raw deployment mode)
+    networking.kserve.io/visibility: exposed # expose a route
+    app.kubernetes.io/name: reuse-gate
+    app.kubernetes.io/component: decision-service
+    app.kubernetes.io/part-of: reuse-gate
   annotations:
+    openshift.io/display-name: Reuse Gate decision service
+    openshift.io/description: Deterministic reuse, repair, extend, migrate, retire or new-build decision with cited evidence rows
     serving.kserve.io/deploymentMode: RawDeployment
 spec:
   predictor:
     minReplicas: 1
-    maxReplicas: 2
-    containers:
-      - name: kserve-container
-        image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate:latest
-        imagePullPolicy: Always
-        command: ["python3", "-m", "reuse_gate.kserve_predictor"]
-        env:
-          - {name: MODEL_NAME, value: reuse-gate-kserve}
-          - {name: PORT, value: "8080"}
-        ports:
-          - containerPort: 8080
-            protocol: TCP
-        resources:
-          requests: {cpu: 50m, memory: 128Mi}
-          limits: {cpu: 500m, memory: 512Mi}
+    maxReplicas: 1
+    model:
+      modelFormat: {name: reuse-gate-decision, version: "1"}
+      runtime: reuse-gate-decision-runtime
+      resources:
+        requests: {cpu: 50m, memory: 128Mi}
+        limits: {cpu: 500m, memory: 512Mi}

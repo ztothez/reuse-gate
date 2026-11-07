@@ -40,6 +40,15 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
   `FALLBACK_MODEL`). Keys come only from the environment (`AITTA_API_KEY`, `FEATHERLESS_API_KEY` or `Featherless_AP_KEY`),
   which on the cluster comes from the secret `reuse-gate-llm`. Timeouts come from `LLM_TIMEOUT` and `LLM_FALLBACK_TIMEOUT`.
 
+## OpenShift AI dashboard recognition (applied 2026-11-07)
+`reuse-gate-kserve` now selects a real ServingRuntime, `reuse-gate-decision-runtime` (display name, `opendatahub.io/dashboard`,
+model format `reuse-gate-decision` v1, protocol v1), instead of an inline container, and has a display name and description.
+Applied after the backup in `deploy/openshift/backup/`. Verified: InferenceService `Ready`, `PredictorReady`, model state `Loaded`,
+new predictor pod 3/3 (KServe added its model agent), and `:predict` gives the same answer (`repair_and_reuse`, `AST-0209`, 24
+citations). Not verified: how the dashboard's Deployments page now shows it, since this session has no browser login. No hardware
+profile is set: the project cannot list `hardwareprofiles`, so the field stays empty, which is expected for a custom CPU runtime.
+Restore: `oc apply -f deploy/openshift/backup/inferenceservice-reuse-gate-kserve.live.yaml` after removing `status` and `resourceVersion`.
+
 ## Bayer constraints for the Red Hat work
 Sources: `Bayer_SinceAI2026/Since_AI_Bayer_Challenge_Brief_FINAL.pdf` (and the same text in the docx),
 `Analytics_Dashboard_Factory_Hackathon.pdf` (Bayer's technical talk), `Red_Hat_SinceAI2026_FINAL_BUILDER_GUIDE-2.pdf`.
