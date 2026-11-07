@@ -121,7 +121,7 @@ class EvaluationTest(unittest.TestCase):
 
     def test_shape_and_every_metric_has_a_caveat(self):
         self.assertEqual(set(self.out), {"generated_at", "estate_snapshot", "groups"})
-        self.assertEqual([g["group"] for g in self.out["groups"]], ["generation", "retrieval", "intent and decisions", "data", "human-labelled"])
+        self.assertEqual([g["group"] for g in self.out["groups"]], ["impact", "generation", "retrieval", "intent and decisions", "data", "human-labelled"])
         for m in self.metrics.values():
             self.assertEqual(set(m), METRIC_KEYS, m["id"])
             self.assertTrue(m["caveat"].strip(), m["id"])
@@ -136,6 +136,20 @@ class EvaluationTest(unittest.TestCase):
         self.assertEqual(m["faithfulness_deterministic"]["value"], 1.0)
         self.assertLessEqual(m["context_precision"]["value"], 1.0)
         self.assertLess(m["context_recall"]["value"], 1.0, "the migrate citations gap is reported, not hidden")
+
+    def test_impact_numbers(self):
+        m = {k: (v["value"], v["n"]) for k, v in self.metrics.items()}
+        self.assertEqual(m["new_builds_avoided"], (57, 150))
+        self.assertEqual(m["new_builds_avoided_canonical_only"], (33, 150))
+        self.assertEqual(m["requests_and_texts"], (150, 10))
+        self.assertEqual(m["citations_valid"], (1098, 1098))
+        self.assertIn("0 invalid", self.metrics["citations_valid"]["basis"])
+        self.assertEqual(m["specs_passing_today"], (13, 124))
+        self.assertEqual(m["specs_passing_after_owner_fix"], (93, 124))
+        self.assertIn("80 SM-065 specs from 7 distinct request texts", self.metrics["specs_passing_after_owner_fix"]["method"])
+        self.assertEqual((m["estate_assets_today"][0], m["estate_assets_with_gate"][0], m["estate_assets_no_check"][0]), (360, 451, 510))
+        for k in ("new_builds_avoided", "estate_assets_with_gate", "estate_assets_no_check", "specs_passing_after_owner_fix"):
+            self.assertIn("ssum", self.metrics[k]["basis"], f"{k} says what it assumes")
 
     def test_without_a_key_the_judge_is_reported_as_not_run(self):
         judge = self.metrics["faithfulness_judge"]

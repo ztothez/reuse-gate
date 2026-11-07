@@ -26,7 +26,8 @@ from reuse_gate.estate import Estate  # noqa: E402
 from reuse_gate.llm import AITTA_URL, LLM, NoLLM  # noqa: E402
 from reuse_gate.pipeline import explain_brief, run_request  # noqa: E402
 from reuse_gate.recommend import parse_request, recommend, target_coverage  # noqa: E402
-from reuse_gate.remediate import snapshot_id  # noqa: E402
+from reuse_gate.remediate import simulate, snapshot_id  # noqa: E402
+from reuse_gate.spec_gate import _summary, batch, canonical_only, estate_impact  # noqa: E402
 
 GENERATOR = "openai/gpt-oss-120b"
 JUDGES = ("meta-llama/Llama-3.3-70B-Instruct", "google/gemma-4-31b-it")  # different families from the generator and GLM
@@ -356,6 +357,56 @@ def data_quality(est):
     ]}
 
 
+def impact(est):
+    """Headline numbers for the pitch, each computed here from the same code the API runs, with what it assumes."""
+    rows = batch(est)
+    specs = [r for r in rows if r["spec"]]
+    passing = sum(r["passed"] for r in specs)
+    blocked = [r for r in specs if r["model"] == "SM-065" and not r["passed"]]
+    fix = {"type": "assign_owner", "target": "SM-065", "owner_id": "OWN-039"}
+    cleared = sum(simulate(est, {"request_id": r["id"], "remediations": [fix]})["passed_after"] for r in blocked)
+    texts = {r["request_text"] for r in est.requests}
+    blocked_texts = {next(q["request_text"] for q in est.requests if q["request_id"] == r["id"]) for r in blocked}
+    strict = _summary(canonical_only(est), batch(canonical_only(est)))["New builds avoided"]
+    avoided = len(rows) - sum(r["action"] == "new_build" for r in rows)
+    cited = invalid = 0
+    for req in est.requests:
+        rec = recommend(est, parse_request(est, req))
+        cited += len(rec.evidence)
+        invalid += sum(not est.exists(t, i) for t, i, _ in rec.evidence)
+    e = estate_impact(est)
+    return {"group": "impact", "metrics": [
+        metric("new_builds_avoided", "New builds avoided (modelled)", avoided, "requests", len(rows),
+               "requests whose recommendation is not new_build", "Assumes every recommendation is approved and carried out as recommended.",
+               "A modelled outcome over the synthetic request log, not a measured saving. Human review counts as avoided here, and a person may still build."),
+        metric("new_builds_avoided_canonical_only", "New builds avoided, canonical definitions only", int(strict.split("/")[0]), "requests", len(rows),
+               "same count, but a primary KPI row on a conflicting or local definition no longer qualifies a target",
+               "Sensitivity check on one rule choice; the rule in use has not changed.",
+               "Shows how much the headline depends on accepting non-canonical definitions as repairable. Other rule choices were not varied."),
+        metric("requests_and_texts", "Requests in the data pack", len(est.requests), "requests", len(texts),
+               f"{len(est.requests)} business requests from {len(texts)} distinct texts", "The data pack's Business_Requests sheet as given.",
+               "Repeated texts with different products and markets, so 150 decisions are not 150 independent cases."),
+        metric("citations_valid", "Citations checked", cited, "citations", cited, "every cited (table, id) exists in the data pack",
+               f"{cited} citations over 150 requests, {invalid} invalid. Assumes the data pack is the source of truth.",
+               "A valid citation is a real row, not proof that the row supports the claim."),
+        metric("specs_passing_today", "Specs passing every gate today", passing, "specs", len(specs),
+               "new_build and extend specs that pass all 7 gates, with the owner the system proposes", "Today's data pack, owners as recorded.",
+               "Gates check governance rules, not whether the spec is what the requester wanted."),
+        metric("specs_passing_after_owner_fix", "Specs passing after the SM-065 owner fix (simulated)", passing + cleared, "specs", len(specs),
+               f"{len(blocked)} SM-065 specs from {len(blocked_texts)} distinct request texts rerun with an active owner (OWN-039) on SM-065 in memory",
+               "Assumes one active owner is assigned to SM-065; simulated, never written to the data pack. Any of the 47 active owners gives the same result.",
+               "Modelled specs, not reports anyone has built, and the 80 come from only 7 distinct texts."),
+        metric("estate_assets_today", "Assets in the estate today", e["today"], "assets", e["today"], "Analytics_Assets rows",
+               "The data pack as given.", "Counts assets, not their quality or use."),
+        metric("estate_assets_with_gate", "Assets after 150 requests, with Reuse Gate (projection)", e["with"], "assets", e["requests"],
+               f"today + {e['builds']} new builds - {e['retired']} retired", "Assumes every recommendation is carried out, and human review adds nothing.",
+               f"A projection. The {e['builds']} builds cover {e['distinct_builds']} distinct combinations, so a real team could build fewer."),
+        metric("estate_assets_no_check", "Assets after 150 requests, with no check (projection)", e["without"], "assets", e["requests"],
+               f"today + {e['requests']} new builds", "Assumes every request becomes one new asset; the data pack does not record what would have happened.",
+               "An upper-bound projection, not an observed outcome."),
+    ]}
+
+
 def clients():
     key = os.environ.get("AITTA_API_KEY", "")
     if not key:
@@ -372,7 +423,7 @@ def clients():
 
 
 def evaluate(est, gold=None, generator=None, judge_client=None, judge_model=None):
-    groups = [generation(est, generator, judge_client, judge_model), retrieval(est), intent_decisions(est), data_quality(est)]
+    groups = [impact(est), generation(est, generator, judge_client, judge_model), retrieval(est), intent_decisions(est), data_quality(est)]
     groups.append(score_gold.group(est, gold))
     return {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "estate_snapshot": snapshot_id(est), "groups": groups}
 
