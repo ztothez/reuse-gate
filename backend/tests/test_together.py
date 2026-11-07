@@ -1,10 +1,12 @@
 """The Together AI tier and the evaluation's provider settings, against fake OpenAI-compatible servers. No real calls."""
 import importlib.util
+import io
 import json
 import os
 import tempfile
 import threading
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
@@ -24,15 +26,19 @@ class FakeProvider:
 
     def __init__(self):
         self.calls, self.status, self.explanation, self.counter = [], 200, None, 0
+        self.fail_from, self.error_body = 0, b'{"error": {"message": "fake failure"}}'  # status applies from this call index on
         fake = self
 
         class Handler(BaseHTTPRequestHandler):
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-                fake.calls.append({"path": self.path, "model": body["model"], "auth": self.headers.get("Authorization")})
-                if fake.status != 200:
+                fake.calls.append({"path": self.path, "model": body["model"], "auth": self.headers.get("Authorization"),
+                                   "agent": self.headers.get("User-Agent")})
+                if fake.status != 200 and len(fake.calls) > fake.fail_from:
                     self.send_response(fake.status)
+                    self.send_header("Content-Length", str(len(fake.error_body)))
                     self.end_headers()
+                    self.wfile.write(fake.error_body)
                     return
                 system = body["messages"][0]["content"]
                 if system.startswith("Parse analytics"):
@@ -164,6 +170,74 @@ class EvalProviderTest(unittest.TestCase):
         self.assertIn("openai/gpt-oss-120b on Together AI", metrics["faithfulness_deterministic"]["method"])
         self.assertEqual({c["auth"] for c in self.fake.calls}, {"Bearer tg-fake-key"})
         self.assertNotIn("tg-fake-key", json.dumps(group))
+
+    def run_eval(self, env):
+        """clients() and generation() as main() runs them, with stderr captured and no retry wait."""
+        err = io.StringIO()
+        with patch.dict(os.environ, {**env, "LLM_CACHE_DIR": self.cache.name}, clear=True), redirect_stderr(err), \
+             redirect_stdout(io.StringIO()) as out, patch("reuse_gate.llm.time.sleep"):
+            try:
+                generator, judge_client, judge_model = self.eq.clients()
+                group = self.eq.generation(self.est, generator, judge_client, judge_model)
+            except SystemExit as exc:
+                return None, out.getvalue(), err.getvalue(), str(exc)
+        return group, out.getvalue(), err.getvalue(), None
+
+    def env(self, judge_url=None):
+        return {"EVAL_GENERATOR_PROVIDER": "together", "EVAL_GENERATOR_BASE_URL": self.fake.url, "TOGETHER_API_KEY": "tg-fake-key-123",
+                "EVAL_JUDGE_PROVIDER": "featherless", "EVAL_JUDGE_BASE_URL": judge_url or self.fake.url,
+                "EVAL_JUDGE_MODEL": "meta-llama/Llama-3.3-70B-Instruct", "Featherless_AP_KEY": "fl-fake-key-456"}
+
+    def test_preflight_prints_both_roles(self):
+        judge = FakeProvider()
+        self.addCleanup(judge.close)
+        group, out, err, stop = self.run_eval(self.env(judge.url))
+        self.assertIsNone(stop)
+        self.assertIn("generator OK together openai/gpt-oss-120b", out)
+        self.assertIn("judge OK featherless meta-llama/Llama-3.3-70B-Instruct", out)
+        self.assertEqual({c["agent"] for c in self.fake.calls + judge.calls}, {"reuse-gate/1.0"})
+        self.assertEqual({c["auth"] for c in judge.calls}, {"Bearer fl-fake-key-456"}, "the .env spelling of the Featherless key works")
+        self.assertEqual({c["model"] for c in judge.calls}, {"meta-llama/Llama-3.3-70B-Instruct"})
+        self.assertNotIn("openai/gpt-oss-120b", {c["model"] for c in judge.calls}, "no switching between roles")
+
+    def test_gated_403_stops_at_preflight_with_provider_model_status_and_reason(self):
+        self.fake.status, self.fake.error_body = 403, b"error code: 1010\n"
+        group, out, err, stop = self.run_eval(self.env())
+        self.assertIsNone(group)
+        self.assertEqual(stop, "generator preflight failed: together openai/gpt-oss-120b: HTTP 403 http_403: error code: 1010. "
+                               "Nothing was evaluated or written.")
+        self.assertEqual(len(self.fake.calls), 1, "403 is not retried and nothing else runs")
+
+    def test_judge_503_stops_at_preflight(self):
+        judge = FakeProvider()
+        self.addCleanup(judge.close)
+        judge.status = 503
+        group, out, err, stop = self.run_eval(self.env(judge.url))
+        self.assertIn("generator OK together openai/gpt-oss-120b", out)
+        self.assertTrue(stop.startswith("judge preflight failed: featherless meta-llama/Llama-3.3-70B-Instruct: HTTP 503 http_503: "), stop)
+        self.assertEqual(len(judge.calls), 2, "one retry on the same provider, no other provider")
+
+    def test_503_on_every_generation_is_reported_per_call_without_a_breaker(self):
+        self.fake.status, self.fake.fail_from = 503, 1  # the preflight passes, every generation fails
+        judge = FakeProvider()
+        self.addCleanup(judge.close)
+        group, out, err, stop = self.run_eval(self.env(judge.url))
+        lines = [l for l in err.splitlines() if l.startswith("explain failed")]
+        texts = 10 + 21
+        self.assertEqual(len(lines), texts)
+        for line in lines:
+            self.assertIn("together openai/gpt-oss-120b: HTTP 503 http_503: ", line)
+            self.assertNotIn("cooling_down", line)
+        self.assertEqual(len(self.fake.calls), 1 + 2 * texts, "every generation reached the provider: no circuit breaker")
+        self.assertEqual(judge.calls[1:], [], "the judge does not stand in for the generator")
+
+    def test_reasons_are_short_and_never_contain_the_key(self):
+        self.fake.status, self.fake.error_body = 401, ("invalid key tg-fake-key-123 " + "x" * 500).encode()
+        _, _, err, stop = self.run_eval(self.env())
+        self.assertNotIn("tg-fake-key-123", stop + err)
+        reason = stop.split("http_401: ")[1].split(". Nothing")[0]
+        self.assertLessEqual(len(reason), 120)
+        self.assertTrue(reason.startswith("invalid key [key] xxx"))
 
     def test_unknown_provider_is_refused(self):
         with patch.dict(os.environ, {"EVAL_GENERATOR_PROVIDER": "nowhere"}, clear=True), self.assertRaises(SystemExit):

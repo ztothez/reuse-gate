@@ -26,13 +26,17 @@ def load_env(path=".env"):
 
 
 class LLMError(RuntimeError):
-    """Raised when the configured model cannot provide a valid response. code is a short reason with no secret in it."""
+    """Raised when the configured model cannot provide a valid response. code is a short reason with no secret in it;
+    status is the HTTP status if there was one, and detail at most 120 characters of the provider's reply, key removed."""
     code = "error"
+    status = None
+    detail = ""
 
-    def __init__(self, message, code=None):
+    def __init__(self, message, code=None, status=None, detail=""):
         super().__init__(message)
         if code:
             self.code = code
+        self.status, self.detail = status, detail
 
 
 class LLMBudgetError(LLMError):
@@ -56,6 +60,7 @@ class LLMUnusableError(LLMError):
 
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
+USER_AGENT = "reuse-gate/1.0"  # urllib's default "Python-urllib" agent is refused with HTTP 403 by Cloudflare-fronted APIs (Together)
 
 
 class NoLLM:
@@ -183,6 +188,7 @@ class LLM:
         self.tier = tier or self.model
         self.use_cache = True
         self._skip_until = 0
+        self.breaker = True  # False for one-provider tools such as the evaluation: every call is tried
 
     @property
     def configured(self):
@@ -218,7 +224,7 @@ class LLM:
             self.last_model, self.last_tier = self.model, self.tier
             return cached
         with self._slot():
-            if time.monotonic() < self._skip_until:  # the breaker is open: no call until the cooldown ends
+            if self.breaker and time.monotonic() < self._skip_until:  # the breaker is open: no call until the cooldown ends
                 if self.fallback:
                     return self._from_fallback(messages, params, "cooling_down")
                 self.last_failures = [{"tier": self.tier, "reason": "cooling_down"}]
@@ -228,7 +234,8 @@ class LLM:
             except LLMBudgetError:
                 raise  # a spent budget must stop the run, not move the spending elsewhere
             except LLMError as exc:
-                self._skip_until = time.monotonic() + tier_cooldown()
+                if self.breaker:
+                    self._skip_until = time.monotonic() + tier_cooldown()
                 if not self.fallback:
                     self.last_failures = [{"tier": self.tier, "reason": exc.code}]
                     raise
@@ -261,7 +268,7 @@ class LLM:
 
     def _fetch(self, messages, params):
         body = json.dumps({"model": self.model, "messages": messages, **params}).encode()
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", "User-Agent": USER_AGENT}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         for attempt in range(self.retries + 1):
@@ -279,19 +286,33 @@ class LLM:
                 break
             except urllib.error.HTTPError as exc:
                 if exc.code == 403:
-                    raise LLMGatedError(f"HTTP 403: model {self.model} is gated for this key") from exc
+                    raise LLMGatedError(f"HTTP 403: model {self.model} is gated for this key", status=403, detail=self._detail(exc)) from exc
                 if exc.code not in RETRY_STATUS or attempt == self.retries:
-                    raise LLMError(f"LLM request failed: HTTP {exc.code}", f"http_{exc.code}") from exc
+                    raise LLMError(f"LLM request failed: HTTP {exc.code}", f"http_{exc.code}", exc.code, self._detail(exc)) from exc
             except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
                 if attempt == self.retries:
                     slow = isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError)
-                    raise LLMError(f"LLM request failed: {exc}", "timeout" if slow else "unreachable") from exc
+                    raise LLMError(f"LLM request failed: {exc}", "timeout" if slow else "unreachable",
+                                   detail=self._clip(str(getattr(exc, "reason", exc)))) from exc
             except (KeyError, IndexError, TypeError, ValueError) as exc:
                 raise LLMError(f"LLM response had an unexpected shape: {exc}", "bad_response") from exc
             time.sleep(self.retry_wait * (attempt + 1))
         if not isinstance(content, str) or not content.strip():
             raise LLMError("LLM returned an empty response", "empty_response")
         return content
+
+    def _clip(self, text):
+        """At most 120 characters, on one line, with the key removed. For error reports only."""
+        text = " ".join(str(text).split())
+        if self.api_key:
+            text = text.replace(self.api_key, "[key]")
+        return text[:120]
+
+    def _detail(self, exc):
+        try:
+            return self._clip(exc.read(400).decode("utf-8", "replace"))
+        except Exception:
+            return ""
 
     def json_chat(self, messages, **params):
         raw = re.sub(r"<think>.*?</think>", "", self.chat(messages, **params), flags=re.S).strip()
@@ -403,12 +424,12 @@ class LLM:
         cached = self._read_cache(key) if self.use_cache else None
         if cached is not None:
             return cached
-        if time.monotonic() < self._skip_until:
+        if self.breaker and time.monotonic() < self._skip_until:
             raise LLMError("embeddings are cooling down after a failure", "cooling_down")
         if self.calls >= self.max_calls:
             raise LLMBudgetError(f"LLM call budget exhausted ({self.max_calls})")
         self.calls += 1
-        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"}
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}", "User-Agent": USER_AGENT}
         req = urllib.request.Request(
             f"{self.base_url}/embeddings", data=json.dumps({"model": model, "input": texts}).encode(),
             headers=headers, method="POST",
@@ -418,7 +439,7 @@ class LLM:
                 vectors = [d["embedding"] for d in sorted(json.load(resp)["data"], key=lambda d: d["index"])]
         except urllib.error.HTTPError as exc:
             self._skip_until = time.monotonic() + tier_cooldown()
-            raise LLMError(f"embedding request failed: HTTP {exc.code}", f"http_{exc.code}") from exc
+            raise LLMError(f"embedding request failed: HTTP {exc.code}", f"http_{exc.code}", exc.code, self._detail(exc)) from exc
         except (urllib.error.URLError, TimeoutError, OSError, KeyError, TypeError, ValueError) as exc:
             self._skip_until = time.monotonic() + tier_cooldown()
             raise LLMError(f"embedding request failed: {exc}", "unreachable") from exc

@@ -29,7 +29,7 @@ import score_gold  # noqa: E402
 from reuse_gate import faithfulness  # noqa: E402
 from reuse_gate.answers import AnswerStore  # noqa: E402
 from reuse_gate.estate import Estate  # noqa: E402
-from reuse_gate.llm import AITTA_URL, FEATHERLESS_URL, LLM, TOGETHER_URL, NoLLM  # noqa: E402
+from reuse_gate.llm import AITTA_URL, FEATHERLESS_URL, LLM, TOGETHER_URL, LLMError, NoLLM  # noqa: E402
 from reuse_gate.pipeline import explain_brief, run_request  # noqa: E402
 from reuse_gate.recommend import parse_request, recommend, target_coverage  # noqa: E402
 from reuse_gate.remediate import simulate, snapshot_id  # noqa: E402
@@ -87,7 +87,7 @@ def explanation_cases(est, generator):
         try:
             lines = generator.explain(text, result["intent"], explain_brief(result["recommendation"]))
         except Exception as exc:  # one failure must not hide the rest
-            print(f"explain failed for {text[:40]}: {type(exc).__name__}", file=sys.stderr)
+            print(f"explain failed for {text[:40]!r}: {failure(generator, exc)}", file=sys.stderr)
             continue
         cases.append((result, lines, "generated"))
     return cases
@@ -171,7 +171,7 @@ def generation(est, generator, judge_client, judge_model):
             try:
                 verdicts.append(judge(judge_client, est, result, lines, prompt))
             except Exception as exc:
-                print(f"judge failed: {type(exc).__name__}", file=sys.stderr)
+                print(f"judge failed: {failure(judge_client, exc)}", file=sys.stderr)
         judged = metric("faithfulness_judge", "Faithfulness (LLM judge)", ratio(sum(verdicts), len(verdicts)), "share", len(verdicts),
                         f"{judge_model} on {judge_name} judges each distinct explanation against the decision and cited rows; prompt in data/judge_prompt.txt."
                         + (f" Explanations by {gen_model} on {gen_name}." if generator else ""),
@@ -441,23 +441,50 @@ def impact(est):
     ]}
 
 
-def clients():
-    """Generator and judge from EVAL_GENERATOR_* and EVAL_JUDGE_*. Keys only from the environment, never printed."""
-    _, _, gen_url, gen_key, gen_model = role("GENERATOR")
-    _, _, judge_url, judge_key, judge_model = role("JUDGE")
-    key = os.environ.get(gen_key, "")
-    generator = LLM(gen_url, key, gen_model or GENERATOR, timeout=300, retries=1) if key else None
-    key = os.environ.get(judge_key, "")
+def failure(client, exc):
+    """provider, model, HTTP status and a short reason. Never the key, never more than 120 characters of a reply."""
+    status = getattr(exc, "status", None)
+    reason = getattr(exc, "detail", "") or getattr(exc, "code", "") or type(exc).__name__
+    return (f"{getattr(client, 'provider_name', '?')} {getattr(client, 'model', '?')}: "
+            f"HTTP {status if status else '-'} {getattr(exc, 'code', type(exc).__name__)}: {reason}")[:300]
+
+
+def one_provider(kind):
+    """The client for one role: exactly the configured provider and model, no fallback, no circuit breaker, its own cache.
+    None when the role's key is not in the environment."""
+    provider, name, url, key_env, model = role(kind)
+    key = os.environ.get(key_env, "")
     if not key:
-        return generator, None, None
-    for model in ([judge_model] if judge_model else JUDGES):
-        judge_client = LLM(judge_url, key, model, timeout=300, retries=1)
-        try:
-            judge_client.json_chat([{"role": "user", "content": 'Return JSON only: {"faithful": true, "unsupported_claims": []}'}], temperature=0, max_tokens=50)
-            return generator, judge_client, model
-        except Exception as exc:
-            print(f"judge {model} unavailable: {type(exc).__name__}", file=sys.stderr)
-    return generator, None, None
+        print(f"{kind.lower()}: not configured, no {key_env} in the environment", file=sys.stderr)
+        return None
+    client = LLM(url, key, model or (GENERATOR if kind == "GENERATOR" else JUDGES[0]), timeout=300, retries=1,
+                 cache_dir=Path(os.environ.get("LLM_CACHE_DIR", ".llm_cache")) / f"eval-{provider}", tier=provider)
+    client.fallback, client.breaker, client.provider_name = None, False, provider  # one provider per role, every call tried
+    return client
+
+
+def preflight(kind, client):
+    """One tiny call before the real run. Stops the script with the provider, model, status and reason if it fails."""
+    client.use_cache = False  # a cached answer would prove nothing about the provider today
+    try:
+        reply = client.chat([{"role": "user", "content": "Reply with the word ready."}], temperature=0, max_tokens=300)
+    except LLMError as exc:
+        raise SystemExit(f"{kind} preflight failed: {failure(client, exc)}. Nothing was evaluated or written.")
+    finally:
+        client.use_cache = True
+    if not reply.strip():
+        raise SystemExit(f"{kind} preflight failed: {client.provider_name} {client.model}: empty reply. Nothing was evaluated or written.")
+    print(f"{kind} OK {client.provider_name} {client.model}", flush=True)
+
+
+def clients():
+    """Generator and judge from EVAL_GENERATOR_* and EVAL_JUDGE_*, each checked with one call first. Keys only from the
+    environment, never printed."""
+    generator, judge_client = one_provider("GENERATOR"), one_provider("JUDGE")
+    for kind, client in (("generator", generator), ("judge", judge_client)):
+        if client:
+            preflight(kind, client)
+    return generator, judge_client, judge_client.model if judge_client else None
 
 
 DETERMINISTIC_GROUPS = ("impact", "retrieval", "intent and decisions", "data")
