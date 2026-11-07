@@ -8,7 +8,7 @@ model-based metrics are reported as not run. Model answers are cached under .llm
 Providers, from the environment (defaults: both on CSC Aitta, generator openai/gpt-oss-120b, judges tried in JUDGES order):
   EVAL_GENERATOR_PROVIDER, EVAL_GENERATOR_BASE_URL, EVAL_GENERATOR_MODEL
   EVAL_JUDGE_PROVIDER, EVAL_JUDGE_BASE_URL, EVAL_JUDGE_MODEL
-Provider is aitta (key AITTA_API_KEY), together (TOGETHER_API_KEY) or featherless (FEATHERLESS_API_KEY). For example:
+Provider is aitta (key AITTA_API_KEY), together (TOGETHER_API_KEY) or featherless (FEATHERLESS_API_KEY or Featherless_AP_KEY). For example:
   EVAL_GENERATOR_PROVIDER=together EVAL_JUDGE_PROVIDER=together EVAL_JUDGE_MODEL=meta-llama/Llama-3.3-70B-Instruct-Turbo
 """
 import argparse
@@ -38,7 +38,7 @@ from reuse_gate.spec_gate import _summary, batch, canonical_only, estate_impact 
 GENERATOR = "openai/gpt-oss-120b"
 JUDGES = ("meta-llama/Llama-3.3-70B-Instruct", "google/gemma-4-31b-it")  # different families from the generator and GLM
 PROVIDERS = {"aitta": ("CSC Aitta", AITTA_URL, "AITTA_API_KEY"), "together": ("Together AI", TOGETHER_URL, "TOGETHER_API_KEY"),
-             "featherless": ("Featherless", FEATHERLESS_URL, "FEATHERLESS_API_KEY")}
+             "featherless": ("Featherless", FEATHERLESS_URL, ("FEATHERLESS_API_KEY", "Featherless_AP_KEY"))}
 DESIGNED_PROVIDER = "aitta"  # the evaluation was designed for CSC Aitta
 JUDGE_PROMPT = ROOT / "data/judge_prompt.txt"
 MIN_JUDGED = 30
@@ -122,6 +122,8 @@ def role(kind):
     if provider not in PROVIDERS:
         raise SystemExit(f"EVAL_{kind}_PROVIDER must be one of {', '.join(PROVIDERS)}")
     name, url, key_env = PROVIDERS[provider]
+    if isinstance(key_env, tuple):  # the first name that is set, else the first name
+        key_env = next((k for k in key_env if os.environ.get(k)), key_env[0])
     return provider, name, os.environ.get(f"EVAL_{kind}_BASE_URL") or url, key_env, os.environ.get(f"EVAL_{kind}_MODEL") or None
 
 
@@ -456,6 +458,18 @@ def clients():
         except Exception as exc:
             print(f"judge {model} unavailable: {type(exc).__name__}", file=sys.stderr)
     return generator, None, None
+
+
+DETERMINISTIC_GROUPS = ("impact", "retrieval", "intent and decisions", "data")
+MODEL_WORDS = re.compile(r"aitta|together|featherless|gpt-oss|glm|llama|gemma|qwen|\bllm\b|\bjudge", re.I)
+
+
+def deterministic(evaluation):
+    """{group: {metric id: metric}} for the metrics a run without keys must reproduce exactly. Leaves out the generation group
+    (model explanations, the judge, guard stats on generated text), the human-labelled group, and any metric whose method names
+    a model or provider."""
+    return {g["group"]: {m["id"]: m for m in g["metrics"] if not MODEL_WORDS.search(m["method"])}
+            for g in evaluation["groups"] if g["group"] in DETERMINISTIC_GROUPS}
 
 
 def evaluate(est, gold=None, generator=None, judge_client=None, judge_model=None):

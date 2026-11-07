@@ -1,3 +1,4 @@
+import copy
 import csv
 import importlib.util
 import json
@@ -179,11 +180,46 @@ class EvaluationTest(unittest.TestCase):
         self.assertGreaterEqual(judge["n"], eval_quality.MIN_JUDGED)
         self.assertEqual(Judge.calls, judge["n"])
 
+    def fresh(self):
+        return json.loads(json.dumps(eval_quality.deterministic(self.out)))
+
     def test_committed_file_matches_a_fresh_offline_run(self):
+        """Only the deterministic metrics: a committed file with generated explanations and judge scores must still pass."""
         saved = json.loads((ROOT / "data/evaluation.json").read_text(encoding="utf-8"))
         self.assertEqual(saved["estate_snapshot"], self.out["estate_snapshot"])
-        strip = lambda d: [g for g in d["groups"]]
-        self.assertEqual(strip(saved), json.loads(json.dumps(strip(self.out))))
+        self.assertEqual(eval_quality.deterministic(saved), self.fresh())
+
+    def test_the_comparison_covers_the_deterministic_metrics(self):
+        view = self.fresh()
+        self.assertEqual(list(view), ["impact", "retrieval", "intent and decisions", "data"])
+        for mid in ("new_builds_avoided", "citations_valid", "context_precision", "context_recall", "citation_validity",
+                    "intent_accuracy_after_loop", "referential_integrity", "ownerless_assets"):
+            self.assertTrue(any(mid in g for g in view.values()), mid)
+        self.assertFalse(any("judge" in mid or "faithfulness" in mid for g in view.values() for mid in g))
+
+    def test_a_keyed_run_with_generated_explanations_and_a_judge_still_passes(self):
+        keyed = copy.deepcopy(json.loads(json.dumps(self.out)))
+        gen = next(g for g in keyed["groups"] if g["group"] == "generation")
+        for m in gen["metrics"]:
+            m.update(value=0.9, n=37, method=m["method"] + " Generated explanations by openai/gpt-oss-120b on Together AI.",
+                     basis="AI explanations: 6 saved chip, 31 generated")
+        keyed["groups"].append({"group": "extra", "metrics": [{"id": "x", "method": "LLM judge on Together AI", "value": 1}]})
+        human = next(g for g in keyed["groups"] if g["group"] == "human-labelled")
+        human["metrics"][0]["value"] = 0.8
+        self.assertEqual(eval_quality.deterministic(keyed), self.fresh())
+
+    def test_a_tampered_deterministic_metric_still_fails(self):
+        for group, mid, field, value in (("impact", "new_builds_avoided", "value", 99), ("retrieval", "context_precision", "value", 1.0),
+                                         ("intent and decisions", "citation_validity", "n", 1), ("data", "ownerless_assets", "value", 0),
+                                         ("impact", "citations_valid", "method", "trust me")):
+            with self.subTest(mid=mid, field=field):
+                tampered = copy.deepcopy(json.loads(json.dumps(self.out)))
+                metric = next(m for g in tampered["groups"] if g["group"] == group for m in g["metrics"] if m["id"] == mid)
+                metric[field] = value
+                self.assertNotEqual(eval_quality.deterministic(tampered), self.fresh())
+        dropped = copy.deepcopy(json.loads(json.dumps(self.out)))
+        next(g for g in dropped["groups"] if g["group"] == "retrieval")["metrics"].pop()
+        self.assertNotEqual(eval_quality.deterministic(dropped), self.fresh(), "a removed metric fails too")
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")
