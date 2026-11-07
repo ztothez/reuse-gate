@@ -74,6 +74,16 @@ spec:
             - name: N8N_API_KEY
               valueFrom:
                 secretKeyRef: {name: reuse-gate-n8n, key: N8N_API_KEY, optional: true}
+            # Email: the API posts each event to the n8n "Reuse Gate notifications" workflow, which sends it with its own SMTP
+            # credential. The webhook secret and the recipient list live in reuse-gate-n8n; without them nothing is sent.
+            - {name: REUSE_GATE_NOTIFY_URL, value: "https://ztothez.app.n8n.cloud/webhook/reuse-gate-notify"}
+            - {name: REUSE_GATE_UI_URL, value: "https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com"}
+            - name: N8N_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-n8n, key: N8N_WEBHOOK_SECRET, optional: true}
+            - name: REUSE_GATE_NOTIFY_EMAILS
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-n8n, key: REUSE_GATE_NOTIFY_EMAILS, optional: true}
             - name: REUSE_GATE_WRITE_TOKEN
               valueFrom:
                 secretKeyRef: {name: reuse-gate-access, key: REUSE_GATE_WRITE_TOKEN, optional: true}
