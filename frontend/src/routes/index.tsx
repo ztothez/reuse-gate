@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { isDemo, onDemoChange } from "@/lib/api";
-import { useRole } from "@/lib/role";
+import { hasInvalidStoredRole, useRole } from "@/lib/role";
 import { useRequestState } from "@/lib/use-request";
 import { cn } from "@/lib/utils";
 import { RoleSwitcher } from "@/components/gate/RoleSwitcher";
@@ -32,6 +32,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [demo, setDemo] = useState(false);
   const [role, setRole] = useRole();
+  const [invalidStorage, setInvalidStorage] = useState(false);
+  useEffect(() => setInvalidStorage(hasInvalidStoredRole()), []);
   // One request is shared by every role, so a requester's question reaches the approver.
   const request = useRequestState();
   useEffect(() => {
@@ -72,6 +74,9 @@ function Index() {
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {invalidStorage && <div role="status" className="mb-6 text-sm">
+          Invalid saved role was ignored. <button className="min-h-16 min-w-16 rounded border px-4 font-semibold" onClick={() => { setRole("requester"); setInvalidStorage(false); }}>Reset saved role</button>
+        </div>}
         {role === "requester" && <RequesterView state={request} />}
         {role === "approver" && <ApproverView state={request} />}
         {role === "steward" && <NewRequest state={request} />}
