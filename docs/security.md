@@ -21,10 +21,10 @@ Sandbox), with synthetic data created by SinceAI. This note says what is protect
 | Poisoned data: instructions hidden in an asset name | Asset names are never used for matching. An AI explanation that repeats instruction-like wording, or states an id, number, KPI or status the decision does not support, is replaced (`ai.guard: replaced`) | The rules rationale names the target asset, so a poisoned name is shown, and read aloud by Listen, as data. Production should validate names at ingest |
 | Hallucinated facts in an explanation | Deterministic faithfulness guard; LLM judge in `scripts/eval_quality.py` | The guard checks facts, not reasoning |
 | Key leak through responses, errors or logs | Keys only from the environment or cluster secrets. Provider errors are mapped to short messages. Unexpected failures answer `{"error": "internal error"}` and log only the exception type. The access log is the request line and status, with any configured secret value redacted | A key in the request line of a log is redacted only if it is one of the configured names |
-| Unauthorised approval or remediation | Optional shared `REUSE_GATE_WRITE_TOKEN`, checked in constant time, for `/approve`, `/remediate` and work item re-checks | One shared code, not user identity. Reads, including `GET /log` with approver names, are open |
+| Unauthorised approval or remediation | Optional shared `REUSE_GATE_WRITE_TOKEN`, checked in constant time, for `/approve` and `/remediate` only | One shared code, not user identity. Creating, re-checking and answering a work item stay open by design, so a requester can answer questions without a code; anyone with the URL can add work items, limited to 30 a minute per address. Reads, including `GET /log` with approver names, are open |
 | Cost abuse (models, audio) | Per-address rate limits (`/recommend` 30, `/requests` 30, `/speak` 10, `/remediate` 30, `/approve` 30, `/spec` 30 a minute; `/transcribe` 6), a per-process model call budget, a global model concurrency limit, `/speak` capped at 1000 characters and cached, `/transcribe` at 1 MB and 100 calls per process | Limits are per process and reset on restart. The client address is the last `X-Forwarded-For` entry, which assumes the OpenShift router appends it |
 | Oversized or malformed input | 1 MB body cap, request text cut at 2000 characters, JSON shape checks, `http.server` errors answered as JSON | A 1 MB body is still parsed; a tighter cap needs frontend agreement |
-| Cross-site use of the API from another web page | CORS allow-list: the deployed UI and localhost. `CORS_ORIGINS` replaces it | CORS is a browser control, not authentication: any non-browser client can call the API |
+| Cross-site use of the API from another web page | CORS allow-list: the deployed UI and `http://localhost` or `http://127.0.0.1` on any port (Vite uses 8081 here). `CORS_ORIGINS` replaces it. Tested origin by origin, including look-alikes such as `http://localhost.evil.example` | CORS is a browser control, not authentication: any non-browser client can call the API |
 | Script or markup in text fields | All responses are JSON with `nosniff`; the UI renders text with React escaping | The UI's own Content-Security-Policy is not set (nginx config is in `frontend/`) |
 | Clickjacking, sniffing, caching of API answers | `X-Frame-Options: DENY`, `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, HSTS. The `Server` header hides the Python version | |
 | Unknown methods and probes | `PUT`, `DELETE`, `PATCH`, `HEAD`, `TRACE`, `CONNECT` answer 405 JSON | |
@@ -83,26 +83,29 @@ recomputes every decision from the data pack, compares what the client claims, a
 | Protected | Not protected |
 | --- | --- |
 | Decisions cannot be changed by a model, a request text, an asset name or a client field | No user login. Anyone with the URL can submit, read the log and, without the token, approve |
-| Keys never appear in responses, errors or logs (tested with fake keys and providers that echo them) | Logs, work items and the decision log are files in the pod with no volume: lost on restart |
-| Approvals and remediation need the access code when `REUSE_GATE_WRITE_TOKEN` is set | The access code is shared, so the log cannot prove who approved |
+| Keys never appear in responses, errors or logs (tested with fake keys and providers that echo them) | Work items and the decision log are JSON lines on a 1Gi volume (`reuse-gate-state`) once `api.yaml` is applied; not backed up |
+| Approvals and remediation need the access code when `REUSE_GATE_WRITE_TOKEN` is set; requesters answer questions without it | The access code is shared, so the log cannot prove who approved. Work items can be created by anyone with the URL |
 | Rate limits, size caps, JSON errors, security headers, CORS allow-list | Rate limits are per process and per replica |
 | Containers run as a random non-root UID; no secrets in either image | Frontend dependencies have open advisories (see scans) |
 
 ## Results
 
 `python3 -I scripts/security_check.py http://127.0.0.1:8799 --secret-env ... --log api.log --rate`, against the real API
-process with fake keys and providers that echo the key they were sent:
+process with fake keys and providers that echo the key they were sent. The current run adds `--write-token-env REUSE_GATE_WRITE_TOKEN`
+and runs the same way as the pipeline's security gate (rules only, throwaway token and n8n key):
 
 | Check | Result |
 | --- | --- |
 | Security headers, server banner, CORS allow and refuse, 405 for unknown methods | PASS |
+| CORS grants the deployed UI route, `http://localhost:8081` and `http://127.0.0.1:5173` | PASS |
+| Write token: `/approve` and `/remediate` refuse a missing or wrong code and accept the right one; creating and answering a work item need no code | PASS |
 | Malformed JSON 400, oversized body refused, oversized audio 413, unparsable request answered as JSON | PASS |
 | Five prompt injections in request text: no decision changed | PASS |
 | Unicode, `<script>`, markdown links, right-to-left override and NUL in text stay data in JSON | PASS |
 | `/speak` length limit and rate limit | PASS |
 | No stack trace or HTML in 24 responses | PASS |
 | No secret value in any response, header or the server log (5 secrets) | PASS |
-| Total | 17 of 17 |
+| Total | 19 of 19 (17 of 17 before the CORS port and write scope checks were added) |
 
 Unit tests (`backend/tests/test_security.py`) add a poisoned asset name, which changes no decision on 40 requests, a guard
 that replaces an explanation echoing it, a bare 500 for unexpected failures, and the per-address limit on `/recommend`.

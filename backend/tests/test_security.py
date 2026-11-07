@@ -145,10 +145,10 @@ class LiveApiChecks(unittest.TestCase):
         secrets = [v for k, v in FAKE.items() if v] + ["fake-write-token-123456"]
         log = io.StringIO()
         with redirect_stderr(log):
-            rows = security_check.Checker(f"http://127.0.0.1:{self.httpd.server_port}", secrets).run(rate=True)
+            rows = security_check.Checker(f"http://127.0.0.1:{self.httpd.server_port}", secrets).run(rate=True, token="fake-write-token-123456")
         failed = [(n, d) for n, ok, d in rows if not ok]
         self.assertEqual(failed, [])
-        self.assertEqual(len(rows), 16)
+        self.assertEqual(len(rows), 18)
         text = log.getvalue()
         self.assertTrue(text, "the server did log requests")
         for s in secrets:
@@ -205,6 +205,23 @@ class HardeningTest(unittest.TestCase):
         self.assertEqual(security.cors_origin(security.LIVE_UI), security.LIVE_UI)
         self.assertIsNone(security.cors_origin("https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com.evil.example"))
         self.assertIsNone(security.cors_origin("http://localhost.evil.example"))
+
+    def test_cors_grants_the_deployed_ui_and_local_dev_on_any_port(self):
+        allowed = [security.LIVE_UI, "http://localhost:8081", "http://localhost:8080", "http://localhost:5173", "http://127.0.0.1:8081", "http://localhost"]
+        refused = ["https://evil.example", "http://localhost.evil.example", "http://localhost:8081.evil.example", "http://127.0.0.2:8081",
+                   "https://localhost:8081", "http://evil.example/http://localhost:8081", "null", "http://LOCALHOST:8081x"]
+        for origin in allowed:
+            with self.subTest(origin=origin):
+                _, headers, _ = self.call("/recommend", method="OPTIONS", headers={"Origin": origin, "Access-Control-Request-Method": "POST"})
+                self.assertEqual(headers.get("Access-Control-Allow-Origin"), origin)
+                self.assertIn("X-Access-Code", headers.get("Access-Control-Allow-Headers"))
+                _, headers, _ = self.call("/health", headers={"Origin": origin})
+                self.assertEqual(headers.get("Access-Control-Allow-Origin"), origin)
+                self.assertEqual(headers.get("Vary"), "Origin")
+        for origin in refused:
+            with self.subTest(origin=origin):
+                _, headers, _ = self.call("/health", headers={"Origin": origin})
+                self.assertIsNone(headers.get("Access-Control-Allow-Origin"))
 
     def test_redaction(self):
         with patch.dict(os.environ, {"AITTA_API_KEY": "abcdef123456"}):

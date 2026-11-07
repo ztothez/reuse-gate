@@ -103,7 +103,7 @@ spec:
                 python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8796/healthz', timeout=1)" 2>/dev/null && break
                 sleep 0.2
               done
-              python3 -I scripts/security_check.py http://127.0.0.1:8796 --secret-env REUSE_GATE_WRITE_TOKEN N8N_API_KEY --log "$LOG" --rate
+              python3 -I scripts/security_check.py http://127.0.0.1:8796 --secret-env REUSE_GATE_WRITE_TOKEN N8N_API_KEY --log "$LOG" --rate --write-token-env REUSE_GATE_WRITE_TOKEN
       params:
         - {name: image, value: $(params.image)}
     - name: rollout

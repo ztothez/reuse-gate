@@ -19,7 +19,8 @@ POST /approve    {request_id, decision, approver, owner, review_by, text?, inten
 GET  /log                                              -> approvals recorded by this process
 State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
 startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
-With REUSE_GATE_WRITE_TOKEN set, POST /approve, /remediate and work item re-checks need a matching X-Access-Code header.
+With REUSE_GATE_WRITE_TOKEN set, POST /approve and /remediate need a matching X-Access-Code header. Creating, re-checking and
+answering a work item through /requests stay open, so a requester can answer questions without a code; they are rate limited.
 GET  /health, /healthz                                 -> ok, the decision backend in use and whether reuse-gate-kserve answers
 GET  /n8n/radar-digest
 POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
@@ -386,8 +387,6 @@ class Handler(BaseHTTPRequestHandler):
             new = workitems.new_id()
             item = STORE.create(run_item(new, text.strip(), answers or [], rounds or []), requester and requester[:100], request_id=new)
             return self._send(200, {"request_id": item["request_id"], "status": item["status"], "result": item["result"]})
-        if not write_authorized(self):
-            return self._send(401, {"error": "access code required"})
         item = STORE.get(rid) if isinstance(rid, str) else None
         if not item:
             return self._send(404, {"error": "no such request"})
@@ -409,7 +408,7 @@ if __name__ == "__main__":
     LLM_CLIENT = live_client()
     WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
     if not WRITE_TOKEN:
-        print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve, remediate and work item updates are open to anyone", file=sys.stderr)
+        print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve and remediate are open to anyone", file=sys.stderr)
     state = Path(os.environ.get("REUSE_GATE_STATE_DIR") or ".")
     LOG_FILE = str(state / "decision_log.jsonl")
     LOG[:] = load_log(LOG_FILE)

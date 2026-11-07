@@ -344,12 +344,13 @@ and all 80 then pass every gate (specs passing every gate would go from 13/124 t
 `POST /requests` keeps a request as a work item with a status: `clarifying`, `awaiting_approval`, `human_review`, `approved`
 or `rejected`. Re-checks reuse the item's stored answers and rounds. `/approve` and `/remediate` take the item's `request_id`,
 set its status and add to its activity trail; a remediation is recorded as simulated. `GET /requests` lists items, newest first.
-Items are stored as JSON lines in `requests.jsonl` next to the decision log, at most 500. An empty store is seeded with the
+Items are stored as JSON lines in `requests.jsonl` next to the decision log (in `REUSE_GATE_STATE_DIR`, on a volume in the cluster), at most 500. An empty store is seeded with the
 10 example chips as samples (`SAMPLE-01` to `SAMPLE-10`, requester "Sample user"), from saved answers and with no model call.
 `/recommend` is unchanged and creates no work item.
 
-With `REUSE_GATE_WRITE_TOKEN` set, `/approve`, `/remediate` and work item re-checks need the same value in an `X-Access-Code`
-header. Reading, creating requests, `/recommend` and `/speak` stay open. Without it the API logs a warning at startup and stays
+With `REUSE_GATE_WRITE_TOKEN` set, only `/approve` and `/remediate` need the same value in an `X-Access-Code` header. Creating a
+work item, re-checking it and answering its clarification questions through `/requests` stay open, so a requester never needs
+the code; they are rate limited per address like every other write. Reading, `/recommend` and `/speak` stay open too. Without it the API logs a warning at startup and stays
 open as before. This is a shared code, not user accounts: it stops casual changes, not a determined insider.
 
 ### What-if remediation and the decision record
@@ -383,7 +384,8 @@ against any running API, and `python3 -I scripts/secret_scan.py` scans the track
 
 ### Access governance: design only, NOT IMPLEMENTED
 
-**None of this exists in the prototype. The API has no login, `/approve` trusts the name it is given, and CORS is open.**
+**None of this exists in the prototype. The API has no login, and `/approve` trusts the name it is given.** CORS is limited to
+the deployed UI and localhost, and approvals can require a shared access code, but neither is identity.
 A real deployment would need:
 
 - Single sign-on, with the approver taken from the session and not typed in.
