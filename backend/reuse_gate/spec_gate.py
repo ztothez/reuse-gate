@@ -150,6 +150,65 @@ def _summary(est, rows):
     }
 
 
+def estate_impact(est):
+    """The estate today, against the same 150 requests with and without the check. Counts recommendations, not completed work."""
+    intents = [parse_request(est, req) for req in est.requests]
+    results = [(i, recommend(est, i)) for i in intents]
+    requests, builds = len(results), [(i, r) for i, r in results if r.action == "new_build"]
+    retired = {a for _, r in results for a in r.retire}
+    repaired = {r.target: r.repair for _, r in results if r.action in ("repair_and_reuse", "extend")}
+    ownerless = {a for a in est.assets if not est.owner_active(est.assets[a])}
+    high_reach = {a for a, x in est.assets.items() if x["endorsement"] not in ("certified", "promoted") and est.views(a) >= 1000}
+    gets_owner = {a for a, gaps in repaired.items() if any(g.startswith("owner ") for g in gaps)}
+    gets_trust = {a for a, gaps in repaired.items() if "not certified or promoted" in gaps}
+    today = len(est.assets)
+    return {
+        "today": today, "requests": requests, "without": today + requests, "with": today + len(builds) - len(retired),
+        "builds": len(builds), "avoided": requests - len(builds), "retired": len(retired), "consolidate": len({a for _, r in results for a in r.consolidate}),
+        "distinct_builds": len({(tuple(i.products), i.market, tuple(sorted(i.kpis))) for i, _ in builds}), "repaired": len(repaired),
+        "ownerless": len(ownerless), "ownerless_after": len(ownerless - gets_owner - retired),
+        "high_reach": len(high_reach), "high_reach_after": len(high_reach - gets_trust - retired),
+    }
+
+
+def impact_svg(impact):
+    """One series, so one colour, on one zero baseline. The table next to it in the report carries the same numbers."""
+    bars = [("Today", impact["today"]), ("After 150 requests, with Reuse Gate", impact["with"]), ("After 150 requests, no check", impact["without"])]
+    width, left, right, top, gap, thick = 720, 16, 64, 20, 58, 24
+    scale = (width - left - right) / max(v for _, v in bars)
+    marks = []
+    for n, (name, value) in enumerate(bars):
+        y, w = top + n * gap, value * scale
+        marks.append(f'<text class="label" x="{left}" y="{y + 12}">{name}</text>')
+        marks.append(f'<path class="bar" d="M{left} {y + 20}h{w - 4:.1f}a4 4 0 0 1 4 4v{thick - 8}a4 4 0 0 1 -4 4h-{w - 4:.1f}z"><title>{name}: {value} assets</title></path>')
+        marks.append(f'<text class="value" x="{left + w + 8:.1f}" y="{y + 37}">{value}</text>')
+    height = top + len(bars) * gap + 8
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" role="img" '
+            f'aria-label="Assets in the estate: {", ".join(f"{n} {v}" for n, v in bars)}">\n<title>Assets in the estate</title>\n'
+            '<style>\n.surface{fill:#fcfcfb}.bar{fill:#2a78d6}.label{fill:#52514e;font:13px sans-serif}.value{fill:#0b0b0b;font:600 14px sans-serif}\n'
+            '@media (prefers-color-scheme:dark){.surface{fill:#1a1a19}.bar{fill:#3987e5}.label{fill:#c3c2b7}.value{fill:#f0efec}}\n</style>\n'
+            f'<rect class="surface" width="{width}" height="{height}" rx="6"/>\n' + "\n".join(marks) + "\n</svg>\n")
+
+
+def impact_lines(impact):
+    return ["## Estate impact: before and after", "",
+            f"![Assets in the estate: {impact['today']} today, {impact['with']} after 150 requests with Reuse Gate, {impact['without']} with no check](estate_impact.svg)", "",
+            "| Measure | Today | After 150 requests, no check | After 150 requests, with Reuse Gate |", "| --- | --- | --- | --- |",
+            f"| Assets in the estate | {impact['today']} | {impact['without']} | {impact['with']} |",
+            f"| New assets | | {impact['requests']} | {impact['builds']} |",
+            f"| Assets retired | | 0 | {impact['retired']} |",
+            f"| Existing assets repaired or extended | | 0 | {impact['repaired']} |",
+            f"| Assets with no active owner | {impact['ownerless']} | not modelled | {impact['ownerless_after']} |",
+            f"| High-reach assets that are not certified or promoted | {impact['high_reach']} | not modelled | {impact['high_reach_after']} |", "",
+            f"The gate avoids {impact['avoided']} of {impact['requests']} new builds, and the estate ends {impact['without'] - impact['with']} assets smaller than with no check.", "",
+            "How to read this:", "",
+            "- This is a projection from the recommendations, not a measured result. It assumes every recommendation is approved and carried out.",
+            "- \"No check\" assumes every request becomes one new asset. The data pack does not record what would really have happened.",
+            f"- Some requests repeat. The {impact['builds']} new builds cover {impact['distinct_builds']} distinct combinations of product, market and KPIs, so a real team could build fewer. The figure does not count that saving.",
+            f"- Requests sent to human review add no asset here, and a person may still decide to build. The {impact['consolidate']} assets to consolidate later are not removed.",
+            "- Owner and certification rows only count gaps that a recommended repair names on its target. New assets must have an owner to pass the gates, so they add no ownerless assets.", ""]
+
+
 def report(est, rows):
     total, specs = len(rows), [r for r in rows if r["spec"]]
     passed = [r for r in specs if r["passed"]]
@@ -188,6 +247,7 @@ def report(est, rows):
     gate_names = ("canonical_kpis", "certified_healthy_model", "owner_and_review_date", "measures_in_catalog",
                   "no_alive_duplicate", "valid_extend_target", "evidence_cited")
     lines += [f"| {g} | {by_gate[g]} |" for g in gate_names]
+    lines[lines.index("## Failures by gate"):lines.index("## Failures by gate")] = impact_lines(estate_impact(est))
     lines += ["", "## Most common failure reasons", ""]
     for g in gate_names:
         for detail, n in details[g].most_common(5):
@@ -220,6 +280,7 @@ def main(db, out="docs/quality_report.md"):
     text = report(est, rows)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(text, encoding="utf-8")
+    (Path(out).parent / "estate_impact.svg").write_text(impact_svg(estate_impact(est)), encoding="utf-8")
     print(text)
 
 

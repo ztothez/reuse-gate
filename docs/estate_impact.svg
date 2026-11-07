@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 202" width="720" role="img" aria-label="Assets in the estate: Today 360, After 150 requests, with Reuse Gate 451, After 150 requests, no check 510">
+<title>Assets in the estate</title>
+<style>
+.surface{fill:#fcfcfb}.bar{fill:#2a78d6}.label{fill:#52514e;font:13px sans-serif}.value{fill:#0b0b0b;font:600 14px sans-serif}
+@media (prefers-color-scheme:dark){.surface{fill:#1a1a19}.bar{fill:#3987e5}.label{fill:#c3c2b7}.value{fill:#f0efec}}
+</style>
+<rect class="surface" width="720" height="202" rx="6"/>
+<text class="label" x="16" y="32">Today</text>
+<path class="bar" d="M16 40h447.8a4 4 0 0 1 4 4v16a4 4 0 0 1 -4 4h-447.8z"><title>Today: 360 assets</title></path>
+<text class="value" x="475.8" y="57">360</text>
+<text class="label" x="16" y="90">After 150 requests, with Reuse Gate</text>
+<path class="bar" d="M16 98h562.0a4 4 0 0 1 4 4v16a4 4 0 0 1 -4 4h-562.0z"><title>After 150 requests, with Reuse Gate: 451 assets</title></path>
+<text class="value" x="590.0" y="115">451</text>
+<text class="label" x="16" y="148">After 150 requests, no check</text>
+<path class="bar" d="M16 156h636.0a4 4 0 0 1 4 4v16a4 4 0 0 1 -4 4h-636.0z"><title>After 150 requests, no check: 510 assets</title></path>
+<text class="value" x="664.0" y="173">510</text>
+</svg>

@@ -3,6 +3,7 @@ import copy
 import unittest
 from pathlib import Path
 
+from reuse_gate import spec_gate
 from reuse_gate.estate import Estate
 from reuse_gate.pipeline import rec_json
 from reuse_gate.recommend import parse_request, recommend
@@ -123,6 +124,21 @@ class SpecGateTest(unittest.TestCase):
         self.assertTrue(any(role == "primary" and self.est.kpis[key[1]]["definition_status"] != "canonical" for key, role in self.est.kpi_roles.items()))
         self.assertFalse(any(role == "primary" and self.est.kpis[key[1]]["definition_status"] != "canonical" for key, role in strict.kpi_roles.items()))
         self.assertIn("the rule has not changed", report(self.est, batch(self.est)))
+
+    def test_estate_impact_adds_up_and_the_committed_figure_is_current(self):
+        impact = spec_gate.estate_impact(self.est)
+        self.assertEqual(impact["today"], len(self.est.assets))
+        self.assertEqual(impact["builds"] + impact["avoided"], impact["requests"])
+        self.assertEqual(impact["without"], impact["today"] + impact["requests"])
+        self.assertEqual(impact["with"], impact["today"] + impact["builds"] - impact["retired"])
+        self.assertEqual((impact["requests"], impact["avoided"], impact["retired"], impact["consolidate"]), (150, 57, 2, 2), "the baseline in CLAUDE.md")
+        self.assertLessEqual(impact["distinct_builds"], impact["builds"])
+        self.assertLessEqual(impact["ownerless_after"], impact["ownerless"])
+        svg = spec_gate.impact_svg(impact)
+        self.assertEqual(svg, (ROOT / "docs/estate_impact.svg").read_text(encoding="utf-8"))
+        written = (ROOT / "docs/quality_report.md").read_text(encoding="utf-8")
+        self.assertIn(f"| Assets in the estate | {impact['today']} | {impact['without']} | {impact['with']} |", written)
+        self.assertIn("(estate_impact.svg)", written)
 
     def test_batch_covers_all_requests_and_reruns_identically(self):
         first, second = batch(self.est), batch(self.est)

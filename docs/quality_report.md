@@ -16,6 +16,29 @@ wanted. The rule-based parser ran here, with no LLM, so a rerun gives the same n
 A blocked spec is the system working as designed: the estate is deliberately messy, and the gate names what must
 be fixed before release.
 
+## Estate impact: before and after
+
+![Assets in the estate: 360 today, 451 after 150 requests with Reuse Gate, 510 with no check](estate_impact.svg)
+
+| Measure | Today | After 150 requests, no check | After 150 requests, with Reuse Gate |
+| --- | --- | --- | --- |
+| Assets in the estate | 360 | 510 | 451 |
+| New assets | | 150 | 93 |
+| Assets retired | | 0 | 2 |
+| Existing assets repaired or extended | | 0 | 11 |
+| Assets with no active owner | 86 | not modelled | 82 |
+| High-reach assets that are not certified or promoted | 40 | not modelled | 40 |
+
+The gate avoids 57 of 150 new builds, and the estate ends 59 assets smaller than with no check.
+
+How to read this:
+
+- This is a projection from the recommendations, not a measured result. It assumes every recommendation is approved and carried out.
+- "No check" assumes every request becomes one new asset. The data pack does not record what would really have happened.
+- Some requests repeat. The 93 new builds cover 67 distinct combinations of product, market and KPIs, so a real team could build fewer. The figure does not count that saving.
+- Requests sent to human review add no asset here, and a person may still decide to build. The 2 assets to consolidate later are not removed.
+- Owner and certification rows only count gaps that a recommended repair names on its target. New assets must have an owner to pass the gates, so they add no ownerless assets.
+
 ## Failures by gate
 
 | Gate | Specs failing |
