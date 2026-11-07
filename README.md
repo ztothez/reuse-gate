@@ -222,6 +222,7 @@ The API uses `openai/gpt-oss-120b` on CSC Aitta (`AITTA_API_KEY`), with automati
 (`FEATHERLESS_API_KEY`). A timeout, HTTP error, gated model, empty reply or invalid JSON moves that call to the fallback, and a
 failed primary is skipped for 120 seconds so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
 (`LLM_MAX_CALLS`) stops instead of moving the spending to the fallback. The UI names the model that wrote each explanation.
+The two providers are the default tiers of a configurable chain, see "Portability to OpenShift AI".
 
 Run `python3 -I scripts/warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
 primary is ready, 1 if only the fallback is, and 2 if neither is. `backend/reuse_gate/llm.py` also keeps an on-disk response cache.
@@ -434,6 +435,42 @@ EXPORT=$(mktemp -d) && git archive HEAD:frontend | tar -x -C "$EXPORT"
 oc start-build reuse-gate-ui --from-dir="$EXPORT" --follow
 oc rollout restart deploy/reuse-gate-ui
 ```
+
+### Portability to OpenShift AI
+
+The decision engine and the KServe endpoint run on OpenShift today, while the language models are external providers in the demo.
+
+The model chain is configured only by environment variables, so a tier moves into the cluster without a code change. Tiers are
+tried in the listed order, and the rule baseline always answers last. Every result says which tier answered
+(`ai.tier`, `ai.explanation_tier`: a tier name, `saved` for a saved answer, or `rules`) and which tiers failed and why
+(`ai.tiers_failed`: `[{tier, call, reason}]`, short codes such as `timeout`, `http_401`, `http_503`, `unreachable`,
+`invalid_json`, `cooling_down`; never a key or a URL).
+
+| Variable | Meaning | Default |
+| --- | --- | --- |
+| `REUSE_GATE_LLM_TIERS` | Comma-separated tier names, in order | `aitta,featherless` |
+| `REUSE_GATE_LLM_<TIER>_BASE_URL` | OpenAI-compatible base URL, ending in `/v1` | `aitta`: `https://aitta-api.csc.fi/openai/v1`; `featherless`: `https://api.featherless.ai/v1` |
+| `REUSE_GATE_LLM_<TIER>_MODEL` | Model name sent in the request | `aitta`: `openai/gpt-oss-120b`; `featherless`: `zai-org/GLM-5.2` |
+| `REUSE_GATE_LLM_<TIER>_API_KEY` | Bearer key, from a Secret only | `aitta`: `AITTA_API_KEY`; `featherless`: `FEATHERLESS_API_KEY` or `Featherless_AP_KEY` |
+| `REUSE_GATE_LLM_<TIER>_TIMEOUT_S` | Seconds per call | `aitta`: `LLM_TIMEOUT` (20); `featherless`: `LLM_FALLBACK_TIMEOUT` (40); other tiers: `LLM_TIMEOUT` |
+
+A tier with no base URL or model is skipped. The built-in external tiers are also skipped without a key; any other tier, such as
+a vLLM endpoint inside the cluster, may run without one. `LLM_MODE=rules` still turns every tier off. With none of these variables
+set, the chain is exactly the previous one.
+
+Example: a vLLM ServingRuntime on OpenShift AI as the first tier, with the external providers behind it.
+
+```yaml
+# InferenceService "reuse-gate-llm" on the vLLM CPU (or CUDA) ServingRuntime from the OpenShift AI dashboard, then in the API Deployment:
+env:
+  - {name: REUSE_GATE_LLM_TIERS, value: "incluster,aitta,featherless"}
+  - {name: REUSE_GATE_LLM_INCLUSTER_BASE_URL, value: "http://reuse-gate-llm-predictor.ztothez-dev.svc.cluster.local/v1"}
+  - {name: REUSE_GATE_LLM_INCLUSTER_MODEL, value: "reuse-gate-llm"}   # vLLM's --served-model-name
+  - {name: REUSE_GATE_LLM_INCLUSTER_TIMEOUT_S, value: "20"}
+```
+
+Setting `REUSE_GATE_LLM_TIERS=incluster` alone keeps every request and decision brief inside the cluster. Details, data flows and
+what was measured are in [docs/openshift.md](docs/openshift.md).
 
 ### n8n: approval webhook and radar digest
 

@@ -441,6 +441,13 @@ class Parsed:
     reason: str | None = None  # why the rules answered: off, guard, saved_rules, busy, budget, unusable, unavailable, timeout
     model: str | None = None
     cached: bool = False
+    tier: str = "rules"  # the model tier that answered, "saved" for a saved answer, or "rules"
+    failures: list = field(default_factory=list)  # [{tier, reason}] for each tier that failed, in order
+
+
+def tier_trail(client):
+    """(answering tier, failed tiers) of the client's last call on this thread. Short reason codes only, never a secret."""
+    return getattr(client, "last_tier", None), [dict(f) for f in getattr(client, "last_failures", None) or ()]
 
 
 def rules_intent_record(intent):
@@ -474,8 +481,11 @@ def parse_with_reason(est, req, client=None, embedder=None):
         return Parsed(saved_rules_intent(req, text, entry["intent"]), "rules", "saved_rules", None, True)
     saved = store.intent(text) if store else None
     match_notes = []
+    tier, failures = "saved", []
     try:
         value = saved if saved is not None else client.parse_intent(text, *intent_lists(est))
+        if saved is None:
+            tier, failures = tier_trail(client)
         model = store.model(text) if saved is not None else getattr(client, "last_model", None)
         products, market, kpis, kind, clarifications = clean_llm_intent(est, req, value)
         if products and not kpis and saved is None:  # a saved answer must not trigger model calls
@@ -490,16 +500,16 @@ def parse_with_reason(est, req, client=None, embedder=None):
     except LLMBudgetError:
         return Parsed(parse_request(est, req), "rules", "budget")
     except LLMUnusableError:
-        return Parsed(parse_request(est, req), "rules", "unusable")
+        return Parsed(parse_request(est, req), "rules", "unusable", failures=failures)
     except Exception:  # whatever a provider or its output does, the person still gets a governed answer
-        return Parsed(parse_request(est, req), "rules", "unavailable")
+        return Parsed(parse_request(est, req), "rules", "unavailable", failures=tier_trail(client)[1] if saved is None else [])
     if store and saved is None and not match_notes:
         store.put_intent(text, value, model)
     variants, named, missing, notes = _guard_notes(est, req["request_text"])
     market, market_notes = resolve_market(est, req, text, market)
     clarifications = [c[:300] for c in clarifications[:MAX_LLM_CLARIFICATIONS]] + match_notes + notes + market_notes
     intent = Intent(req["request_id"], text, products, market, kpis, kind, clarifications, variants, named, missing)
-    return Parsed(intent, "llm", None, model, saved is not None)
+    return Parsed(intent, "llm", None, model, saved is not None, tier or "unknown", failures)
 
 
 def parse_request_llm(est, req, client=None, embedder=None):

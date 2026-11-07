@@ -26,23 +26,33 @@ def load_env(path=".env"):
 
 
 class LLMError(RuntimeError):
-    """Raised when the configured model cannot provide a valid response."""
+    """Raised when the configured model cannot provide a valid response. code is a short reason with no secret in it."""
+    code = "error"
+
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        if code:
+            self.code = code
 
 
 class LLMBudgetError(LLMError):
     """The call budget is spent. Callers must stop, not retry."""
+    code = "budget"
 
 
 class LLMGatedError(LLMError):
     """HTTP 403: this key may not use this model. Retrying cannot help."""
+    code = "http_403"
 
 
 class LLMBusyError(LLMError):
     """Every model slot is in use. The request gets the rules now, with no call and no use of the fallback."""
+    code = "busy"
 
 
 class LLMUnusableError(LLMError):
     """The model answered, but gave no usable product or KPI."""
+    code = "unusable"
 
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
@@ -71,25 +81,62 @@ def fallback_timeout():
     return float(os.environ.get("LLM_FALLBACK_TIMEOUT", "40"))
 
 
+# Model tiers, tried in order; the rules always answer last. REUSE_GATE_LLM_TIERS names them, and each tier reads
+# REUSE_GATE_LLM_<TIER>_BASE_URL, _MODEL, _API_KEY and _TIMEOUT_S. The two built-in tiers keep their defaults and their old key names.
+DEFAULT_TIERS = "aitta,featherless"
+BUILT_IN_TIERS = {
+    "aitta": {"base_url": AITTA_URL, "model": PRIMARY_MODEL, "keys": ("AITTA_API_KEY",), "timeout": call_timeout},
+    "featherless": {"base_url": FEATHERLESS_URL, "model": FALLBACK_MODEL, "keys": ("FEATHERLESS_API_KEY", "Featherless_AP_KEY"), "timeout": fallback_timeout},
+}
+
+
+def tier_names():
+    names = [t.strip().lower() for t in os.environ.get("REUSE_GATE_LLM_TIERS", DEFAULT_TIERS).split(",")]
+    return [t for t in names if re.fullmatch(r"[a-z0-9_]+", t)]
+
+
+def tier_config(name):
+    """One tier's settings, or None when it is not configured and must be skipped. A built-in external tier needs a key;
+    another tier, such as a vLLM endpoint inside the cluster, needs only a base URL and a model."""
+    built_in = BUILT_IN_TIERS.get(name, {})
+    prefix = f"REUSE_GATE_LLM_{name.upper()}_"
+    base_url = os.environ.get(prefix + "BASE_URL") or built_in.get("base_url", "")
+    model = os.environ.get(prefix + "MODEL") or built_in.get("model", "")
+    key = os.environ.get(prefix + "API_KEY") or next((os.environ[k] for k in built_in.get("keys", ()) if os.environ.get(k)), "")
+    if not base_url or not model or (built_in and not key):
+        return None
+    timeout = os.environ.get(prefix + "TIMEOUT_S")
+    return {"name": name, "base_url": base_url, "model": model, "api_key": key,
+            "timeout": float(timeout) if timeout else built_in.get("timeout", call_timeout)()}
+
+
+def live_tiers(timeout=None, retries=None):
+    """One client per configured tier, in order."""
+    tiers = []
+    for name in tier_names():
+        cfg = tier_config(name)
+        if cfg:
+            tiers.append(LLM(cfg["base_url"], cfg["api_key"], cfg["model"], timeout=timeout or cfg["timeout"], retries=retries or 0, tier=name))
+    return tiers
+
+
 def live_backends(timeout=None, retries=None):
     """(primary, fallback) for the live demo, each None if its key is missing."""
-    aitta = os.environ.get("AITTA_API_KEY", "")
-    featherless = os.environ.get("FEATHERLESS_API_KEY") or os.environ.get("Featherless_AP_KEY", "")
-    primary = LLM(AITTA_URL, aitta, PRIMARY_MODEL, timeout=timeout or call_timeout(), retries=retries or 0) if aitta else None
-    fallback = LLM(FEATHERLESS_URL, featherless, FALLBACK_MODEL, timeout=timeout or fallback_timeout(), retries=retries or 0) if featherless else None
-    return primary, fallback
+    tiers = {t.tier: t for t in live_tiers(timeout, retries)}
+    return tiers.get("aitta"), tiers.get("featherless")
 
 
 def live_client():
-    """gpt-oss-120b on Aitta with automatic fallback to GLM-5.2 on Featherless. LLM_MODE=rules turns the model off."""
+    """The configured tiers chained in order; by default gpt-oss-120b on Aitta, then GLM-5.2 on Featherless.
+    LLM_MODE=rules turns the models off."""
     if os.environ.get("LLM_MODE") == "rules":
         return NoLLM()
-    primary, fallback = live_backends()
-    client = primary or fallback
-    if client is None:
+    tiers = live_tiers()
+    if not tiers:
         return NoLLM()
-    if primary:
-        primary.fallback = fallback
+    for tier, after in zip(tiers, tiers[1:]):
+        tier.fallback = after
+    client = tiers[0]
     client.limiter = threading.BoundedSemaphore(int(os.environ.get("LLM_MAX_CONCURRENT", MAX_CONCURRENT)))
     client.answers = AnswerStore()
     return client
@@ -104,8 +151,10 @@ class LLM:
     last_cached = _per_thread("last_cached", False)
     last_usage = _per_thread("last_usage")
     last_model = _per_thread("last_model")
+    last_tier = _per_thread("last_tier")  # the tier that answered the last call
+    last_failures = _per_thread("last_failures", ())  # [{tier, reason}] for the tiers that failed it, in order
 
-    def __init__(self, base_url=None, api_key=None, model=None, timeout=60, cache_dir=None, retries=2, retry_wait=5, fallback=None):
+    def __init__(self, base_url=None, api_key=None, model=None, timeout=60, cache_dir=None, retries=2, retry_wait=5, fallback=None, tier=None):
         self.base_url = (base_url or os.environ.get("LLM_BASE_URL", "")).rstrip("/")
         self.api_key = api_key if api_key is not None else os.environ.get("LLM_API_KEY", "")
         self.model = model or os.environ.get("LLM_MODEL", "")
@@ -123,6 +172,7 @@ class LLM:
         self.last_usage = None
         self.last_model = None  # the model that actually answered the last call
         self.fallback = fallback
+        self.tier = tier or self.model
         self.use_cache = True
         self._skip_until = 0
 
@@ -155,23 +205,24 @@ class LLM:
             raise LLMError("LLM_BASE_URL and LLM_MODEL must be configured")
         key = self._cache_key(messages, params)
         cached = self._read_cache(key) if self.use_cache else None
-        self.last_cached, self.last_usage = cached is not None, None
+        self.last_cached, self.last_usage, self.last_failures = cached is not None, None, []
         if cached is not None:
-            self.last_model = self.model
+            self.last_model, self.last_tier = self.model, self.tier
             return cached
         with self._slot():
             if self.fallback and time.monotonic() < self._skip_until:
-                return self._from_fallback(messages, params)
+                return self._from_fallback(messages, params, "cooling_down")
             try:
                 content = self._fetch(messages, params)
             except LLMBudgetError:
                 raise  # a spent budget must stop the run, not move the spending elsewhere
-            except LLMError:
+            except LLMError as exc:
                 if not self.fallback:
+                    self.last_failures = [{"tier": self.tier, "reason": exc.code}]
                     raise
                 self._skip_until = time.monotonic() + PRIMARY_COOLDOWN
-                return self._from_fallback(messages, params)
-        self.last_model = self.model
+                return self._from_fallback(messages, params, exc.code)
+        self.last_model, self.last_tier = self.model, self.tier
         if self.use_cache:
             self._write_cache(key, content)
         return content
@@ -187,9 +238,14 @@ class LLM:
             if self.limiter:
                 self.limiter.release()
 
-    def _from_fallback(self, messages, params):
-        content = self.fallback.chat(messages, **params)
+    def _from_fallback(self, messages, params, reason):
+        failed = [{"tier": self.tier, "reason": reason}]
+        try:
+            content = self.fallback.chat(messages, **params)
+        finally:
+            self.last_failures = failed + list(self.fallback.last_failures)
         self.last_model, self.last_cached, self.last_usage = self.fallback.last_model, self.fallback.last_cached, self.fallback.last_usage
+        self.last_tier = self.fallback.last_tier
         return content
 
     def _fetch(self, messages, params):
@@ -214,15 +270,16 @@ class LLM:
                 if exc.code == 403:
                     raise LLMGatedError(f"HTTP 403: model {self.model} is gated for this key") from exc
                 if exc.code not in RETRY_STATUS or attempt == self.retries:
-                    raise LLMError(f"LLM request failed: HTTP {exc.code}") from exc
+                    raise LLMError(f"LLM request failed: HTTP {exc.code}", f"http_{exc.code}") from exc
             except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
                 if attempt == self.retries:
-                    raise LLMError(f"LLM request failed: {exc}") from exc
+                    slow = isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError)
+                    raise LLMError(f"LLM request failed: {exc}", "timeout" if slow else "unreachable") from exc
             except (KeyError, IndexError, TypeError, ValueError) as exc:
-                raise LLMError(f"LLM response had an unexpected shape: {exc}") from exc
+                raise LLMError(f"LLM response had an unexpected shape: {exc}", "bad_response") from exc
             time.sleep(self.retry_wait * (attempt + 1))
         if not isinstance(content, str) or not content.strip():
-            raise LLMError("LLM returned an empty response")
+            raise LLMError("LLM returned an empty response", "empty_response")
         return content
 
     def json_chat(self, messages, **params):
@@ -234,12 +291,17 @@ class LLM:
         try:
             value = json.loads(raw)
         except json.JSONDecodeError as exc:
+            failed = list(self.last_failures) + [{"tier": self.last_tier, "reason": "invalid_json"}]
             if self.fallback and answered_by == self.model:
-                with self._slot():
-                    value = self.fallback.json_chat(messages, **params)
-                self.last_model = self.fallback.last_model
+                try:
+                    with self._slot():
+                        value = self.fallback.json_chat(messages, **params)
+                finally:
+                    self.last_failures = failed + list(self.fallback.last_failures)
+                self.last_model, self.last_tier = self.fallback.last_model, self.fallback.last_tier
                 return value
-            raise LLMError(f"LLM returned invalid JSON: {exc}") from exc
+            self.last_failures = failed
+            raise LLMError(f"LLM returned invalid JSON: {exc}", "invalid_json") from exc
         if not isinstance(value, dict):
             raise LLMError("LLM JSON response must be an object")
         return value

@@ -10,7 +10,7 @@ from datetime import date
 
 from reuse_gate import clarify, faithfulness
 from reuse_gate.llm import LLM
-from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage
+from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage, tier_trail
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
@@ -189,24 +189,33 @@ def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
     result["answers"] = read.applied
     result["ai"] = {"source": source, "intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
                     "model": parsed.model, "cached": parsed.cached, "reason": parsed.reason,
-                    "notice": RULES_NOTICES.get(parsed.reason), "guard": None}
+                    "notice": RULES_NOTICES.get(parsed.reason), "guard": None,
+                    "tier": parsed.tier, "explanation_tier": "rules",
+                    "tiers_failed": [{**f, "call": "intent"} for f in parsed.failures]}
     if source == "llm":
         decision = result["recommendation"]
         store = getattr(client, "answers", None)
         target = (decision["target"] or {}).get("id")
-        lines = None
+        lines, tier = None, "saved"
         if parsed.cached:  # a saved answer never leads to a model call
             lines = store.explanation(intent.text, decision["action"], target) if not answers else None
         else:
+            def explain():
+                try:
+                    return client.explain(intent.text, result["intent"], explain_brief(decision)), *tier_trail(client)
+                except Exception:  # the rule rationale stands in, so a failed explanation is never an error
+                    return None, None, tier_trail(client)[1]
             try:
-                lines = _within(deadline - time.monotonic(), lambda: client.explain(intent.text, result["intent"], explain_brief(decision)))
-            except Exception:  # the rule rationale stands in, so a failed explanation is never an error
-                lines = None
+                lines, tier, failed = _within(deadline - time.monotonic(), explain)
+            except Exception:
+                lines, failed = None, [{"tier": None, "reason": "deadline"}]
+            result["ai"]["tiers_failed"] += [{**f, "call": "explanation"} for f in failed]
         if lines:
             guard = faithfulness.check(est, result, lines)
             result["ai"]["guard"] = "passed" if guard["passed"] else "replaced"
             if guard["passed"]:
                 result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
+                result["ai"]["explanation_tier"] = tier or "unknown"
                 if store and not answers and not parsed.cached:
                     store.put_explanation(intent.text, decision["action"], target, lines)
             else:  # an explanation that states something the decision and its rows do not support is not shown

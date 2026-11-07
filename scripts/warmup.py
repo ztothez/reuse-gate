@@ -2,10 +2,11 @@
 """Wake the live models before a demo, so the first person does not wait for a cold start.
 
 Usage: python3 -I scripts/warmup.py [API URL]
-Calls gpt-oss-120b (primary), GLM-5.2 (fallback) and the embedding model once each, bypassing the cache,
+Calls each configured model tier (REUSE_GATE_LLM_TIERS, by default gpt-oss-120b on Aitta, then GLM-5.2 on Featherless) and the
+embedding model once each, bypassing the cache,
 with a long timeout. Then calls GET /radar and GET /requests on the API (default: REUSE_GATE_API_URL, else the live route), so the
 ownership bottleneck is cached and the sample work items are seen before the demo. Exit code: 0 primary ready, 1 only the fallback ready,
-2 no chat model ready. The API calls are reported and do not change the exit code. Never prints keys.
+2 no chat model ready (first tier is the primary). The API calls are reported and do not change the exit code. Never prints keys.
 """
 import json
 import os
@@ -16,7 +17,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 from reuse_gate.kpi_match import EMBED_MODEL, embedder_from_env
-from reuse_gate.llm import LLMError, live_backends, load_env
+from reuse_gate.llm import LLMError, live_tiers, load_env, tier_names
 
 TIMEOUT = 300
 LIVE_API = "https://reuse-gate-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com"
@@ -69,16 +70,16 @@ def warm_requests(api):
 def main():
     load_env()
     nonce = str(time.time())
-    primary, fallback = live_backends(timeout=TIMEOUT, retries=2)
-    ready = {}
-    for name, client in (("primary", primary), ("fallback", fallback)):
-        if client is None:
-            print(f"{name}: no API key in the environment", flush=True)
-            ready[name] = False
-            continue
+    tiers = live_tiers(timeout=TIMEOUT, retries=2)
+    configured = {t.tier for t in tiers}
+    for name in tier_names():
+        if name not in configured:
+            print(f"tier {name}: not configured (no key, base URL or model in the environment)", flush=True)
+    ready = []
+    for client in tiers:
         client.use_cache, client.retry_wait = False, 10
         message = [{"role": "user", "content": f"Reply with the word ready. Ref {nonce}"}]
-        ready[name] = check(f"{name} {client.model}", lambda c=client: c.chat(message, temperature=0, max_tokens=1000))
+        ready.append(check(f"tier {client.tier} {client.model}", lambda c=client: c.chat(message, temperature=0, max_tokens=1000)))
     embedder = embedder_from_env()
     if embedder is None:
         print("embeddings: no API key in the environment", flush=True)
@@ -88,7 +89,7 @@ def main():
     api = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("REUSE_GATE_API_URL", LIVE_API)
     warm_radar(api)
     warm_requests(api)
-    return 0 if ready["primary"] else 1 if ready["fallback"] else 2
+    return 0 if ready and ready[0] else 1 if any(ready) else 2
 
 
 if __name__ == "__main__":
