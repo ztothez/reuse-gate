@@ -32,11 +32,12 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Radar ping:** `POST /radar-ping` returns the digest with no key for a Knative PingSource. Read-only, and it ignores the body.
 - **Primary KPI rule:** a target must cover a requested KPI as primary. Secondary rows are shown and cited but not counted. The canonical-only version (33/150) is measured in `docs/quality_report.md` for information, and the rule does not use it.
 - **Repo layout:** reorganized into `backend/reuse_gate`, `backend/tests`, `scripts`, `data`, `deploy`, `docs` and `frontend` with no behavior change: API responses, batch output and mock data were compared with the previous layout and are identical. `frontend/package-lock.json` replaces `bun.lock`.
+- **OpenShift rollout:** the reorganized image (digest `75913c2e64b0`) is live, built from a clean `git archive` export. `/health` returns ok, KServe `:predict` returns a cited decision, and PipelineRun `reuse-gate-verify-rcspl` succeeded on all three tasks: unit tests (138 run, 2 skipped), governance gate, rollout.
+- **Repo:** private at `ztothez/reuse-gate`, with `main` and `reuse-gate-build` pushed.
 - **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
-- Nothing is pushed. No remote is configured.
-- OpenShift packaging is committed: `Containerfile`, `deploy/openshift/` (API, KServe InferenceService, Tekton pipeline, PingSource) and `backend/reuse_gate/kserve_predictor.py`. The tests were checked against the files the `Containerfile` copies, where 2 skip, but no image was built and nothing has run on a cluster from this work. The manifest sets no model or audio keys, so a deployed API runs rules-only until a secret provides them.
+- The deployed API and KServe predictor have no model or audio keys, so they run rules-only until a secret provides them.
 - `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
 - Demo recording and pitch outline: not started.
 - n8n ran on a throwaway local instance with test keys, not on your own instance. `.env` has a key but no n8n URL. The digest is not connected to email or Teams.

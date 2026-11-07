@@ -5,6 +5,6 @@ oc apply -f deploy/openshift/api.yaml
 oc apply -f deploy/openshift/inferenceservice.yaml
 oc apply -f deploy/openshift/tekton-pipeline.yaml
 oc apply -f deploy/openshift/pingsource.yaml
-oc get inferenceservice reuse-gate
-oc get pipeline reuse-gate-verify
+oc get inferenceservice reuse-gate-kserve
+oc get pipelines.tekton.dev reuse-gate-verify
 oc get pingsource reuse-gate-radar-ping

@@ -103,6 +103,24 @@ The low pass rate reflects the deliberately messy estate. It is what the gates a
 `backend/tests/test_spec_gate.py` starts from a spec that passes, breaks one thing at a time, and confirms the right gate fails. It also
 confirms that a rerun of the batch gives identical results. Full results: [docs/quality_report.md](docs/quality_report.md).
 
+### How sensitive the headline is to the rule
+
+The "new builds avoided" headline depends on what counts as coverage. The rule in use accepts a primary row on a conflicting or local
+definition, because repairing the definition is cheaper than a new build, and the result lists that repair. Accepting only canonical
+definitions would nearly halve the headline. The rule has not changed; this shows how much it matters.
+
+| Measure | Rule in use: primary row | Canonical definitions only |
+| --- | --- | --- |
+| New builds avoided | 57/150 | 33/150 |
+| New builds | 93 | 117 |
+| Extend | 31 | 11 |
+| Repair and reuse | 4 | 0 |
+| Citations | 1098 | 928 |
+| Assets to retire / consolidate later | 2 / 2 | 0 / 1 |
+| Specs passing every gate | 13/124 | 25/128 |
+
+Measured by `backend/reuse_gate/spec_gate.py`. Full table: [docs/quality_report.md](docs/quality_report.md).
+
 ### Retire or consolidate later
 
 Overlapping assets are those in the request's scope that cover every requested KPI as primary, other than the target. Each one goes on exactly one
