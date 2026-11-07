@@ -11,6 +11,7 @@ import { RequesterView } from "@/components/gate/RequesterView";
 import { FlowView } from "@/components/gate/FlowView";
 import { GateComparison, GateList } from "@/components/gate/GateComparison";
 import { DecisionRecordView } from "@/components/gate/DecisionRecordView";
+import { DecisionSource, DecisionSteps } from "./DecisionTrail";
 import { ListState, PageHeading, SampleTag, StatusBadge, localDate } from "./shared";
 export function RequestDetailPage({ id }: { id: string }) {
   const resource = useResource(() => getRequest(id), id);
@@ -133,6 +134,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
         {item.origin === "sample" && <SampleTag />}
         <span className="text-xs text-muted-foreground">{item.request_id}</span>
       </div>
+      <DecisionSteps item={item} />
       <dl className="mb-8 grid gap-4 rounded-lg bg-card p-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Requester", item.requester ?? "Not provided"],
@@ -220,6 +222,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   <li key={line}>{displayText(line)}</li>
                 ))}
               </ul>
+              <DecisionSource result={item.result} />
             </div>
             {item.status === "human_review" && (
               <p className="panel tone-amber">
@@ -229,8 +232,10 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   : "A person must resolve this request. No automatic approval was made."}
               </p>
             )}
-            <section className="panel">
-              <h2 className="section-title">Cited evidence</h2>
+            <details className="panel">
+              <summary className="min-h-16 cursor-pointer font-semibold">
+                View evidence ({rec.evidence.length} cited {rec.evidence.length === 1 ? "row" : "rows"})
+              </summary>
               {rec.evidence.length === 0 && <p className="text-sm text-muted-foreground">No cited evidence is available for this interpretation. Recheck with the API before making a decision.</p>}
               <ul className="divide-y text-sm">
                 {rec.evidence.map((entry) => (
@@ -242,8 +247,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   </li>
                 ))}
               </ul>
-              {!rec.evidence.length && <p>No live evidence has been recorded.</p>}
-            </section>
+            </details>
             {rec.repair.length > 0 && (
               <section className="panel">
                 <h2 className="section-title">Proposed repair</h2>

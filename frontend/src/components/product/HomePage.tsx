@@ -6,6 +6,8 @@ import { RequestList } from "./RequestList";
 import { ListState, PageHeading, STATUS } from "./shared";
 import { AdminSettings } from "./AdminSettings";
 import { ExecutiveOverview } from "./ExecutiveOverview";
+import { ImpactLine } from "./Impact";
+import { NewRequestForm } from "./RequestPages";
 export function HomePage() {
   const [role] = useLens();
   if (role === "executive") return <ExecutiveOverview />;
@@ -20,23 +22,33 @@ function WorkHome({ role }: { role: "requester" | "approver" }) {
   );
   return (
     <>
-      <PageHeading
-        title={role === "requester" ? "Your request workspace" : "Decisions that need you"}
-        description={
-          role === "requester"
-            ? "Where are your requests, and what needs your attention? Sample items are clearly marked. This preview has no signed-in identity, so it shows accessible requests, up to the 200 most recent items."
-            : "Review the requests waiting for a decision, with blockers and readiness visible before you open them."
-        }
-        action={
-          <Link
-            className="primary-action"
-            to={role === "requester" ? "/requests" : "/approvals"}
-            search={role === "requester" ? { create: "1" } : {}}
-          >
-            {role === "requester" ? "New request" : "Open approval queue"}
-          </Link>
-        }
-      />
+      {role === "requester" ? (
+        <>
+          <PageHeading
+            title="Before you build a dashboard, check what already exists"
+            description="Describe the report you need. Reuse Gate checks existing reports, KPI definitions and owners, recommends reuse, repair, extension or a new build with cited rows, and a person approves the decision."
+          />
+          <ImpactLine />
+          <div className="mt-6">
+            <NewRequestForm examples />
+          </div>
+          <h2 className="section-title">Your requests</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Sample items are clearly marked. This preview has no signed-in identity, so it shows
+            accessible requests, up to the 200 most recent items.
+          </p>
+        </>
+      ) : (
+        <PageHeading
+          title="Decisions that need you"
+          description="Review the requests waiting for a decision, with blockers and readiness visible before you open them."
+          action={
+            <Link className="primary-action" to="/approvals">
+              Open approval queue
+            </Link>
+          }
+        />
+      )}
       <ListState
         loading={resource.loading}
         error={resource.error}

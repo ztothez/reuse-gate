@@ -82,7 +82,9 @@ describe("role switcher", () => {
   it("shows each lens home in the routed product shell", async () => {
     await renderProduct("/");
     expect(
-      await screen.findByRole("heading", { name: "Your request workspace" }),
+      await screen.findByRole("heading", {
+        name: "Before you build a dashboard, check what already exists",
+      }),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Approver" }));
     expect(screen.getByRole("heading", { name: "Decisions that need you" })).toBeInTheDocument();

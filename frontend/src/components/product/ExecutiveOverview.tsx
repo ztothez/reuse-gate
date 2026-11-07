@@ -15,6 +15,7 @@ import { GateComparison } from "@/components/gate/GateComparison";
 import { OwnershipBottlenecks } from "@/components/gate/OwnershipBottlenecks";
 import type { RemediationResult } from "@/lib/api";
 import { ListState, PageHeading } from "./shared";
+import { EstateComparison, useImpact } from "./Impact";
 export function ExecutiveOverview() {
   const resource = useResource(async () => {
     const requests = await getRequests();
@@ -24,6 +25,7 @@ export function ExecutiveOverview() {
       modelRequest: await findModelRequest(requests, "SM-065"),
     };
   });
+  const impact = useImpact();
   const [samples, setSamples] = useState(true);
   const data = resource.data;
   const rows = (data?.requests ?? []).filter((row) => samples || row.origin !== "sample");
@@ -66,8 +68,37 @@ export function ExecutiveOverview() {
         empty={false}
         retry={resource.reload}
       />
+      {impact && (
+        <section aria-labelledby="modelled-run" className="mb-8">
+          <h2 id="modelled-run" className="section-title">
+            Modelled run: all {impact.requests} requests in the data pack
+          </h2>
+          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+            <Link className="panel" to="/evaluation">
+              <p className="text-3xl font-semibold tabular-nums">
+                {impact.avoided} / {impact.requests}
+              </p>
+              <h3 className="mt-3 font-semibold">Requests that avoid a new build</h3>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Reuse, repair, extend or migrate instead. Every decision cites data pack rows. Modelled, not realised savings.
+              </p>
+            </Link>
+            <Link className="panel" to="/radar" search={{ finding: "ownerless" }}>
+              <p className="text-3xl font-semibold tabular-nums">
+                {impact.specsToday} → {impact.specsFixed} / {impact.specs}
+              </p>
+              <h3 className="mt-3 font-semibold">Specs passing every gate, before and after one owner fix</h3>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                Simulated: one active owner on a shared semantic model clears the owner gate. Nothing is changed in the estate.
+              </p>
+            </Link>
+          </div>
+          <EstateComparison impact={impact} />
+        </section>
+      )}
       {data && (
         <>
+          <h2 className="section-title">Saved requests now</h2>
           <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Link
               className="panel"

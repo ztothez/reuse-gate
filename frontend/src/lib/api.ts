@@ -78,7 +78,12 @@ export interface RecommendResult {
     cached?: boolean;
     reason?: string | null;
     notice?: string | null;
+    tier?: string | null;
+    explanation_tier?: string | null;
+    tiers_failed?: { tier: string | null; reason?: string; call?: string }[];
   };
+  decision_backend?: "local" | "kserve" | "local_fallback";
+  decision_backend_reason?: string | null;
   answers?: Answer[];
   pipeline?: PipelineStage[];
   loop?: ClarificationLoop;
@@ -462,6 +467,10 @@ export const getRequest = (id: string): Promise<WorkItem> => {
 export interface Health {
   status: "live" | "down" | "demo";
   assets?: number | undefined;
+  estate_snapshot?: string | undefined;
+  decision_backend?: string | undefined;
+  kserve_reachable?: boolean | null | undefined;
+  llm_tiers?: string[] | undefined;
 }
 
 const data = mock as unknown as { requests: RecommendResult[]; radar: Radar; owners: Owner[] };
@@ -585,8 +594,25 @@ export async function getHealth(): Promise<Health> {
   try {
     const res = await fetch(`${API}/health`, { signal: AbortSignal.timeout(10_000) });
     if (!res.ok) return { status: "down" };
-    const body = (await res.json()) as { ok?: boolean; assets?: number };
-    return body.ok ? { status: "live", assets: body.assets } : { status: "down" };
+    const body = (await res.json()) as {
+      ok?: boolean;
+      assets?: number;
+      estate_snapshot?: unknown;
+      decision_backend?: unknown;
+      kserve?: { reachable?: unknown };
+      llm_tiers?: unknown;
+    };
+    if (!body.ok) return { status: "down" };
+    return {
+      status: "live",
+      assets: body.assets,
+      estate_snapshot: typeof body.estate_snapshot === "string" ? body.estate_snapshot : undefined,
+      decision_backend: typeof body.decision_backend === "string" ? body.decision_backend : undefined,
+      kserve_reachable: typeof body.kserve?.reachable === "boolean" ? body.kserve.reachable : undefined,
+      llm_tiers: Array.isArray(body.llm_tiers)
+        ? body.llm_tiers.filter((tier): tier is string => typeof tier === "string")
+        : undefined,
+    };
   } catch {
     return { status: "down" };
   }

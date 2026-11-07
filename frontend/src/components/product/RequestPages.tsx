@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { getRequests, requestsForView, saveRequest, type WorkItemRow } from "@/lib/api";
+import {
+  exampleRequests,
+  getRequests,
+  requestsForView,
+  saveRequest,
+  type WorkItemRow,
+} from "@/lib/api";
 import { itemsChanged, useResource } from "@/lib/use-resource";
 import { filterRequests } from "@/lib/request-filters";
 import { RequestList } from "./RequestList";
@@ -8,7 +14,16 @@ import { ListState, PageHeading, STATUS } from "./shared";
 import { ReviewPane } from "./ReviewPane";
 import { VoiceInput } from "./VoiceInput";
 export { RequestDetailPage } from "./RequestDetailPage";
-export function NewRequestForm() {
+// Three saved examples that show different outcomes: repair and reuse, extend, and a new build blocked on ownership.
+const CHIPS = [
+  ["Beyonttra launch readiness", "Beyonttra"],
+  ["Supply risk by country", "supply-risk"],
+  ["Oncology brand comparison", "oncology"],
+].flatMap(([label, word]) => {
+  const text = exampleRequests.find((example) => example.includes(word!));
+  return text ? [{ label: label!, text }] : [];
+});
+export function NewRequestForm({ examples = false }: { examples?: boolean }) {
   const navigate = useNavigate();
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
@@ -55,6 +70,22 @@ export function NewRequestForm() {
         />
         <VoiceInput onUse={setText} disabled={busy || !hydrated} />
       </div>
+      {examples && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Try:</span>
+          {CHIPS.map((chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              className="control"
+              disabled={busy || !hydrated}
+              onClick={() => setText(chip.text)}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
       <label className="block text-sm font-semibold" htmlFor="new-requester">
         Your name (optional)
       </label>

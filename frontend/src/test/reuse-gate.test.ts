@@ -91,6 +91,32 @@ describe("decision log from GET /log", () => {
     vi.resetModules();
     vi.stubGlobal(
       "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            ok: true,
+            assets: 360,
+            estate_snapshot: "sha256:abc",
+            decision_backend: "kserve",
+            kserve: { reachable: true },
+            llm_tiers: ["together", 5],
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+    api = await import("@/lib/api");
+    expect(await api.getHealth()).toEqual({
+      status: "live",
+      assets: 360,
+      estate_snapshot: "sha256:abc",
+      decision_backend: "kserve",
+      kserve_reachable: true,
+      llm_tiers: ["together"],
+    });
+    vi.resetModules();
+    vi.stubGlobal(
+      "fetch",
       vi.fn(async () => {
         throw new TypeError("network");
       }),

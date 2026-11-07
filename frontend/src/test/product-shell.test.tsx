@@ -6,7 +6,7 @@ import mock from "@/data/mock_api.json";
 vi.mock("@/lib/api", async (original) => ({ ...(await original<typeof import("@/lib/api")>()), isDemo: () => true, getRequests: async () => mock.work_items.list, getRequest: async () => mock.work_items.detail["SAMPLE-07"], getHealth: async () => ({ status: "demo" }) }));
 afterEach(() => { cleanup(); localStorage.clear(); });
 describe("product shell", () => {
-  it.each([["/", "Your request workspace"], ["/requests", "Requests"], ["/requests/SAMPLE-07", mock.work_items.detail["SAMPLE-07"].text], ["/approvals", "Approval queue"], ["/overview", "Executive overview"], ["/radar", "Governance radar"], ["/log", "Decision log"], ["/admin", "Admin settings"]])("renders %s", async (path, heading) => {
+  it.each([["/", "Before you build a dashboard, check what already exists"], ["/requests", "Requests"], ["/requests/SAMPLE-07", mock.work_items.detail["SAMPLE-07"].text], ["/approvals", "Approval queue"], ["/overview", "Executive overview"], ["/radar", "Governance radar"], ["/log", "Decision log"], ["/admin", "Admin settings"]])("renders %s", async (path, heading) => {
     await renderProduct(path!);
     expect(await screen.findByRole("heading", { name: heading })).toBeInTheDocument();
     expect(screen.getByRole("note")).toHaveTextContent("Offline demo data");
