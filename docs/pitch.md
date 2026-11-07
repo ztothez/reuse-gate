@@ -8,8 +8,8 @@ For the finals (4 minutes plus 6 minutes of questions) and the submission form. 
 1. `oc whoami`, then `sh deploy/openshift/wake.sh`.
 2. `curl -s https://reuse-gate-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com/healthz` shows `"decision_backend": "kserve"` and
    `"reachable": true`.
-3. Sign in with your role codes in the browser you present from: business, analyst, developer and approver, using Add a role.
-   Give judges a business or analyst code if they want to try it; the approver code stays with you.
+3. Sign in with your role codes in the browser you present from, using Add a role: business, analyst, developer, approver,
+   executive, operator, admin. Give judges the Judge (business) or Judge Analyst code; approver and admin codes stay with you.
 4. Open the tabs below in advance. If a model provider is down, say so: decisions never depend on a model.
 
 ## 4-minute pitch
@@ -20,7 +20,7 @@ For the finals (4 minutes plus 6 minutes of questions) and the submission form. 
 | 0:30 to 1:15 | A business user types a messy request. The first prompt is rarely clean: in our 21 messy prompts, 8 were read cleanly at first and 20 after at most three rounds of questions. The rules choose the questions, a model only words them. | Business view, a request with an open question, answer it; Evidence tab, "From the first prompt to the decision" |
 | 1:15 to 2:00 | The answer is one card: extend Nubeqa Gross-to-Net Monthly, it covers 2 of 3 KPIs, Forecast Variance needs adding. Switch the view to Analyst: every row behind it, and one row that blocks release, a failed refresh on SM-021. | `SAMPLE-01` as Business, then `?as=analyst` |
 | 2:00 to 3:00 | Governance before release. Oncology needs a new build on SM-065, but its owner is inactive. The approver simulates one active owner, the gates go from 5 of 7 to 7 of 7, and approves with an owner and a review date. The record keeps the gates before and after. Across the estate, one owner fix moves passing specs from 13 to 93 of 124, modelled. | `SAMPLE-07` as Approver: Gates tab, approval queue, then Activity |
-| 3:00 to 3:30 | The developer gets a spec, not a blank page: semantic model, canonical measures, owner, review date, as JSON. Change the configuration, not the report. | Developer view, Build queue, Spec tab |
+| 3:00 to 3:30 | Every person gets their own app. The analyst turns the spec into a dashboard from the pack's real rows (Bayer's render_preview step). The developer changes configuration, not reports: "unused below 300 views" is measured on all 150 requests, 57 to 51, and goes to an approver, never applied directly. The executive gets one plain page to print or email; the operator a wall screen. | Analyst: Dashboards, Start from a request's spec. Developer: Configuration. Executive home. Operator home |
 | 3:30 to 4:00 | It runs on Red Hat OpenShift AI: decisions are served by a KServe InferenceService, a Tekton pipeline runs tests, governance, evaluation and security gates before rollout, and the top bar shows where each decision ran. Build less, build better, with a person in charge. | Top bar "decisions on KServe"; one slide or 10 s of the OpenShift AI Deployments page |
 
 Use cases across domains, for the question "does it generalise": commercial (Nubeqa sales, extend), launch and market access
@@ -31,10 +31,15 @@ Use cases across domains, for the question "does it generalise": commercial (Nub
 
 Live UI: https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
 
-- `/?as=business`: the Ask page
-- `/requests/SAMPLE-01?as=business`, then `?as=analyst`: the same request for two people
-- `/requests/SAMPLE-07?as=approver`: the owner fix and approval (answer "yes" to the market question first)
-- `/?as=developer`: the build queue
+With role codes on, the role comes from the code, so `?as=` links do nothing live; switch with "Viewing as".
+
+- Business: the Ask page, `/requests/SAMPLE-01` on the Answer tab with Listen
+- Analyst: `/requests/SAMPLE-01` on Evidence; `/dashboards`, "Start from a request's spec"; the Discussion thread, "Which gates block release?"
+- Approver: `/requests/SAMPLE-07`, the owner fix and approval (answer "yes" to the market question first); `/config` to review a change
+- Developer: `/config`, propose `low_views` 300 with a reason: 57 to 51, 7 decisions change
+- Executive: home is the report; Email this report sends through n8n
+- Operator: home is the operations wall
+- Admin: `/workflows`, Send test, then the outbox shows "sent"
 - `/overview`: 57 of 150, 13 to 93 of 124, estate 360, 510 without a check, 451 with Reuse Gate (modelled)
 
 ## Questions to expect
@@ -47,8 +52,9 @@ Live UI: https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
   explanation; the decision is deterministic and cited, and the UI says which component did what.
 - **What if the model provider is down?** Tiers fall back (Together, then Featherless, then rules) with a circuit breaker.
   Decisions are identical with every model unreachable; tested on 194 decisions.
-- **Is this enterprise ready?** The parts that are: least privilege enforced by the API (each role gets only its own rows and
-  fields, business users see only their own requests, records name the signed-in approver), health probes, a non-root read-only
+- **Is this enterprise ready?** The parts that are: least privilege enforced by the API for seven roles (each role gets only its
+  own rows and fields, business users see only their own requests, records name the signed-in approver, nobody approves their own
+  configuration change), email through n8n with the SMTP secret kept in n8n and an outbox of every message, health probes, a non-root read-only
   container, a state volume, a gated pipeline, a recorded decision trail, and no fallback to bundled data. Not yet: single sign-on
   in place of role codes (the seam is one function), scope-based approval rights, and a real connector to Power BI or Fabric
   metadata. The data pack is synthetic, as the challenge provides it.
