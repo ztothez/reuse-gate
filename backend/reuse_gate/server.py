@@ -195,7 +195,7 @@ class Handler(BaseHTTPRequestHandler):
         origin = security.cors_origin(headers.get("Origin") if headers else None)
         if origin:
             self.send_header("Access-Control-Allow-Origin", origin)
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code, X-View-Role")
             self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Vary", "Origin")
         for name, value in security.HEADERS.items():
@@ -284,7 +284,8 @@ class Handler(BaseHTTPRequestHandler):
             who = access.principal(self.headers)
             if who is None:
                 return self._send(401, {"error": "sign in with your access code", "code": "sign_in"})
-            return self._send(200, {"role": who.role, "name": who.name, "enforced": who.enforced})
+            return self._send(200, {"role": who.role, "name": who.name, "enforced": who.enforced,
+                                    "views": list(access.ROLES) if who.judge else [who.role]})
         if url.path == "/requests":
             if not (who := self._who("requests.read")):
                 return

@@ -21,6 +21,9 @@ export function SignIn({ onDone, adding = false }: { onDone: () => void; adding?
               setError("That code is not valid. Check it with your administrator.");
               return;
             }
+            // A judge code opens every view; it is one session per view, switched in "Viewing as".
+            for (const view of (me.views ?? [me.role]).filter((v) => v !== me.role && isRole(v)))
+              addSession({ code: code.trim(), role: view, name: me.name });
             addSession({ code: code.trim(), role: me.role, name: me.name });
             setCode("");
             onDone();

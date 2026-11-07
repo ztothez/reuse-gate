@@ -497,11 +497,12 @@ export interface Me {
   role: string;
   name: string;
   enforced: boolean;
+  views?: string[]; // a judge code may view as every role; any other code as its own
 }
 // Who an access code belongs to. null: the code is not valid (or none was given while codes are enforced).
 export async function getMe(code = getAccessCode()): Promise<Me | null> {
   if (!API) return { role: "admin", name: "Local user", enforced: false };
-  const res = await fetch(`${API}/me`, { headers: code ? { "X-Access-Code": code } : {} });
+  const res = await fetch(`${API}/me`, { headers: code ? codeHeaders(code) : {} });
   if (res.status === 401) return null;
   if (!res.ok) throw new Error("The API cannot be reached. Check the connection and try again.");
   return (await res.json()) as Me;
@@ -515,9 +516,14 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
+// The code, and the view this tab is in. Only a judge code reads X-View-Role; for every other code the API ignores it.
+function codeHeaders(code: string): Record<string, string> {
+  const view = activeSession()?.role;
+  return view ? { "X-Access-Code": code, "X-View-Role": view } : { "X-Access-Code": code };
+}
 function authHeaders(base: Record<string, string> = { "Content-Type": "application/json" }) {
   const code = getAccessCode();
-  return code ? { ...base, "X-Access-Code": code } : base;
+  return code ? { ...base, ...codeHeaders(code) } : base;
 }
 const writeHeaders = () => authHeaders();
 export const getRequests = (filters: RequestFilters = {}) => {

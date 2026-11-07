@@ -11,6 +11,9 @@ operator.
 - Who approved is the signed-in name, never a name sent in the body.
 - Executive reads the plain-language report and the request list; operator reads the operations wall. Neither changes anything.
 - Developers propose decision configuration changes; approvers decide them, never their own.
+- A judge code ("judge:Judge:<code>") is for demo reviewers: it may view as any role, chosen per request with X-View-Role, and
+  then gets exactly that role's data and rights, under the judge's own name. Viewing as business, a judge also sees the marked
+  sample requests, so the view is not empty.
 
 With no codes configured the API stays open as before (local development and tests); REUSE_GATE_WRITE_TOKEN alone still
 guards approve and remediate. In production the role and name come from the identity provider (an OIDC token or the OpenShift
@@ -54,11 +57,15 @@ PERMISSIONS = {
 MIN_CODE = 12
 
 
+JUDGE = "judge"
+
+
 @dataclass(frozen=True)
 class Principal:
     role: str
     name: str
     enforced: bool = True
+    judge: bool = False
 
 
 OPEN = Principal("admin", "Local user", enforced=False)
@@ -76,7 +83,7 @@ def parse(raw):
             role, name, code = bits[0], bits[1], ":".join(bits[2:])
         else:
             role, name, code = bits[0], "", bits[1] if len(bits) == 2 else ""
-        if role not in ROLES or len(code) < MIN_CODE:
+        if (role not in ROLES and role != JUDGE) or len(code) < MIN_CODE:
             print(f"WARNING: REUSE_GATE_ROLE_CODES entry {n + 1} skipped: unknown role or code shorter than {MIN_CODE}", file=sys.stderr)
             continue
         entries.append((role, (name or role.capitalize())[:80], code))
@@ -101,6 +108,9 @@ def principal(headers):
     for role, name, code in entries:  # check every entry, so the time taken does not depend on which one matched
         if hmac.compare_digest(given, code.encode()) and match is None:
             match = Principal(role, name)
+    if match and match.role == JUDGE:
+        view = headers.get("X-View-Role") or "admin"
+        match = Principal(view if view in ROLES else "admin", match.name, judge=True)
     return match
 
 
@@ -110,7 +120,8 @@ def allowed(who, action):
 
 def can_see(who, item):
     """Business sees only its own items; every other role sees all of them."""
-    return who.role != "business" or not who.enforced or (item.get("requester") or "") == who.name
+    return (who.role != "business" or not who.enforced or (item.get("requester") or "") == who.name
+            or (who.judge and item.get("origin") == "sample"))
 
 
 def redact(who, item):

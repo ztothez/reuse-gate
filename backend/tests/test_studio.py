@@ -4,6 +4,8 @@ import json
 import os
 import threading
 import unittest
+import urllib.error
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 
@@ -207,3 +209,42 @@ class ChatTest(Api):
         self.assertEqual(self.call("/requests/SAMPLE-07/chat", code=CODES["business"])[0], 404, "not their request")
         self.assertEqual(self.call("/requests/SAMPLE-07/chat", {"message": " "}, CODES["analyst"])[0], 400)
         self.assertEqual(self.call("/requests/SAMPLE-07/chat", {"message": "hi"})[0], 401)
+
+
+@unittest.skipUnless(DB.exists(), "run load_estate.py first")
+class JudgeTest(Api):
+    JUDGE = "jdg-code-123456"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.env = patch.dict(os.environ, {"REUSE_GATE_ROLE_CODES": f"{ENV};judge:Judge:{cls.JUDGE}"})
+        cls.env.start()
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.env.stop()
+
+    def as_view(self, path, view):
+        req = urllib.request.Request(f"http://127.0.0.1:{self.httpd.server_port}{path}",
+                                     headers={"X-Access-Code": self.JUDGE, "X-View-Role": view})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.status, json.load(resp)
+        except urllib.error.HTTPError as exc:
+            with exc:
+                return exc.code, json.load(exc)
+
+    def test_judge_views_as_any_role_and_gets_exactly_that_roles_rights(self):
+        code, me = self.as_view("/me", "operator")
+        self.assertEqual((code, me["role"], me["name"]), (200, "operator", "Judge"))
+        self.assertEqual(set(me["views"]), set(ROLES))
+        self.assertEqual(self.as_view("/operations", "operator")[0], 200)
+        self.assertEqual(self.as_view("/requests", "operator")[0], 403, "the operator view stays an operator view")
+        self.assertEqual(self.as_view("/notifications", "admin")[0], 200)
+        self.assertEqual(self.as_view("/me", "superuser")[1]["role"], "admin", "an unknown view falls back to admin")
+        code, rows = self.as_view("/requests", "business")
+        self.assertEqual(code, 200)
+        self.assertTrue(rows and all(r["origin"] == "sample" for r in rows), "business view: the marked samples")
+        self.assertEqual(self.call("/me", code=CODES["analyst"])[1]["views"], ["analyst"], "X-View-Role means nothing to other codes")

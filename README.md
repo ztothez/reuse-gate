@@ -443,6 +443,9 @@ and name; "Viewing as" offers only the roles that tab is signed in to.
 - Codes are compared in constant time, kept in the browser tab's sessionStorage only, and never logged.
 - With a live API configured, the UI never falls back to bundled data or local drafts: an unreachable API is shown as an error.
 
+- A judge code (`judge:Judge:<code>`) is for demo reviewers: "Viewing as" offers all seven roles, and each call carries the view
+  (`X-View-Role`). The API then gives exactly that role's data and rights under the judge's name; viewing as Business also shows the
+  marked sample requests. Every other code ignores the header.
 - Separation of duties for configuration: nobody approves a change they proposed (403), and an approved change is a release patch,
   never applied to the running service.
 

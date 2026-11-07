@@ -60,7 +60,7 @@ class RoleCodeTest(Api):
                 for path in ("/requests", "/me", "/evaluation", "/radar", "/log"):
                     self.assertEqual(self.call(path, code=code)[0], 401, path)
                 self.assertEqual(self.call("/requests", {"text": TEXT}, code)[0], 401)
-        self.assertEqual(self.call("/me", code=CODES["approver"]), (200, {"role": "approver", "name": "Anna Approver", "enforced": True}))
+        self.assertEqual(self.call("/me", code=CODES["approver"]), (200, {"role": "approver", "name": "Anna Approver", "enforced": True, "views": ["approver"]}))
         self.assertEqual(self.call("/healthz")[0], 200, "probes need no code")
 
     def test_permission_matrix(self):
