@@ -253,6 +253,20 @@ An answer that cannot be used is rejected by name and the question is asked agai
 outside the catalog. Answers are checked for prompt injection like requests. The API keeps no state, so the UI sends all answers
 each time, and approved decisions record them in the log.
 
+### Faithfulness guard and quality evaluation
+
+Every AI explanation is checked before it is shown: each asset id, KPI name, number and status it states must appear in the
+decision or in the rows it cites (`backend/reuse_gate/faithfulness.py`). If not, the rules explanation is shown instead and
+`ai.guard` says `replaced`; otherwise `passed`. The decision itself never changes. All 6 saved chip explanations pass.
+
+`python3 -I scripts/eval_quality.py data/estate.db` writes `data/evaluation.json`, served by `GET /evaluation`: generation
+(deterministic faithfulness, an LLM judge from a different model family with its prompt in `data/judge_prompt.txt`, answer
+relevance, guard replacement rate), retrieval (context precision and recall), intent and decisions (messy set accuracy, KPI
+matching, agreement between rules, gpt-oss and GLM, citation validity) and the data pack (referential integrity, null rates,
+ownerless and duplicate counts). Every metric says in its caveat what it does not show. Keys come from the environment only;
+without them the judge is reported as not run. People can label 20 requests with `data/gold_labels_template.csv`
+(`docs/gold_labels.md`); those scores are reported apart, as "human-labelled".
+
 ### Live provider evaluation
 
 | Backend | Status | Valid | Products | KPIs | Kind | All 3 | Asks | All 4 | Usable | Action agrees | Off-list values | Median s | Max s | Failures |
