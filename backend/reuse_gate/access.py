@@ -2,12 +2,15 @@
 
 REUSE_GATE_ROLE_CODES holds one entry per person or seat, separated by ";": role:name:code, for example
 "business:Maria Business:<code>;approver:Anna Approver:<code>". A request carries its code in X-Access-Code; the API maps it
-to a role and a name and checks the role on every endpoint. Roles: business, analyst, developer, approver, admin.
+to a role and a name and checks the role on every endpoint. Roles: business, analyst, developer, approver, admin, executive,
+operator.
 
 - Business sees and rechecks only the requests it created, and never approver names.
 - Analyst and developer read every request and the evidence, with approver names hidden.
 - Approver and admin approve, simulate and read the decision log.
 - Who approved is the signed-in name, never a name sent in the body.
+- Executive reads the plain-language report and the request list; operator reads the operations wall. Neither changes anything.
+- Developers propose decision configuration changes; approvers decide them, never their own.
 
 With no codes configured the API stays open as before (local development and tests); REUSE_GATE_WRITE_TOKEN alone still
 guards approve and remediate. In production the role and name come from the identity provider (an OIDC token or the OpenShift
@@ -18,16 +21,16 @@ import os
 import sys
 from dataclasses import dataclass
 
-ROLES = ("business", "analyst", "developer", "approver", "admin")
+ROLES = ("business", "analyst", "developer", "approver", "admin", "executive", "operator")
 EVERYONE = frozenset(ROLES)
-READ_ALL = frozenset({"analyst", "developer", "approver", "admin"})
+READ_ALL = frozenset({"analyst", "developer", "approver", "admin", "executive", "operator"})
 DECIDERS = frozenset({"approver", "admin"})
 
 # What each role may do. Anything not granted is refused with 403.
 PERMISSIONS = {
     "recommend": EVERYONE,
     "requests.create": frozenset({"business", "admin"}),
-    "requests.read": EVERYONE,  # business: own items only, see can_see()
+    "requests.read": EVERYONE - {"operator"},  # business: own items only, see can_see(); operators see queue counts only
     "speak": EVERYONE,
     "transcribe": frozenset({"business", "admin"}),
     "evaluation": EVERYONE,
@@ -37,6 +40,15 @@ PERMISSIONS = {
     "spec": frozenset({"developer", "approver", "admin"}),
     "remediate": DECIDERS,
     "approve": DECIDERS,
+    "dashboards.read": frozenset({"analyst", "developer", "approver", "admin", "executive"}),
+    "dashboards.write": frozenset({"analyst", "admin"}),
+    "report": frozenset({"executive", "approver", "admin"}),
+    "report.email": frozenset({"executive", "admin"}),
+    "operations": frozenset({"operator", "approver", "admin"}),
+    "config.read": frozenset({"developer", "approver", "admin"}),
+    "config.propose": frozenset({"developer", "admin"}),
+    "config.decide": DECIDERS,
+    "notifications": frozenset({"admin"}),
 }
 MIN_CODE = 12
 

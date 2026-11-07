@@ -18,6 +18,15 @@ POST /approve    {request_id, decision, approver, owner, review_by, text?, inten
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
 GET  /me                                               -> {role, name, enforced} for the caller's access code
+GET  /explore/catalog, POST /explore/query {tile}      -> datasets, dimensions and measures; aggregate rows for one tile
+POST /explore/preview {request_id}                     -> starter tiles for a work item's spec, from the KPIs the pack holds
+GET  /dashboards, /dashboards/{id}; POST /dashboards   -> saved dashboards: own and shared; save or update (owner or admin)
+GET  /report                                           -> the executive report, in plain language, with sources
+POST /report/email                                     -> sends the report to the executive mailing list through n8n
+GET  /operations                                       -> the operator wall: failed refreshes, query errors, supply risk, queue
+GET  /config; POST /config/changes; POST /config/changes/{id} {decision}
+                                                       -> decision settings, change requests with their measured impact, review
+GET  /notifications; POST /notifications/test          -> email delivery status and outbox (admin)
 State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
 startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
 Access: with REUSE_GATE_ROLE_CODES set (see access.py), every endpoint but health, the PingSource and n8n needs an X-Access-Code
@@ -44,7 +53,8 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env, tier_config, tier_names
 from reuse_gate.pipeline import run_request
-from reuse_gate import access, decision, security, workitems
+from reuse_gate import access, config_changes, dashboards, decision, explore, notify, report, security, workitems
+from reuse_gate.jsonl import JsonlStore
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate, snapshot_id
 from reuse_gate.spec import build_spec
@@ -62,6 +72,9 @@ WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
 MAX_BODY = 1_000_000
 STORE = workitems.Store()  # replaced at startup by a store next to the decision log
 LIMITER = security.RateLimiter()  # enabled at startup; off in tests unless a test turns it on
+DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "estate.db")
+DASHBOARDS = JsonlStore(key="id")
+CHANGES = JsonlStore(key="id")
 
 
 def providers():
@@ -283,6 +296,18 @@ class Handler(BaseHTTPRequestHandler):
             if not item or not access.can_see(who, item):  # another person's item answers like a missing one
                 return self._send(404, {"error": "no such request"})
             return self._send(200, access.redact(who, workitems.detail(item)))
+        if url.path in GET_ROUTES:
+            action, handler = GET_ROUTES[url.path]
+            if who := self._who(action):
+                handler(self, who)
+            return
+        if url.path.startswith("/dashboards/"):
+            if not (who := self._who("dashboards.read")):
+                return
+            row = DASHBOARDS.get(url.path[len("/dashboards/"):])
+            if not row or not dashboards.visible(who, row):
+                return self._send(404, {"error": "no such dashboard"})
+            return self._send(200, row)
         if self.path in ("/health", "/healthz"):  # always 200 while the process serves, so probes never fail on KServe
             self._send(200, {"ok": True, "assets": len(EST.assets), "estate_snapshot": snapshot_id(EST), **decision.health(), **providers()})
         elif self.path == "/radar":
@@ -349,6 +374,15 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/radar-ping":  # a PingSource cannot send the n8n key; this exposes nothing beyond GET /radar
             self._drain()
             return self._send(200, radar_digest())
+        if self.path in POST_ROUTES or self.path.startswith("/config/changes/"):
+            action, handler = POST_ROUTES.get(self.path) or ("config.decide", Handler._decide_change)
+            try:
+                body = self._body()
+            except ValueError as exc:  # JSONDecodeError is a ValueError
+                return self._send(400, {"error": "invalid JSON" if isinstance(exc, json.JSONDecodeError) else str(exc)})
+            if who := self._who(action):
+                handler(self, body, who)
+            return
         try:
             body = self._body()
             action = {"/recommend": "recommend", "/speak": "speak", "/requests": "requests.read", "/remediate": "remediate",
@@ -404,6 +438,10 @@ class Handler(BaseHTTPRequestHandler):
                 entry = register_decision(body, context)
                 if item:
                     STORE.decide(item["request_id"], entry)
+                    notify.safe(notify.send, "request.decided", "business", f"{item['request_id']} was {body['decision']}d",
+                                f"Your request {item['request_id']} was {body['decision']}d.\n\n\"{item['text'][:300]}\"\n\n"
+                                f"Owner: {body['owner']}. Review by: {body.get('review_by') or 'not set'}.",
+                                f"/requests/{item['request_id']}", who.name)
                 return self._send(200, {"ok": True, "registered_id": entry["registered_id"]})
             if self.path == "/n8n/approval":
                 if not n8n_authorized(self):
@@ -448,6 +486,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, {"error": "text is required"})
             new = workitems.new_id()
             item = STORE.create(run_item(new, text.strip(), answers or [], rounds or []), requester and requester[:100], request_id=new)
+            notify_item(item, who)
             return self._send(200, {"request_id": item["request_id"], "status": item["status"], "result": item["result"]})
         item = STORE.get(rid) if isinstance(rid, str) else None
         if not item or not access.can_see(who, item):
@@ -455,18 +494,127 @@ class Handler(BaseHTTPRequestHandler):
         if item["status"] in ("approved", "rejected"):
             return self._send(409, {"error": f"{rid} is already {item['status']}; submit a new request"})
         result = run_item(rid, (text or item["text"]).strip(), item["answers"] if answers is None else answers, item["rounds"] if rounds is None else rounds)
+        before = item["status"]
         item = STORE.update(rid, result, requester and requester[:100])
+        if item["status"] != before:
+            notify_item(item, who)
         return self._send(200, {"request_id": rid, "status": item["status"], "result": result})
+
+    # Dashboards, reports, operations, configuration and notifications. Each gets the checked caller.
+    def _catalog(self, who):
+        self._send(200, explore.catalog())
+
+    def _dashboards(self, who):
+        self._send(200, DASHBOARDS.all(lambda row: dashboards.visible(who, row)))
+
+    def _report(self, who):
+        rep = report.executive(EST, list(STORE.items.values()), LOG, load_evaluation(), CHANGES.all())
+        self._send(200, {**rep, "text": report.as_text(rep)})
+
+    def _operations(self, who):
+        self._send(200, report.operations(EST, list(STORE.items.values())))
+
+    def _config(self, who):
+        changes = [{**c, "patch": config_changes.patch(c) if c["status"] == "approved" else None} for c in CHANGES.all()]
+        self._send(200, {**config_changes.current(EST), "changes": changes})
+
+    def _notifications(self, who):
+        self._send(200, {**notify.status(), "outbox": notify.OUTBOX.all()[:100] if notify.OUTBOX else []})
+
+    def _query(self, body, who):
+        try:
+            self._send(200, explore.query(EST.con, body.get("tile")))
+        except explore.QueryError as exc:
+            self._send(400, {"error": str(exc)})
+
+    def _preview(self, body, who):
+        item = STORE.get(body.get("request_id")) if isinstance(body.get("request_id"), str) else None
+        if not item:
+            return self._send(404, {"error": "no such request"})
+        spec = workitems._stage(item["result"], "Spec").get("output") or {}
+        self._send(200, {"request_id": item["request_id"], "title": spec.get("name") or item["text"][:80],
+                         "tiles": explore.tiles_for_spec(spec), "kpis": spec.get("kpis") or []})
+
+    def _save_dashboard(self, body, who):
+        try:
+            self._send(200, dashboards.save(DASHBOARDS, body, who))
+        except dashboards.DashboardError as exc:
+            self._send(400, {"error": str(exc)})
+        except PermissionError as exc:
+            self._send(403, {"error": str(exc), "code": "forbidden"})
+
+    def _email_report(self, body, who):
+        rep = report.executive(EST, list(STORE.items.values()), LOG, load_evaluation(), CHANGES.all())
+        row = notify.send("report.executive", "executive", "Executive report", report.as_text(rep), "/report", who.name, wait=True)
+        self._send(200, row)
+
+    def _test_email(self, body, who):
+        role = body.get("role") if body.get("role") in access.ROLES else "admin"
+        self._send(200, notify.send("test", role, "Test message", f"A test message sent by {who.name} from the Workflows page.",
+                                    "/workflows", who.name, wait=True))
+
+    def _propose_change(self, body, who):
+        try:
+            row = config_changes.propose(CHANGES, EST, DB_PATH, body, who)
+        except config_changes.ChangeError as exc:
+            return self._send(400, {"error": str(exc)})
+        imp = row["impact"]
+        notify.safe(notify.send, "config.proposed", "approver", f"Config change {row['id']} needs review",
+                    f"{who.name} proposes a change to the decision settings: {row['reason']}\n\nMeasured on "
+                    f"{imp['after']['total']} requests: new builds avoided {imp['before']['avoided']} -> {imp['after']['avoided']}, "
+                    f"{imp['changed_count']} decisions change.", "/config", who.name)
+        self._send(200, row)
+
+    def _decide_change(self, body, who):
+        try:
+            row = config_changes.decide(CHANGES, self.path[len("/config/changes/"):], body, who)
+        except LookupError:
+            return self._send(404, {"error": "no such change"})
+        except PermissionError as exc:
+            return self._send(403, {"error": str(exc), "code": "separation_of_duties"})
+        except config_changes.ChangeError as exc:
+            return self._send(409 if "already" in str(exc) else 400, {"error": str(exc)})
+        notify.safe(notify.send, "config.decided", "developer", f"Config change {row['id']} {row['status']}",
+                    f"{who.name} {row['status']} your change {row['id']}. {row['comment'] or ''}", "/config", who.name)
+        self._send(200, {**row, "patch": config_changes.patch(row) if row["status"] == "approved" else None})
 
     def log_message(self, fmt, *args):
         """The request line and status only. Bodies are never logged, and any configured secret value is redacted."""
         sys.stderr.write(security.redact("%s %s\n" % (self.address_string(), fmt % args)))
 
 
+GET_ROUTES = {"/explore/catalog": ("dashboards.read", Handler._catalog), "/dashboards": ("dashboards.read", Handler._dashboards),
+              "/report": ("report", Handler._report), "/operations": ("operations", Handler._operations),
+              "/config": ("config.read", Handler._config), "/notifications": ("notifications", Handler._notifications)}
+POST_ROUTES = {"/explore/query": ("dashboards.read", Handler._query), "/explore/preview": ("dashboards.write", Handler._preview),
+               "/dashboards": ("dashboards.write", Handler._save_dashboard), "/report/email": ("report.email", Handler._email_report),
+               "/notifications/test": ("notifications", Handler._test_email), "/config/changes": ("config.propose", Handler._propose_change)}
+
+
+def load_evaluation():
+    try:
+        return json.loads(EVALUATION.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def notify_item(item, who):
+    """Tell approvers when a request is ready for a decision or needs a person. Never fails the request."""
+    if item["status"] not in ("awaiting_approval", "human_review"):
+        return
+    rec = item["result"]["recommendation"]
+    what = "is ready for a decision" if item["status"] == "awaiting_approval" else "needs a person to review it"
+    notify.safe(notify.send, f"request.{item['status']}", "approver", f"{item['request_id']} {what}",
+                f"{item.get('requester') or 'A requester'} asked: \"{item['text'][:300]}\"\n\nRecommendation: "
+                f"{rec['action'].replace('_', ' ')}{' ' + rec['target']['id'] if rec.get('target') else ''}.",
+                f"/requests/{item['request_id']}", who.name)
+
+
 if __name__ == "__main__":
     load_env()
     N8N_API_KEY = os.environ.get("N8N_API_KEY") or os.environ.get("n8n_API_KEY", "")
-    EST = Estate(sys.argv[1], os.environ.get("CATALOG_PATH", DEFAULT_CATALOG))
+    DB_PATH = sys.argv[1]
+    EST = Estate(DB_PATH, os.environ.get("CATALOG_PATH", DEFAULT_CATALOG))
     if EST.name_issues:
         print(f"WARNING: {len(EST.name_issues)} display name(s) cleaned at load: {', '.join(i for _, i, _ in EST.name_issues[:20])}", file=sys.stderr)
     LLM_CLIENT = live_client()
@@ -480,6 +628,10 @@ if __name__ == "__main__":
     LOG_FILE = str(state / "decision_log.jsonl")
     LOG[:] = load_log(LOG_FILE)
     STORE = open_store(state / "requests.jsonl")
+    DASHBOARDS = JsonlStore(state / "dashboards.jsonl", key="id")
+    CHANGES = JsonlStore(state / "config_changes.jsonl", key="id")
+    notify.OUTBOX = JsonlStore(state / "notifications.jsonl", key="id")
+    print(f"Email: {'through n8n' if notify.configured() else 'not configured (REUSE_GATE_NOTIFY_URL, N8N_WEBHOOK_SECRET)'}", file=sys.stderr)
     LIMITER = security.RateLimiter(enabled=os.environ.get("RATE_LIMITS", "on") != "off")
     seeded = seed_samples()
     print(f"State in {state.resolve()}: {len(LOG)} approval(s), {len(STORE.items)} work item(s){f', {seeded} sample(s) seeded' if seeded else ''}")
