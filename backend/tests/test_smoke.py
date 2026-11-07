@@ -5,8 +5,11 @@ import tempfile
 import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts"))
 import eval_runner
 
 
@@ -43,7 +46,7 @@ class SmokeTest(unittest.TestCase):
         return eval_runner.main([str(cases), "--out", str(self.tmp / "report.json")])
 
     def test_passing_cases(self):
-        code = self.run_cases(Path("cases.example.jsonl").read_text(encoding="utf-8"))
+        code = self.run_cases((ROOT / "data/cases.example.jsonl").read_text(encoding="utf-8"))
         self.assertEqual(code, 0)
 
     def test_failing_case_returns_nonzero(self):

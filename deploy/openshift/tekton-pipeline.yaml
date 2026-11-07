@@ -19,7 +19,7 @@ spec:
             image: $(params.image)
             workingDir: /opt/app-root/src
             script: |
-              python3 -m unittest discover -p 'test_*.py' -v
+              python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py' -v
       params:
         - {name: image, value: $(params.image)}
     - name: governance-gate
@@ -31,9 +31,9 @@ spec:
             workingDir: /opt/app-root/src
             script: |
               python3 - <<'PY'
-              import server
-              from estate import Estate
-              server.EST = Estate("estate.db")
+              from reuse_gate import server
+              from reuse_gate.estate import Estate
+              server.EST = Estate("data/estate.db")
               samples = [
                   "I need a dashboard for Nubeqa net sales by region in EMEA",
                   "Please build a new report for market access coverage by product",

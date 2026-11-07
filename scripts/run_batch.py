@@ -1,12 +1,14 @@
 """Run the recommender over all business requests and report what it would have avoided.
 
-Usage: python3 run_batch.py <db>
+Usage: python3 scripts/run_batch.py data/estate.db
 """
 import sys
 from collections import Counter
+from pathlib import Path
 
-from estate import Estate
-from recommend import parse_request, recommend
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+from reuse_gate.estate import Estate
+from reuse_gate.recommend import parse_request, recommend
 
 
 def main(db):

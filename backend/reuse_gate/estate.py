@@ -1,13 +1,13 @@
 """In-memory view of the analytics estate, loaded into SQLite by load_estate.py.
 
-Division vocabulary (KPI phrases, the all-products scope) lives in catalog.json, not in code.
+Division vocabulary (KPI phrases, the all-products scope) lives in data/catalog.json, not in code.
 """
 import json
 import sqlite3
 from collections import defaultdict
 from pathlib import Path
 
-DEFAULT_CATALOG = Path(__file__).parent / "catalog.json"
+DEFAULT_CATALOG = Path(__file__).resolve().parents[2] / "data" / "catalog.json"
 
 ID_COLUMN = {
     "Analytics_Assets": "asset_id",

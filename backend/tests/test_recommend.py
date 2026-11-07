@@ -2,10 +2,11 @@
 import unittest
 from pathlib import Path
 
-from estate import Estate
-from recommend import LOW_VIEWS, parse_request, recommend, scoped_assessments
+from reuse_gate.estate import Estate
+from reuse_gate.recommend import LOW_VIEWS, parse_request, recommend, scoped_assessments
 
-DB = Path(__file__).parent / "estate.db"
+ROOT = Path(__file__).resolve().parents[2]
+DB = ROOT / "data" / "estate.db"
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")

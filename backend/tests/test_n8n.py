@@ -11,11 +11,12 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-import server
-from estate import Estate
-from llm import NoLLM
+from reuse_gate import server
+from reuse_gate.estate import Estate
+from reuse_gate.llm import NoLLM
 
-DB = Path(__file__).parent / "estate.db"
+ROOT = Path(__file__).resolve().parents[2]
+DB = ROOT / "data" / "estate.db"
 
 
 class N8nIntegrationTest(unittest.TestCase):
@@ -37,7 +38,7 @@ class N8nIntegrationTest(unittest.TestCase):
         self.assertIn("retire or review", digest["summary"])
 
     def test_workflow_files_are_wired_and_hold_no_secrets(self):
-        for path in Path(__file__).parent.glob("n8n/*_workflow.json"):
+        for path in (ROOT / "deploy/n8n").glob("*_workflow.json"):
             with self.subTest(path.name):
                 flow = json.loads(path.read_text(encoding="utf-8"))
                 names = {n["name"] for n in flow["nodes"]}

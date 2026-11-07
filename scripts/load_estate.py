@@ -1,6 +1,6 @@
 """Load the Bayer builder data pack (xlsx) into SQLite.
 
-Usage: python3 -I load_estate.py <xlsx> <db>
+Usage: python3 -I scripts/load_estate.py data/<xlsx> data/estate.db
 """
 import re
 import sqlite3

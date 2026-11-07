@@ -1,6 +1,6 @@
 """Profile the loaded estate: what is messy, duplicated, stale or ungoverned.
 
-Usage: python3 -I profile_estate.py <db>
+Usage: python3 -I scripts/profile_estate.py data/estate.db
 """
 import sqlite3
 import sys

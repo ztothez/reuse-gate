@@ -21,7 +21,7 @@ def load_cases(path):
 
 
 def llm_answer(question):
-    from llm import LLM
+    from reuse_gate.llm import LLM
 
     return LLM().chat(
         [

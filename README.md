@@ -20,7 +20,7 @@ Intent -> Evidence -> Decision -> Spec -> Gates -> human approval -> registered 
 
 ## Data
 
-The data pack (`Bayer_SinceAI2026/*.xlsx`) and its SQLite copy (`estate.db`) are synthetic, created by SinceAI.
+The data pack (`data/*.xlsx`) and its SQLite copy (`data/estate.db`) are synthetic, created by SinceAI.
 Bayer's judge confirmed they may be committed to this public repo. They are not real Bayer business data.
 
 ### Data assumptions
@@ -30,7 +30,7 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
   does not correlate with usage in the data.
 - Cross-product requests ("by product") match assets scoped to the whole portfolio.
 - An ad hoc request naming no product assumes the whole portfolio and asks the requester to confirm.
-- An ad hoc request has its market read from the text: market names, regions and aliases such as US, UK, Europe or APAC (`catalog.json`).
+- An ad hoc request has its market read from the text: market names, regions and aliases such as US, UK, Europe or APAC (`data/catalog.json`).
   Naming no market means Global, and the requester is asked to confirm. Several markets become their shared region, or Global if
   they span regions, again with a question. The 150 batch requests keep the market in their own metadata.
 - Coverage comes only from `Asset_KPI_Map`, and a target must cover a requested KPI as a primary one. The target card lists each covered
@@ -39,23 +39,38 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
   by name, which looks up that report and still judges it on usage and lifecycle.
 - The 150 business requests contain only 10 distinct texts, so LLM results are evaluated on those 10.
 
+## Repository layout
+
+| Path | Contents |
+| --- | --- |
+| `backend/reuse_gate/` | The decision service: API, recommender, pipeline, spec, gates, LLM and speech clients |
+| `backend/tests/` | Python tests |
+| `scripts/` | Command-line tools: load data, batch run, evaluation, warm-up |
+| `data/` | Data pack, SQLite copy, division catalog, mock API data |
+| `deploy/openshift/`, `deploy/n8n/` | OpenShift manifests and n8n workflows |
+| `docs/` | Generated reports and evaluation results |
+| `frontend/` | React front end |
+
+The `Containerfile` is at the repo root, because the OpenShift BuildConfig expects it there. Run all commands from the repo root.
+
 ## Run
 
 ```bash
-pip install openpyxl                                  # only needed to rebuild estate.db
-python3 -I load_estate.py <data-pack>.xlsx estate.db  # optional, estate.db is committed
-python3 -m unittest discover -p 'test_*.py'
-python3 run_batch.py estate.db                        # expect 57/150 new builds avoided, 1098 citations, 0 invalid
-python3 -I spec_gate.py estate.db                     # writes docs/quality_report.md
-python3 -I edge_cases.py estate.db docs/edge_cases.md
-python3 -I warmup.py                                  # wakes the live models before a demo
-python3 -I server.py estate.db 8000                   # reads .env; LLM_MODE=rules turns the models off
+pip install openpyxl                                              # only needed to rebuild the database
+python3 -I scripts/load_estate.py data/<data-pack>.xlsx data/estate.db  # optional, data/estate.db is committed
+python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'
+python3 -I scripts/run_batch.py data/estate.db                    # expect 57/150 new builds avoided, 1098 citations, 0 invalid
+python3 -I scripts/warmup.py                                      # wakes the live models before a demo
+export PYTHONPATH=backend
+python3 -m reuse_gate.spec_gate data/estate.db                    # writes docs/quality_report.md
+python3 -m reuse_gate.edge_cases data/estate.db docs/edge_cases.md
+python3 -m reuse_gate.server data/estate.db 8000                  # reads .env; LLM_MODE=rules turns the models off
 ```
 
 Front end (Vite needs Node.js 20.19+ or 22.12+; tested with 24):
 
 ```bash
-cd FrontEnd && npm install && npm test
+cd frontend && npm ci && npm test
 VITE_API_URL=http://localhost:8000 npm run dev
 ```
 
@@ -85,7 +100,7 @@ Current result on the 150 business requests, from `docs/quality_report.md`:
 
 The low pass rate reflects the deliberately messy estate. It is what the gates are for: the report lists which semantic models to fix first.
 
-`test_spec_gate.py` starts from a spec that passes, breaks one thing at a time, and confirms the right gate fails. It also
+`backend/tests/test_spec_gate.py` starts from a spec that passes, breaks one thing at a time, and confirms the right gate fails. It also
 confirms that a rerun of the batch gives identical results. Full results: [docs/quality_report.md](docs/quality_report.md).
 
 ### Retire or consolidate later
@@ -105,9 +120,9 @@ The UI shows 5 items per list and a "+N more" count. The API returns them all, a
 
 ### Edge cases
 
-`test_edge_cases.py` runs each case below through the real pipeline, and again over HTTP. Each must end in a clarification,
+`backend/tests/test_edge_cases.py` runs each case below through the real pipeline, and again over HTTP. Each must end in a clarification,
 human_review or a cited decision, and never in a crash or an invented product, KPI, asset or model. Table generated by
-`edge_cases.py` from an actual rules-only run.
+`backend/reuse_gate/edge_cases.py` from an actual rules-only run.
 
 | Case | Request | Outcome | Explanation |
 | --- | --- | --- | --- |
@@ -147,9 +162,9 @@ Decisions are deterministic, so they are repeatable and auditable. The LLM is us
 fallback:
 
 - **Intent parsing:** output is filtered against the catalog's products, markets and KPIs. An invalid or empty result falls
-  back to the rule parser (`recommend.py`), which is also the comparison baseline.
+  back to the rule parser (`backend/reuse_gate/recommend.py`), which is also the comparison baseline.
 - **Plain-language explanations:** the model rewrites the rationale. The UI labels the source. On failure, the rule rationale shows.
-- **KPI matching (`kpi_match.py`):** when no KPI is parsed, embeddings propose the closest canonical KPI, the LLM must confirm
+- **KPI matching (`backend/reuse_gate/kpi_match.py`):** when no KPI is parsed, embeddings propose the closest canonical KPI, the LLM must confirm
   it, and the requester is asked to confirm it. Scores alone do not separate good from bad matches
   ([docs/embedding_probe.md](docs/embedding_probe.md)), so a suggestion is never applied silently.
 
@@ -160,8 +175,8 @@ The API uses `openai/gpt-oss-120b` on CSC Aitta (`AITTA_API_KEY`), with automati
 failed primary is skipped for 120 seconds so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
 (`LLM_MAX_CALLS`) stops instead of moving the spending to the fallback. The UI names the model that wrote each explanation.
 
-Run `python3 -I warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
-primary is ready, 1 if only the fallback is, and 2 if neither is. `llm.py` also keeps an on-disk response cache.
+Run `python3 -I scripts/warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
+primary is ready, 1 if only the fallback is, and 2 if neither is. `backend/reuse_gate/llm.py` also keeps an on-disk response cache.
 
 ### Listen button
 
@@ -206,7 +221,7 @@ Measured live on the 10 distinct request texts, with the final prompts. **Agreem
 - `meta-llama/Llama-3.3-70B-Instruct` was the fastest but differed most on actions. It tended to widen a named product to the whole portfolio, so a deterministic guard now makes a product named in the text beat the model.
 - The first version of the prompts made models ask a question on nearly every request and failed to produce explanations from Llama. The live evaluation found both.
 
-Run `python3 -I eval_intent.py estate.db`. Details per request: [docs/eval_results.md](docs/eval_results.md). Results from the
+Run `python3 -I scripts/eval_intent.py data/estate.db`. Details per request: [docs/eval_results.md](docs/eval_results.md). Results from the
 earlier prompt: [docs/eval_results_prompt_v1.md](docs/eval_results_prompt_v1.md).
 
 ## Deployment and governance
@@ -258,8 +273,8 @@ Nothing in the logic is specific to Pharma, and a test enforces that no division
 functions (R&D, Marketing, Logistics, Quality, Finance, IT, Legal) and divisions (Pharmaceuticals, Crop Science, Consumer
 Health) are data:
 
-1. Export the division's estate in the data pack's sheet layout, and load it with `load_estate.py`.
-2. Write its `catalog.json`: `division`, `all_scope`, `cross_product_pattern`, `kpi_patterns` (request phrases to canonical KPIs),
+1. Export the division's estate in the data pack's sheet layout, and load it with `scripts/load_estate.py`.
+2. Write its `data/catalog.json`: `division`, `all_scope`, `cross_product_pattern`, `kpi_patterns` (request phrases to canonical KPIs),
    `migration_kpis` and `known_terms`. A function such as Legal or Quality is a set of KPIs, owners and phrases in these files.
 3. Start the API with `CATALOG_PATH=<division catalog>`.
 4. Run the batch, the gates and the edge cases. The quality report becomes that division's baseline.
@@ -272,7 +287,7 @@ logic still assumes Power BI as the target platform and Tableau as legacy.
 
 The xlsx stands in for live metadata. Each sheet would map to a source: `Analytics_Assets`, `Semantic_Models` and
 `Lineage_Edges` to the Power BI scanner metadata, `Asset_Usage` to activity events, `Owners` to the corporate directory, and
-`KPI_Catalog` to the business glossary. Only `load_estate.py` would change.
+`KPI_Catalog` to the business glossary. Only `scripts/load_estate.py` would change.
 
 ### OpenShift
 
@@ -283,11 +298,11 @@ read-only, ignores the request body, and exposes only data that the public `GET 
 
 ### n8n: approval webhook and radar digest
 
-Importable workflows are in [n8n/](n8n/). Both start inactive.
+Importable workflows are in [deploy/n8n/](deploy/n8n/). Both start inactive.
 
 ```bash
-n8n import:workflow --input=n8n/approval_workflow.json
-n8n import:workflow --input=n8n/radar_digest_workflow.json
+n8n import:workflow --input=deploy/n8n/approval_workflow.json
+n8n import:workflow --input=deploy/n8n/radar_digest_workflow.json
 ```
 
 Or use Workflows, then Import from File, in the n8n editor. Then:

@@ -5,11 +5,11 @@ The API, the mock export and the tests all call run_request, so what the front e
 import re
 from datetime import date
 
-from llm import LLM, LLMError
-from recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
-from spec import build_spec
-from spec_gate import check
-from speech import MAX_CHARS as MAX_SPEECH
+from reuse_gate.llm import LLM, LLMError
+from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
+from reuse_gate.spec import build_spec
+from reuse_gate.spec_gate import check
+from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
 
 MAX_CANDIDATES = 5
 MAX_SHOWN = 5  # the API returns every listed asset; displays show this many and a "+N more" count

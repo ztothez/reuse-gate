@@ -6,7 +6,7 @@ A match can only ever be a canonical KPI from the catalog.
 import math
 import os
 
-from llm import LLM, LLMError
+from reuse_gate.llm import LLM, LLMError
 
 EMBED_MODEL = "intfloat/multilingual-e5-large"  # best result in docs/embedding_probe.md
 THRESHOLD = float(os.environ.get("KPI_MATCH_THRESHOLD", "0.8"))

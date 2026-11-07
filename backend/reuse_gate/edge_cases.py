@@ -1,14 +1,13 @@
 """Edge cases every request path must survive. Each ends in a clarification, human_review or a cited decision.
 
-Usage: python3 -I edge_cases.py <db> [docs/edge_cases.md]
+Usage: PYTHONPATH=backend python3 -m reuse_gate.edge_cases data/estate.db [docs/edge_cases.md]
 """
 import sys
 from pathlib import Path
 
-sys.path.insert(0, ".")
-from estate import Estate
-from llm import NoLLM
-from pipeline import run_request
+from reuse_gate.estate import Estate
+from reuse_gate.llm import NoLLM
+from reuse_gate.pipeline import run_request
 
 # name, request text, expected outcome: "review" (human_review), "cited" (decision with citations), "cited+ask"
 CASES = [

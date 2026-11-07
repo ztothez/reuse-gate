@@ -7,8 +7,8 @@ which supports RULE-008 (explain every lifecycle action with cited evidence).
 import re
 from dataclasses import dataclass, field
 
-import kpi_match
-from llm import LLM, LLMError
+from reuse_gate import kpi_match
+from reuse_gate.llm import LLM, LLMError
 
 LEGACY = re.compile(r"legacy tableau", re.I)
 KEEP_PATHS = {"MIGRATE", "REBUILD_ON_SHARED_MODEL", "CONSOLIDATE_BEFORE_MIGRATION"}

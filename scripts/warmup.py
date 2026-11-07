@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Wake the live models before a demo, so the first person does not wait for a cold start.
 
-Usage: python3 -I warmup.py
+Usage: python3 -I scripts/warmup.py
 Calls gpt-oss-120b (primary), GLM-5.2 (fallback) and the embedding model once each, bypassing the cache,
 with a long timeout. Exit code: 0 primary ready, 1 only the fallback ready, 2 no chat model ready. Never prints keys.
 """
 import sys
+from pathlib import Path
 import time
 
-sys.path.insert(0, ".")
-from kpi_match import EMBED_MODEL, embedder_from_env
-from llm import LLMError, live_backends, load_env
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+from reuse_gate.kpi_match import EMBED_MODEL, embedder_from_env
+from reuse_gate.llm import LLMError, live_backends, load_env
 
 TIMEOUT = 300
 

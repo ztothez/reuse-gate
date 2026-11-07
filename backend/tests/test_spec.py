@@ -1,6 +1,6 @@
 import unittest
 
-from spec import build_spec
+from reuse_gate.spec import build_spec
 
 
 class DashboardSpecTest(unittest.TestCase):

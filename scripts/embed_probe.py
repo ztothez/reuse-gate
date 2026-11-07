@@ -1,15 +1,15 @@
 """Check embedding KPI matching on hand-written synonyms. A sanity probe, not ground truth.
 
-Usage: python3 -I embed_probe.py estate.db   -> writes docs/embedding_probe.md
+Usage: python3 -I scripts/embed_probe.py data/estate.db   -> writes docs/embedding_probe.md
 """
 import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, ".")
-from estate import Estate
-from kpi_match import rank
-from llm import LLM, load_env
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+from reuse_gate.estate import Estate
+from reuse_gate.kpi_match import rank
+from reuse_gate.llm import LLM, load_env
 
 MODELS = ["intfloat/multilingual-e5-large", "lightonai/modernbert-embed-large"]
 # phrase, expected canonical KPI, or None when nothing in the catalog should match

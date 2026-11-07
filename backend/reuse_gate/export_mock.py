@@ -1,16 +1,15 @@
 """Export mock API responses (one per distinct request text) plus a radar summary.
 
-Usage: python3 -I export_mock.py <db> <out.json>
+Usage: PYTHONPATH=backend python3 -m reuse_gate.export_mock data/estate.db data/mock_api.json
 The shapes here are the contract the front end consumes from the API.
 """
 import json
 import sys
 from collections import Counter, defaultdict
 
-sys.path.insert(0, ".")
-from estate import Estate
-from llm import NoLLM
-from pipeline import run_request
+from reuse_gate.estate import Estate
+from reuse_gate.llm import NoLLM
+from reuse_gate.pipeline import run_request
 
 
 def radar(est):

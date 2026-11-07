@@ -12,16 +12,16 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import server
-import speech
-from estate import Estate
-from llm import NoLLM
-from pipeline import run_request, speech_script
-from recommend import NAME_NOTE
+from reuse_gate import server
+from reuse_gate import speech
+from reuse_gate.estate import Estate
+from reuse_gate.llm import NoLLM
+from reuse_gate.pipeline import run_request, speech_script
+from reuse_gate.recommend import NAME_NOTE
 
 KEY = "test-secret-value"
-ROOT = Path(__file__).parent
-DB = ROOT / "estate.db"
+ROOT = Path(__file__).resolve().parents[2]
+DB = ROOT / "data" / "estate.db"
 REAL_URLOPEN = urllib.request.urlopen
 
 
@@ -80,11 +80,11 @@ class SpeakTest(SpeakBase):
             with self.subTest(name), patch.dict(os.environ, {"ELEVENLABS_API_KEY": "", name: KEY}):
                 self.assertRefused(503, "Hello")
 
-    @unittest.skipUnless((ROOT / "FrontEnd/src").exists() and (ROOT / "env.example").exists(),
-                         "FrontEnd and env.example are not in the OpenShift image; this runs in the full local suite")
+    @unittest.skipUnless((ROOT / "frontend/src").exists() and (ROOT / "env.example").exists(),
+                         "frontend and env.example are not in the OpenShift image; this runs in the full local suite")
     def test_key_is_never_in_the_front_end_or_in_tracked_config(self):
         root = ROOT
-        for path in (root / "FrontEnd/src").rglob("*"):
+        for path in (root / "frontend/src").rglob("*"):
             if path.is_file() and path.suffix in {".ts", ".tsx", ".json"}:
                 text = path.read_text(encoding="utf-8").lower()
                 self.assertNotIn("xi-api-key", text, path)

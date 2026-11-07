@@ -7,7 +7,7 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from llm import LLM, LLMBudgetError, LLMError, LLMGatedError, live_client
+from reuse_gate.llm import LLM, LLMBudgetError, LLMError, LLMGatedError, live_client
 
 
 class LLMClientTest(unittest.TestCase):

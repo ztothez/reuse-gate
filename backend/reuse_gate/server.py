@@ -1,6 +1,6 @@
 """Reuse Gate API. Standard library only, so it runs anywhere with Python 3.10+.
 
-Usage: python3 -I server.py <db> [port]      (default port 8000)
+Usage: PYTHONPATH=backend python3 -m reuse_gate.server data/estate.db [port]      (default port 8000)
 
 POST /recommend  {"text": "...", "answers": [...]}      -> recommendation item (same shape as mock_api.json)
 POST /speak      {"text": "..."}                       -> audio/mpeg from ElevenLabs, capped and cached
@@ -21,14 +21,13 @@ import uuid
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-sys.path.insert(0, ".")
-from estate import DEFAULT_CATALOG, Estate
-from export_mock import radar
-from llm import live_client, load_env
-from pipeline import run_request
-from spec import build_spec
-from spec_gate import check
-from speech import SpeechError, speak
+from reuse_gate.estate import DEFAULT_CATALOG, Estate
+from reuse_gate.export_mock import radar
+from reuse_gate.llm import live_client, load_env
+from reuse_gate.pipeline import run_request
+from reuse_gate.spec import build_spec
+from reuse_gate.spec_gate import check
+from reuse_gate.speech import SpeechError, speak
 
 EST = None
 LOG = []

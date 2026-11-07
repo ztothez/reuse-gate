@@ -3,16 +3,15 @@
 Serves:  GET  /v1/models/<name>            readiness
          POST /v1/models/<name>:predict    {"instances": [{"text": "..."}]} -> {"predictions": [...]}
 The decision logic is deterministic and cites its evidence, so it is served the same way a model would be.
-Usage: python3 kserve_predictor.py   (env: DB_PATH, PORT, MODEL_NAME)
+Usage: PYTHONPATH=backend python3 -m reuse_gate.kserve_predictor   (env: DB_PATH, PORT, MODEL_NAME)
 """
 import json
 import os
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-sys.path.insert(0, ".")
-import server
-from estate import Estate
+from reuse_gate import server
+from reuse_gate.estate import Estate
 
 NAME = os.environ.get("MODEL_NAME", "reuse-gate")
 
@@ -59,7 +58,7 @@ class Predictor(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server.EST = Estate(os.environ.get("DB_PATH", "estate.db"))
+    server.EST = Estate(os.environ.get("DB_PATH", "data/estate.db"))
     port = int(os.environ.get("PORT", "8080"))
     print(f"KServe predictor '{NAME}' on :{port}")
     ThreadingHTTPServer(("0.0.0.0", port), Predictor).serve_forever()

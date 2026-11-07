@@ -3,13 +3,14 @@ import copy
 import unittest
 from pathlib import Path
 
-from estate import Estate
-from pipeline import rec_json
-from recommend import parse_request, recommend
-from spec import build_spec
-from spec_gate import batch, canonical_only, check, report
+from reuse_gate.estate import Estate
+from reuse_gate.pipeline import rec_json
+from reuse_gate.recommend import parse_request, recommend
+from reuse_gate.spec import build_spec
+from reuse_gate.spec_gate import batch, canonical_only, check, report
 
-DB = Path(__file__).parent / "estate.db"
+ROOT = Path(__file__).resolve().parents[2]
+DB = ROOT / "data" / "estate.db"
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")

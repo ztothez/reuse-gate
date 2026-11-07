@@ -10,16 +10,17 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
-import server
-from edge_cases import CASES, run_case
-from estate import Estate
-from llm import LLMError, NoLLM
-from pipeline import rec_json, run_request, stages
-from recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_overlap as split_overlap, assess, parse_request, parse_request_llm,
+from reuse_gate import server
+from reuse_gate.edge_cases import CASES, run_case
+from reuse_gate.estate import Estate
+from reuse_gate.llm import LLMError, NoLLM
+from reuse_gate.pipeline import rec_json, run_request, stages
+from reuse_gate.recommend import (LOW_VIEWS, NAME_NOTE, Intent, Recommendation, _split_overlap as split_overlap, assess, parse_request, parse_request_llm,
                        recommend, scoped_assessments)
 
-DB = Path(__file__).parent / "estate.db"
-FRONTEND_MOCK = Path(__file__).parent / "FrontEnd/src/data/mock_api.json"
+ROOT = Path(__file__).resolve().parents[2]
+DB = ROOT / "data" / "estate.db"
+FRONTEND_MOCK = ROOT / "frontend/src/data/mock_api.json"
 STAGES = ["Intent", "Evidence", "Decision", "Spec", "Gates"]
 
 
@@ -170,10 +171,9 @@ class EdgeCaseTest(unittest.TestCase):
     def test_fake_map_citation_is_rejected(self):
         self.assertFalse(self.est.exists("Asset_KPI_Map", "AST-0001:KPI-999"))
 
-    @unittest.skipUnless(FRONTEND_MOCK.exists(), "FrontEnd is not in the OpenShift image; this runs in the full local suite")
+    @unittest.skipUnless(FRONTEND_MOCK.exists(), "frontend is not in the OpenShift image; this runs in the full local suite")
     def test_mock_files_match_the_pipeline(self):
-        root = Path(__file__).parent
-        mock = json.loads((root / "mock_api.json").read_text(encoding="utf-8"))
+        mock = json.loads((ROOT / "data/mock_api.json").read_text(encoding="utf-8"))
         self.assertEqual(mock, json.loads(FRONTEND_MOCK.read_text(encoding="utf-8")))
         for item in mock["requests"]:
             req = next(r for r in self.est.requests if r["request_id"] == item["request_id"])
@@ -664,7 +664,7 @@ class OtherDivisionTest(unittest.TestCase):
     def test_no_division_terms_in_the_logic(self):
         terms = re.compile(r"pharma|oncology|medicine|xarelto|nubeqa|kerendia", re.I)
         for name in ("recommend.py", "spec.py", "spec_gate.py", "pipeline.py", "estate.py", "kpi_match.py"):
-            hits = [i for i, line in enumerate((Path(__file__).parent / name).read_text().splitlines(), 1) if terms.search(line)]
+            hits = [i for i, line in enumerate((ROOT / "backend/reuse_gate" / name).read_text().splitlines(), 1) if terms.search(line)]
             self.assertEqual(hits, [], name)
 
 
