@@ -2,11 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import { getMe, sessions, setActiveRole, SIGN_IN_EVENT } from "./api";
 import { itemsChanged } from "./use-resource";
 
-export type Role = "business" | "analyst" | "developer" | "approver" | "admin";
+export type Role =
+  "business" | "analyst" | "developer" | "approver" | "admin" | "executive" | "operator";
 export type RequestTab = "answer" | "evidence" | "spec" | "gates" | "activity";
 
 export type NavPath =
-  "/" | "/requests" | "/approvals" | "/overview" | "/radar" | "/log" | "/evaluation";
+  | "/"
+  | "/requests"
+  | "/approvals"
+  | "/dashboards"
+  | "/report"
+  | "/wall"
+  | "/config"
+  | "/workflows"
+  | "/overview"
+  | "/radar"
+  | "/log"
+  | "/evaluation";
 
 // "Viewing as" gives each person their own app: their home, their sidebar and the request tabs they need, in their order.
 // It is a view, not a permission: links still open, and write access comes from the API.
@@ -34,7 +46,7 @@ export const ROLES: RoleView[] = [
     label: "Analyst",
     hint: "The cited rows and data quality behind each decision",
     home: "Evidence",
-    nav: ["/", "/requests", "/radar", "/evaluation"],
+    nav: ["/", "/dashboards", "/requests", "/radar", "/evaluation"],
     tabs: ["evidence", "answer", "gates"],
     settings: false,
   },
@@ -43,7 +55,7 @@ export const ROLES: RoleView[] = [
     label: "Developer",
     hint: "The dashboard specs to build or change",
     home: "Build queue",
-    nav: ["/", "/requests", "/log"],
+    nav: ["/", "/config", "/dashboards", "/requests", "/log"],
     tabs: ["spec", "evidence", "gates"],
     settings: false,
   },
@@ -52,17 +64,58 @@ export const ROLES: RoleView[] = [
     label: "Approver",
     hint: "Gates, owner and review date before approval",
     home: "Decisions",
-    nav: ["/", "/approvals", "/requests", "/overview", "/radar", "/log"],
+    nav: [
+      "/",
+      "/approvals",
+      "/requests",
+      "/config",
+      "/report",
+      "/wall",
+      "/overview",
+      "/radar",
+      "/log",
+    ],
     tabs: ["gates", "answer", "evidence", "activity"],
     settings: true,
   },
   {
     id: "admin",
     label: "Admin",
-    hint: "Everything: health, access code, all screens and tabs",
+    hint: "Everything: health, workflows and email, all screens and tabs",
     home: "Settings",
-    nav: ["/", "/requests", "/approvals", "/overview", "/radar", "/log", "/evaluation"],
+    nav: [
+      "/",
+      "/workflows",
+      "/requests",
+      "/approvals",
+      "/dashboards",
+      "/config",
+      "/report",
+      "/wall",
+      "/overview",
+      "/radar",
+      "/log",
+      "/evaluation",
+    ],
     tabs: ["activity", "answer", "evidence", "spec", "gates"],
+    settings: false,
+  },
+  {
+    id: "executive",
+    label: "Executive",
+    hint: "A plain-language report to read, print or email",
+    home: "Report",
+    nav: ["/", "/dashboards", "/requests"],
+    tabs: ["answer", "activity"],
+    settings: false,
+  },
+  {
+    id: "operator",
+    label: "Operator",
+    hint: "A wall display: what is broken now and who owns it",
+    home: "Operations wall",
+    nav: ["/"],
+    tabs: [],
     settings: false,
   },
 ];
@@ -72,13 +125,12 @@ export const DEFAULT_ROLE: Role = "business";
 // Values saved by earlier versions of the app.
 const LEGACY: Record<string, Role> = {
   requester: "business",
-  executive: "business",
   steward: "admin",
 };
 
 export const isRole = (v: unknown): v is Role => ROLES.some((r) => r.id === v);
 export const roleView = (role: Role): RoleView => ROLES.find((r) => r.id === role)!;
-export const roleTab = (role: Role): RequestTab => roleView(role).tabs[0]!;
+export const roleTab = (role: Role): RequestTab => roleView(role).tabs[0] ?? "answer";
 
 export function readRole(): Role {
   try {

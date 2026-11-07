@@ -367,7 +367,10 @@ export function voiceErrorMessage(code: string) {
   };
   return `${messages[code] ?? messages["provider_failed"]}, please type instead`;
 }
-export interface Transcript { text: string; language: string | null }
+export interface Transcript {
+  text: string;
+  language: string | null;
+}
 export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise<Transcript> {
   if (!API || demo) throw new Error(voiceErrorMessage("not_configured"));
   if (!blob.size) throw new Error(voiceErrorMessage("empty_audio"));
@@ -378,14 +381,28 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   if (signal?.aborted) controller.abort();
   signal?.addEventListener("abort", abort, { once: true });
   let timedOut = false;
-  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 45_000);
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 45_000);
   try {
-    const response = await fetch(`${API}/transcribe`, { method: "POST", headers: authHeaders({ "Content-Type": blob.type }), body: blob, signal: controller.signal });
+    const response = await fetch(`${API}/transcribe`, {
+      method: "POST",
+      headers: authHeaders({ "Content-Type": blob.type }),
+      body: blob,
+      signal: controller.signal,
+    });
     const body = await response.json().catch(() => null);
-    if ([404, 405, 501].includes(response.status)) throw new Error(voiceErrorMessage("endpoint_unavailable"));
-    if (response.status === 400 && typeof body?.code !== "string") throw new Error(voiceErrorMessage("api_rejected"));
-    if (!response.ok) throw new Error(voiceErrorMessage(typeof body?.code === "string" ? body.code : "provider_failed"));
-    if (typeof body?.text !== "string" || !body.text.trim()) throw new Error(voiceErrorMessage("no_speech"));
+    if ([404, 405, 501].includes(response.status))
+      throw new Error(voiceErrorMessage("endpoint_unavailable"));
+    if (response.status === 400 && typeof body?.code !== "string")
+      throw new Error(voiceErrorMessage("api_rejected"));
+    if (!response.ok)
+      throw new Error(
+        voiceErrorMessage(typeof body?.code === "string" ? body.code : "provider_failed"),
+      );
+    if (typeof body?.text !== "string" || !body.text.trim())
+      throw new Error(voiceErrorMessage("no_speech"));
     return { text: body.text, language: typeof body.language === "string" ? body.language : null };
   } catch (error) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
@@ -414,7 +431,9 @@ export function sessions(): Session[] {
     return Array.isArray(value)
       ? value.filter(
           (s): s is Session =>
-            typeof s?.code === "string" && typeof s?.role === "string" && typeof s?.name === "string",
+            typeof s?.code === "string" &&
+            typeof s?.role === "string" &&
+            typeof s?.name === "string",
         )
       : [];
   } catch {
@@ -591,9 +610,28 @@ async function call<T>(
       askToSignIn();
       throw new ApiError("Sign in with your access code to see this.", 401);
     }
-    if (res.status === 403) throw new ApiError("Your role does not have access to this.", 403);
+    const said = async () => {
+      try {
+        return ((await res.json()) as { error?: string; code?: string }) ?? {};
+      } catch {
+        return {};
+      }
+    };
+    if (res.status === 403) {
+      const body = await said();
+      throw new ApiError(
+        body.code === "separation_of_duties" && body.error
+          ? body.error
+          : "Your role does not have access to this.",
+        403,
+      );
+    }
     if (res.status === 404 && path.startsWith("/requests/"))
       throw new ApiError("Request not found, or not one of yours.", 404);
+    if (res.status === 400 || res.status === 409) {
+      const body = await said();
+      throw new ApiError(body.error ?? `The API rejected the request (${res.status}).`, res.status);
+    }
     if (!res.ok) throw new ApiError(`The API rejected the request (${res.status}).`, res.status);
     const body = (await res.json()) as T;
     if (workResource) setMode(false);
@@ -689,8 +727,10 @@ export async function getHealth(): Promise<Health> {
       status: "live",
       assets: body.assets,
       estate_snapshot: typeof body.estate_snapshot === "string" ? body.estate_snapshot : undefined,
-      decision_backend: typeof body.decision_backend === "string" ? body.decision_backend : undefined,
-      kserve_reachable: typeof body.kserve?.reachable === "boolean" ? body.kserve.reachable : undefined,
+      decision_backend:
+        typeof body.decision_backend === "string" ? body.decision_backend : undefined,
+      kserve_reachable:
+        typeof body.kserve?.reachable === "boolean" ? body.kserve.reachable : undefined,
       llm_tiers: Array.isArray(body.llm_tiers)
         ? body.llm_tiers.filter((tier): tier is string => typeof tier === "string")
         : undefined,
@@ -983,3 +1023,11 @@ export async function findModelRequest(
   }
   return null;
 }
+
+// Role workspaces (dashboards, report, operations, config, workflows) exist only on the live API: no bundled fallback.
+const liveOnly = () => {
+  throw new ApiError("This view needs the live API.", 0);
+};
+export const apiGet = <T>(path: string) => call<T>(path, undefined, liveOnly);
+export const apiPost = <T>(path: string, body: unknown) =>
+  call<T>(path, { method: "POST", body: JSON.stringify(body) }, liveOnly);

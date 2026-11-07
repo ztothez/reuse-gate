@@ -31,7 +31,7 @@ describe("viewing as", () => {
     vi.unstubAllGlobals();
   });
 
-  it("offers five roles and starts as Business", () => {
+  it("offers seven roles and starts as Business", () => {
     render(<Harness />);
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
       "Business",
@@ -39,6 +39,8 @@ describe("viewing as", () => {
       "Developer",
       "Approver",
       "Admin",
+      "Executive",
+      "Operator",
     ]);
     expect(select()).toHaveValue("business");
     expect(screen.getByText(/the API controls who can approve/)).toBeInTheDocument();
@@ -57,7 +59,7 @@ describe("viewing as", () => {
     expect(await screen.findByText("developer")).toBeInTheDocument();
     for (const [old, now] of [
       ["requester", "business"],
-      ["executive", "business"],
+      ["executive", "executive"],
       ["steward", "admin"],
     ]) {
       localStorage.setItem(ROLE_KEY, old!);

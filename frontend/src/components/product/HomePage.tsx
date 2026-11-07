@@ -7,12 +7,16 @@ import { ListState, PageHeading, STATUS } from "./shared";
 import { AdminSettings } from "./AdminSettings";
 import { ImpactLine } from "./Impact";
 import { AnalystHome, DeveloperHome } from "./RoleHomes";
+import { ExecutiveReport } from "./ExecutiveReport";
+import { OperatorWall } from "./OperatorWall";
 import { NewRequestForm } from "./RequestPages";
 export function HomePage() {
   const [role] = useLens();
   if (role === "admin") return <AdminSettings />;
   if (role === "analyst") return <AnalystHome />;
   if (role === "developer") return <DeveloperHome />;
+  if (role === "executive") return <ExecutiveReport />;
+  if (role === "operator") return <OperatorWall />;
   return <WorkHome role={role === "approver" ? "approver" : "requester"} />;
 }
 function WorkHome({ role }: { role: "requester" | "approver" }) {

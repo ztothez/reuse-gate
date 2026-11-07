@@ -141,7 +141,7 @@ def query(con, tile):
         raise QueryError(f"unknown measure: {measure}")
     if split is not None and (split not in d["dimensions"] or split == dim or dim is None):
         raise QueryError("split must be a second, different dimension")
-    limit = tile.get("limit", 50)
+    limit = tile.get("limit", 200)
     if not isinstance(limit, int) or not 1 <= limit <= MAX_ROWS:
         raise QueryError(f"limit must be 1 to {MAX_ROWS}")
     where, params = _filters(d, tile.get("filters"))

@@ -12,11 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as ConfigRouteImport } from './routes/config'
+import { Route as DashboardsRouteImport } from './routes/dashboards'
 import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as LogRouteImport } from './routes/log'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as RadarRouteImport } from './routes/radar'
+import { Route as ReportRouteImport } from './routes/report'
 import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as WallRouteImport } from './routes/wall'
+import { Route as WorkflowsRouteImport } from './routes/workflows'
 import { Route as AssetsAssetIdRouteImport } from './routes/assets.$assetId'
 import { Route as RequestsRequestIdRouteImport } from './routes/requests.$requestId'
 
@@ -33,6 +38,16 @@ const AdminRoute = AdminRouteImport.update({
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfigRoute = ConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardsRoute = DashboardsRouteImport.update({
+  id: '/dashboards',
+  path: '/dashboards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvaluationRoute = EvaluationRouteImport.update({
@@ -55,9 +70,24 @@ const RadarRoute = RadarRouteImport.update({
   path: '/radar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReportRoute = ReportRouteImport.update({
+  id: '/report',
+  path: '/report',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WallRoute = WallRouteImport.update({
+  id: '/wall',
+  path: '/wall',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkflowsRoute = WorkflowsRouteImport.update({
+  id: '/workflows',
+  path: '/workflows',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssetsAssetIdRoute = AssetsAssetIdRouteImport.update({
@@ -75,11 +105,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/config': typeof ConfigRoute
+  '/dashboards': typeof DashboardsRoute
   '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
+  '/report': typeof ReportRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/wall': typeof WallRoute
+  '/workflows': typeof WorkflowsRoute
   '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
@@ -87,11 +122,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/config': typeof ConfigRoute
+  '/dashboards': typeof DashboardsRoute
   '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
+  '/report': typeof ReportRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/wall': typeof WallRoute
+  '/workflows': typeof WorkflowsRoute
   '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
@@ -100,11 +140,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/config': typeof ConfigRoute
+  '/dashboards': typeof DashboardsRoute
   '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
+  '/report': typeof ReportRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/wall': typeof WallRoute
+  '/workflows': typeof WorkflowsRoute
   '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
@@ -114,11 +159,16 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/config'
+    | '/dashboards'
     | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
+    | '/report'
     | '/requests'
+    | '/wall'
+    | '/workflows'
     | '/assets/$assetId'
     | '/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
@@ -126,11 +176,16 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/config'
+    | '/dashboards'
     | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
+    | '/report'
     | '/requests'
+    | '/wall'
+    | '/workflows'
     | '/assets/$assetId'
     | '/requests/$requestId'
   id:
@@ -138,11 +193,16 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/config'
+    | '/dashboards'
     | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
+    | '/report'
     | '/requests'
+    | '/wall'
+    | '/workflows'
     | '/assets/$assetId'
     | '/requests/$requestId'
   fileRoutesById: FileRoutesById
@@ -151,11 +211,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  ConfigRoute: typeof ConfigRoute
+  DashboardsRoute: typeof DashboardsRoute
   EvaluationRoute: typeof EvaluationRoute
   LogRoute: typeof LogRoute
   OverviewRoute: typeof OverviewRoute
   RadarRoute: typeof RadarRoute
+  ReportRoute: typeof ReportRoute
   RequestsRoute: typeof RequestsRouteWithChildren
+  WallRoute: typeof WallRoute
+  WorkflowsRoute: typeof WorkflowsRoute
   AssetsAssetIdRoute: typeof AssetsAssetIdRoute
 }
 
@@ -180,6 +245,20 @@ declare module '@tanstack/react-router' {
       path: '/approvals'
       fullPath: '/approvals'
       preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/config': {
+      id: '/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof ConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboards': {
+      id: '/dashboards'
+      path: '/dashboards'
+      fullPath: '/dashboards'
+      preLoaderRoute: typeof DashboardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evaluation': {
@@ -210,11 +289,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RadarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/report': {
+      id: '/report'
+      path: '/report'
+      fullPath: '/report'
+      preLoaderRoute: typeof ReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests': {
       id: '/requests'
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wall': {
+      id: '/wall'
+      path: '/wall'
+      fullPath: '/wall'
+      preLoaderRoute: typeof WallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workflows': {
+      id: '/workflows'
+      path: '/workflows'
+      fullPath: '/workflows'
+      preLoaderRoute: typeof WorkflowsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assets/$assetId': {
@@ -250,11 +350,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ApprovalsRoute: ApprovalsRoute,
+  ConfigRoute: ConfigRoute,
+  DashboardsRoute: DashboardsRoute,
   EvaluationRoute: EvaluationRoute,
   LogRoute: LogRoute,
   OverviewRoute: OverviewRoute,
   RadarRoute: RadarRoute,
+  ReportRoute: ReportRoute,
   RequestsRoute: RequestsRouteWithChildren,
+  WallRoute: WallRoute,
+  WorkflowsRoute: WorkflowsRoute,
   AssetsAssetIdRoute: AssetsAssetIdRoute,
 }
 export const routeTree = rootRouteImport

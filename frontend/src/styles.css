@@ -494,3 +494,24 @@ main :is(a[href], button, input, select, textarea, summary, [tabindex]) {
 input[type="checkbox"] {
   accent-color: var(--primary);
 }
+
+/* Executive report: print or save as PDF shows the report only. */
+@media print {
+  .app-nav,
+  .app-topbar,
+  .no-print {
+    display: none !important;
+  }
+  .app-shell {
+    display: block;
+  }
+  .report .panel {
+    break-inside: avoid;
+    border-color: #999;
+  }
+}
+/* Operator wall: read from across a room, operated with gloves. */
+[data-lens="operator"] .control,
+[data-lens="operator"] .primary-action {
+  min-height: var(--control-glove);
+}
