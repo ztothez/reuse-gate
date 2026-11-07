@@ -1,6 +1,6 @@
 # Send decisions through reuse-gate-kserve
 
-Not applied. The API decides in-process until this is set. The final rollout does it for you, and checks `/healthz` afterwards:
+Live since the final rollout on 2026-11-07. Without this setting the API decides in-process. The rollout sets it, and checks `/healthz` afterwards:
 
 ```bash
 REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh
@@ -25,7 +25,7 @@ The same in YAML, under the `api` container's `env` in `deploy/openshift/api.yam
 ## Order
 
 1. The predictor must run an image built from this commit or later: older predictors only accept `{"text": ...}` and answer
-   the intent call with HTTP 400, which the API records as `local_fallback` with reason `http_400`. After the image build,
+   the intent call with an error inside a 200 reply, which the API records as `local_fallback` with reason `bad_response`. After the image build,
    replace its pod: `oc delete pod -l app=isvc.reuse-gate-kserve-predictor`. KServe owns the predictor Deployment and
    undoes `oc rollout restart`, so a restart leaves the old pod and its old image running. The pipeline's rollout task does this.
 2. Then set the variables on the API. Setting them restarts the API pod.

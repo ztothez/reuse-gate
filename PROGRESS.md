@@ -15,6 +15,23 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 | PipelineRun `reuse-gate-verify-bsqjv` | Succeeded: unit tests (179 run, 4 skipped because frontend and deploy files are not in the image), governance gate, rollout |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
 
+## Final rollout (2026-11-07, verified live)
+`REUSE_GATE_DECISION_BACKEND=kserve REUSE_GATE_LLM_TIERS=together,featherless sh deploy/openshift/rollout.sh` from `0b45b4e`:
+API build 9 (image `sha256:7f373455`) and the UI build, pipeline run `reuse-gate-verify-brz8t` with all five tasks green
+(unit tests, governance, evaluation, security, rollout).
+- `/healthz`: `decision_backend: kserve`, KServe reachable, `llm_tiers: together, featherless`, estate `sha256:d20e45cf...`.
+- Live requests (Beyonttra, oncology, Kerendia) return `decision_backend: kserve` with the same actions and targets as the in-pod
+  code. A fresh Kerendia request was read by the together tier (`openai/gpt-oss-120b`) in 8.3 s.
+- The first attempt failed in the pipeline: two tests compared against `docs/` files that the image does not contain. They now skip
+  that comparison when `docs/` is absent (`0b45b4e`).
+- KServe undid the pipeline's `oc rollout restart` of the predictor, so the old predictor image answered with errors and the API
+  recorded `local_fallback` (`bad_response`). Fixed by replacing the predictor pod; the pipeline now does that (`c58b91b`, applied).
+- Write token: `reuse-gate-access` was first created empty; set again and verified: `/approve` and `/remediate` without the code
+  or with a wrong code give 401, reads and `/requests` stay open.
+- Three test approvals for request `X` (`REG-8C803B55`, `REG-21EF3F1B`, `REG-ECB4095C`) were written to the live decision log
+  while the token was empty. Not removed yet.
+- Aitta embeddings still answer HTTP 503.
+
 ## OpenShift AI recon (2026-11-07, read only)
 - **Quota in `ztothez-dev`:** long-running pods (`compute-deploy`): requests 3 CPU and 30Gi memory, limits 30 CPU and 30Gi,
   0 GPU. In use: requests 210m CPU and 352Mi, limits 1300m and 1280Mi. Build pods (`compute-build`): requests 3 CPU and 14Gi.
@@ -124,13 +141,11 @@ c) **Bayer's wording for the business problem:** "Enterprise self-service BI cre
 
 ## Not done or not verified
 - Demo recording and pitch outline: not started.
+- Clarification question wording by a model is tested with a fake client, not checked against a real model.
 - `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
-- `deploy/openshift/api.yaml` passes a server dry run but has not been applied. The live deployment got the same secret references through `oc set env`, and its route timeout through `oc annotate`.
 - The failure paths are tested with simulated failures and local servers, not against a real Aitta 429.
 - n8n ran on a throwaway local instance. The digest is not connected to email or Teams, and the PingSource's scheduled run has not been observed.
 - `data/mock_api.json` has `owners`, `radar.ownership_bottlenecks` and `work_items`, but the frontend copy must be synced with `cp data/mock_api.json frontend/src/data/mock_api.json`. The frontend has no screen for work items, `/remediate` or the record.
-- Work items and the decision log are files in the live pod with no volume, so a restart loses them. `api.yaml` adds the PVC `reuse-gate-state`; not applied yet.
-- The live API and UI do not have the clarification loop yet. Model wording is tested with a fake client, not a real model.
 - `MESSY-21` ("not Xarelto") stays wrong: the rules do not read negation. The messy vocabulary was written with those prompts in view.
 - The UI's Decision log is stored per browser in `localStorage`, so a fresh browser shows it empty even when the API's `GET /log` has entries.
 - Paths with no route (only `/` exists) show the app's 404 page, with a recovered React hydration error in the console.

@@ -6,26 +6,27 @@ extend, migrate, retire or build new, cites the rows of the estate it used, and 
 requests in the SinceAI data pack, 57 avoid a new build. That is the platform's business value in Bayer's words: "fewer, better,
 maintainable and governed analytics products", with "ownership, KPI consistency, human oversight and lifecycle control".
 
-This page is exact about what runs where. "Live" means running in project `ztothez-dev` on the Developer Sandbox on
-2026-11-07. "After rollout" means applied by the final run of `deploy/openshift/rollout.sh`, which has not been run yet. The
-API manifest, the state volume and API build 8 were applied earlier on 2026-11-07, so those parts are already live.
+This page is exact about what runs where. "Live" means running in project `ztothez-dev` on the Developer Sandbox, verified on
+2026-11-07 after the final rollout (`REUSE_GATE_DECISION_BACKEND=kserve REUSE_GATE_LLM_TIERS=together,featherless sh
+deploy/openshift/rollout.sh`, API build 9 and the matching UI build, pipeline run `reuse-gate-verify-brz8t` with all five tasks
+green).
 
 ## 1. What runs where
 
 | Component | Runs on OpenShift | Why |
 | --- | --- | --- |
 | UI (`reuse-gate-ui`, static React build on UBI nginx, non-root) | Yes, live | Deployment, Service and edge Route `reuse-gate-ui` |
-| API (`reuse-gate`, Python standard library) | Yes, live | Deployment, Service and edge Route `reuse-gate`. Build 8 serves `/healthz`, `/evaluation` and the state volume; it predates the judge change in `data/evaluation.json` |
+| API (`reuse-gate`, Python standard library) | Yes, live | Deployment, Service and edge Route `reuse-gate`, build 9. `/healthz` reports the decision backend, KServe reachability, the estate snapshot hash and the model tiers that have a key |
 | Decision service `reuse-gate-kserve` | Yes, live | KServe InferenceService (raw deployment) on the ServingRuntime `reuse-gate-decision-runtime`, KServe v1 protocol. The "model" is the deterministic decision logic and the data pack in the image |
-| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | Only when asked at rollout | Live, the API decides in its own pod and does not call KServe, although `/healthz` reports KServe reachable from the API. `api.yaml` keeps `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it and checks `/healthz` reports KServe reachable |
+| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | Yes, live | Every request's decision comes from `reuse-gate-kserve`. Checked live: Beyonttra, oncology and Kerendia requests return `decision_backend: kserve` with the same actions as the in-pod code. `api.yaml` keeps `local` as the default; the rollout switches it and fails unless `/healthz` reports KServe reachable |
 | BuildConfigs `reuse-gate`, `reuse-gate-ui` | Yes, live | Binary Docker builds from a clean `git archive` export |
-| Tekton pipeline `reuse-gate-verify` | Yes, live with 3 tasks; 5 tasks after rollout | Unit tests, governance gate and rollout are live (2 successful runs). Evaluation and security gates are added by the rollout |
+| Tekton pipeline `reuse-gate-verify` | Yes, live | Five tasks: unit tests, governance gate, evaluation gate, security gate, rollout. Run `reuse-gate-verify-brz8t` passed all five |
 | Knative PingSource `reuse-gate-radar-ping` | Yes, live | Calls `/radar-ping` at 06:00 on weekdays (Europe/Helsinki). A scheduled run has not been observed yet |
 | PVC `reuse-gate-state` (1Gi, gp3) | Yes, live | Mounted at `/var/lib/reuse-gate`: work items, the decision log and the model and audio caches |
 | In-cluster language model | No | Tried on the vLLM CPU runtime and rejected, see section 6 |
-| CSC Aitta (`openai/gpt-oss-120b`, embeddings) | No, external (Finland) | Default first model tier. Returned HTTP 503 during this work |
-| Featherless (`zai-org/GLM-5.2`) | No, external | Default second model tier |
-| Together AI (`openai/gpt-oss-120b`) | No, external (US) | Optional tier while Aitta is down. Off unless `REUSE_GATE_LLM_TIERS` names it |
+| CSC Aitta (`openai/gpt-oss-120b`, embeddings) | No, external (Finland) | Default first model tier, left out of the live tier list while it returns HTTP 503 |
+| Featherless (`zai-org/GLM-5.2`) | No, external | Live second tier |
+| Together AI (`openai/gpt-oss-120b`) | No, external (US) | Live first tier while Aitta is down (`REUSE_GATE_LLM_TIERS=together,featherless`). Answered a live request in 8.3 s |
 | ElevenLabs (speech to text and text to speech) | No, external | Listen button and voice input |
 | n8n (approval webhook, radar digest) | No | Ran on a local throwaway instance only |
 
@@ -154,7 +155,10 @@ The KServe call stays inside the project (`allow-same-namespace` NetworkPolicy).
   list hardware profiles.
 - **Single replica.** The state volume is ReadWriteOnce, rate limits are per process, and a restart is a short outage (`Recreate`).
 - **Rate limits rely on the router** appending the client address to `X-Forwarded-For`; not confirmed on this cluster.
-- **Access:** no login. The write token guards `/approve` and `/remediate` only; anyone with the URL can create work items.
+- **Access:** no login. The write token guards `/approve` and `/remediate` only (live: 401 without the code); anyone with the URL can
+  create work items.
+- **Predictor restarts:** KServe owns the predictor Deployment and undoes `oc rollout restart`, so the pipeline replaces the
+  predictor pod instead. The first rollout missed this and the API recorded `local_fallback` (`bad_response`) until the pod was replaced.
 - **Embeddings** are always on Aitta, so KPI matching is off while Aitta is down.
 - **The PingSource's scheduled run** has not been observed; manual calls to `/radar-ping` work.
 - **External providers** have no SLA here. Aitta answered HTTP 503 during this work; Featherless answered.
@@ -172,12 +176,10 @@ Description for the award form:
 > Knative PingSource triggers the weekday governance radar digest. The language models are external OpenAI-compatible providers,
 > configured as tiers that can be moved to an OpenShift AI vLLM endpoint by environment variables alone.
 
-The evaluation and security gates are in the pipeline after the rollout; until then the live pipeline has three tasks.
 
 ## 8. Console demo shot list (30 to 45 seconds)
 
-Record after `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` and `wake.sh`, so the pipeline run with all gates
-exists and the API is in `kserve` mode.
+The rollout is done: run `sh deploy/openshift/wake.sh` first, then record. Do not redeploy after recording.
 
 | # | Shot | Seconds | Narration |
 | --- | --- | --- | --- |
@@ -186,4 +188,4 @@ exists and the API is in `kserve` mode.
 | 3 | Builds: `reuse-gate` and `reuse-gate-ui` | 5 | Every image is built in the cluster from a clean export of the repository. |
 | 4 | Pipelines: the latest `reuse-gate-verify` run, all five tasks green | 8 | Before anything ships, the pipeline runs the tests, a governance gate, an evaluation gate and a security gate. |
 | 5 | PingSource `reuse-gate-radar-ping` | 5 | Every weekday morning, a Knative ping triggers the governance radar, without anyone asking. |
-| 6 | The UI: submit a request; then the browser's Network tab (the UI does not display these fields) with the `/recommend` response open at `decision_backend: kserve` and `ai.tier` | 10 | A live request is decided by the KServe service, with every cited row, and shows which model tier wrote the explanation. |
+| 6 | The UI: open a request; the recommendation card says "Decided by the KServe InferenceService reuse-gate-kserve on OpenShift AI" and which tier read the intent; the top bar reads "Live API · decisions on KServe" | 10 | A live request is decided by the KServe service, with every cited row, and shows which model tier wrote the explanation. |

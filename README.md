@@ -224,8 +224,7 @@ failed tier (any tier, and the Aitta embeddings) is skipped for 120 seconds (`LL
 (`LLM_MAX_CALLS`) stops instead of moving the spending to the fallback. The UI names the model that wrote each explanation.
 The two providers are the default tiers of a configurable chain, see "Portability to OpenShift AI".
 CSC Aitta answered HTTP 503 during the final day of work, so the committed evaluation used `openai/gpt-oss-120b` on Together AI
-as the generator, and Together is the outage tier for the demo (`REUSE_GATE_LLM_TIERS=together,featherless`). The live API still
-runs the default `aitta,featherless` chain until the final rollout.
+as the generator, and the live API runs `REUSE_GATE_LLM_TIERS=together,featherless` while Aitta is down.
 
 Run `python3 -I scripts/warmup.py` before a demo. It calls each model once, bypassing the cache, with a 5-minute timeout, and exits 0 if the
 primary is ready, 1 if only the fallback is, and 2 if neither is. `backend/reuse_gate/llm.py` also keeps an on-disk response cache.
@@ -507,7 +506,9 @@ Setting `REUSE_GATE_LLM_TIERS=incluster` alone keeps every request and decision 
 the decision it returns. The predictor runs the same deterministic code and also returns the hash of its `estate.db`; if that differs, or
 the call fails, the API decides locally. Every result says `"decision_backend": "kserve"`, `"local"` or `"local_fallback"` (with
 `decision_backend_reason`). The default is `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it on the cluster and checks
-`/healthz` afterwards. `GET /health` and `GET /healthz` report the backend and whether KServe answers.
+`/healthz` afterwards. The live API runs in `kserve` mode: its decisions come from the InferenceService. `GET /health` and
+`GET /healthz` report the backend, whether KServe answers, the estate snapshot hash and the model tiers that have a key, and the UI
+shows where each decision ran on the recommendation card and in the top bar.
 A test gives the identical decision in both modes on the 21 messy prompts (through every clarification round) and the 10 distinct
 request texts. How to turn it on: [deploy/openshift/enable-kserve-path.md](deploy/openshift/enable-kserve-path.md). Details, data flows and
 what was measured are in [docs/openshift.md](docs/openshift.md).
