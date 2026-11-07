@@ -30,7 +30,7 @@ export function GateComparison({ simulation }: { simulation: RemediationResult }
       <ul className="space-y-2 text-sm">
         {simulation.remediations.map((assignment) => (
           <li key={assignment.target} className="break-words">
-            Proposed owner for <strong>{assignment.target}</strong>: {assignment.owner_name} ({assignment.owner_id}). Previously {assignment.from_owner_id ?? "unassigned"}{assignment.from_status ? ` (${assignment.from_status})` : ""}.
+            Proposed owner for <strong>{assignment.target}</strong>: {assignment.owner_name} ({assignment.owner_id}). Estate owner at check: {assignment.from_owner_id ?? "unassigned"}{assignment.from_status ? ` (${assignment.from_status})` : ""}.
           </li>
         ))}
       </ul>

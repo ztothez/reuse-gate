@@ -2,6 +2,7 @@ import { useState } from "react";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ApprovalReadiness } from "@/components/gate/ApprovalReadiness";
+import { GateComparison } from "@/components/gate/GateComparison";
 import type { Owner, RemediationResult } from "@/lib/api";
 import { oncology, owners, simulation } from "./remediation-fixtures";
 
@@ -16,6 +17,12 @@ beforeEach(() => { api.getOwners.mockResolvedValue(owners); api.canRemediate.moc
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 
 describe("approval readiness", () => {
+  it("does not claim a pass for a decision without spec gates", () => {
+    render(<GateComparison simulation={{ ...simulation, before: { owner: null, gates: { passed: null, gates: [] } }, after: { owner: null, gates: { passed: null, gates: [] } }, diff: [], fixed: [], still_failing: [], passed_before: null, passed_after: null }} />);
+    expect(screen.getAllByText("No spec gates apply to this decision.")).toHaveLength(2);
+    expect(screen.getByText("No gate changes in this simulation.")).toBeInTheDocument();
+    expect(screen.queryByText("All gates pass in this simulation.")).toBeNull();
+  });
   it("shows all four steps and the original blocker", async () => {
     render(<Harness />);
     const steps = within(screen.getByRole("list", { name: "Approval readiness steps" }));
