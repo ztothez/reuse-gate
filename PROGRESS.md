@@ -36,6 +36,7 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Primary KPI rule:** a target must cover a requested KPI as primary. Secondary rows are shown and cited but not counted. The canonical-only version (33/150) is measured in `docs/quality_report.md` for information, and the rule does not use it.
 - **Repo layout:** reorganized into `backend/reuse_gate`, `backend/tests`, `scripts`, `data`, `deploy`, `docs` and `frontend` with no behavior change: API responses, batch output and mock data were compared with the previous layout and are identical. `frontend/package-lock.json` replaces `bun.lock`.
 - **OpenShift rollout:** the Reliability work is live on image digest `e7eccf8b5e28`, built from a clean `git archive` export. The API has the model and audio keys through the cluster secrets `reuse-gate-llm` and `reuse-gate-elevenlabs`, and the n8n key through `reuse-gate-n8n`, all declared in `deploy/openshift/api.yaml`. The KServe predictor has no keys, so it serves the decision logic only.
+- **Deployed UI:** static site at https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com, built from a clean `git archive` export. Checked in headless Chromium against the live API: request, Listen, approval, Decision log and Radar all work, with no demo badge and no console errors. `STATIC_SPA=1` prerenders the page; `npm run dev` and the default build are unchanged.
 - **Reliability:** fallback on 429, 5xx, timeouts and truncated responses, 20 seconds per Aitta call, 40 per GLM-5.2 call, 60 per request, a 90-second route timeout, a global concurrency limit, answers saved by normalized text, and a visible source line with the reason. Decisions were compared with the previous commit and are identical. Tested in a browser with both providers unreachable.
 - **Example chips:** `data/prewarmed_answers.json` was regenerated with real models. 6 of 10 chips have AI intents and AI explanations, and 4 use the rules by design because the model gave no usable KPI.
 - **Repo:** private at `ztothez/reuse-gate`, with `main` and `reuse-gate-build` pushed.
@@ -47,6 +48,8 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - `deploy/openshift/api.yaml` passes a server dry run but has not been applied. The live deployment got the same secret references through `oc set env`, and its route timeout through `oc annotate`.
 - The failure paths are tested with simulated failures and local servers, not against a real Aitta 429.
 - n8n ran on a throwaway local instance. The digest is not connected to email or Teams, and the PingSource's scheduled run has not been observed.
+- The UI's Decision log is stored per browser in `localStorage`, so a fresh browser shows it empty even when the API's `GET /log` has entries.
+- Paths with no route (only `/` exists) show the app's 404 page, with a recovered React hydration error in the console.
 - The catalog swap is tested with a sample catalog, not a real second division estate.
 - ESLint still flags `react-refresh/only-export-components` (7) and one `no-unused-expressions` in the frontend. They do not affect behaviour.
 

@@ -4,6 +4,8 @@ Before anyone builds a new dashboard, Reuse Gate checks whether an existing repo
 migrated or retired. A person approves the outcome. New assets get an owner and a review date, and a Radar view shows
 estate problems without anyone asking. Built for the Since AI Hackathon 2026, Bayer challenge "Build Less, Build Better".
 
+**Live UI:** https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
+
 Every request takes the same visible path, and the front end shows the input and output of each stage:
 
 ```
@@ -345,6 +347,17 @@ in `deploy/openshift/api.yaml`. Without them it runs on the rule baseline. The K
 
 `POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
 read-only, ignores the request body, and exposes only data that the public `GET /radar` already shows. `GET /n8n/radar-digest` still needs its key.
+
+The UI is a static site at https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com, served by a non-root UBI nginx image on port 8080
+(`frontend/Containerfile`, `deploy/openshift/frontend.yaml`). The API URL is compiled into the bundle from the `VITE_API_URL` build argument in the
+BuildConfig, so a new API URL needs a new build. Build it from a clean export so that no local files reach the image:
+
+```bash
+oc apply -f deploy/openshift/frontend.yaml
+EXPORT=$(mktemp -d) && git archive HEAD:frontend | tar -x -C "$EXPORT"
+oc start-build reuse-gate-ui --from-dir="$EXPORT" --follow
+oc rollout restart deploy/reuse-gate-ui
+```
 
 ### n8n: approval webhook and radar digest
 
