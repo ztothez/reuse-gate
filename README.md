@@ -340,6 +340,9 @@ The xlsx stands in for live metadata. Each sheet would map to a source: `Analyti
 
 Scheduled radar digest: Knative PingSource calls /radar-ping on weekdays
 
+The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references
+in `deploy/openshift/api.yaml`. Without them it runs on the rule baseline. The KServe predictor has no keys, so it serves the decision logic only.
+
 `POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
 read-only, ignores the request body, and exposes only data that the public `GET /radar` already shows. `GET /n8n/radar-digest` still needs its key.
 

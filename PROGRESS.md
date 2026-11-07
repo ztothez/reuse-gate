@@ -5,11 +5,14 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| All Python tests (`python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'`) | 172 pass |
-| Frontend tests (`npm test`), TypeScript | 27 pass, no type errors |
+| All Python tests (`python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'`) | 179 pass |
+| Frontend tests (`npm test`), TypeScript | 28 pass, no type errors, production build passes |
 | Baseline (`scripts/run_batch.py`) | 57/150 avoid a new build, 1098 citations, 0 invalid. New builds 93, extend 31, repair 4, retire 2, consolidate later 2. A test enforces these numbers |
 | Spec gates over 150 requests | 124 specs, 13 pass every gate, 111 blocked with a named reason, 0 crashes |
 | Edge cases | 24 cases, all end in a safe, explained outcome |
+| Live API (`reuse-gate` route) | `/health` ok. A fresh request answered by `openai/gpt-oss-120b` (`ai.intent_source` = `llm`) in 11.3 seconds. All 10 chips answered from the saved file in under a second, with no model call |
+| Live KServe `:predict` | Cited decision (`AST-0209`, 24 citations), `ai.source` = `rules` |
+| PipelineRun `reuse-gate-verify-bsqjv` | Succeeded: unit tests (179 run, 4 skipped because frontend and deploy files are not in the image), governance gate, rollout |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
 
 ## Done
@@ -28,27 +31,24 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Clarification loop:** answers go back to `/recommend`, are applied by field, and the request is decided again, replacing the result. Tested in Python, in the frontend, over HTTP, and in a browser with real models.
 - **Live backends:** gpt-oss-120b on Aitta, automatic fallback to GLM-5.2 on Featherless, then the rules. `scripts/warmup.py` ran against all three models. Failover was forced with a dead primary, and GLM-5.2 answered live.
 - **Retire rule:** retire only low-usage, uncertified duplicates of the target. Every other overlapping asset goes to "consolidate later" with its note. All are cited. The UI shows 5 per list and "+N more".
-- **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. Nobody has listened to the audio yet: the test confirms a real MP3 and that playback started. Checked against the spec as far as it was received: key only from `ELEVENLABS_API_KEY`, POST with `audio/mpeg`, disk cache by sha256 of the text. The received spec ended mid-sentence.
+- **Listen button:** `POST /speak` and `ListenButton.tsx`, verified with a live ElevenLabs call and in a browser. The owner has listened to the audio and accepted the voice. The key comes only from `ELEVENLABS_API_KEY`, which `.env` now uses, and audio is cached on disk by the sha256 of the text.
 - **Radar ping:** `POST /radar-ping` returns the digest with no key for a Knative PingSource. Read-only, and it ignores the body.
 - **Primary KPI rule:** a target must cover a requested KPI as primary. Secondary rows are shown and cited but not counted. The canonical-only version (33/150) is measured in `docs/quality_report.md` for information, and the rule does not use it.
 - **Repo layout:** reorganized into `backend/reuse_gate`, `backend/tests`, `scripts`, `data`, `deploy`, `docs` and `frontend` with no behavior change: API responses, batch output and mock data were compared with the previous layout and are identical. `frontend/package-lock.json` replaces `bun.lock`.
-- **OpenShift rollout:** the reorganized image (digest `75913c2e64b0`) is live, built from a clean `git archive` export. `/health` returns ok, KServe `:predict` returns a cited decision, and PipelineRun `reuse-gate-verify-rcspl` succeeded on all three tasks: unit tests (138 run, 2 skipped), governance gate, rollout.
-- **Reliability:** fallback on 429, 5xx, timeouts and truncated responses, 20-second call limit, 45-second request deadline, global concurrency limit, answers saved by normalized text, 10 chips pre-warmed in `data/prewarmed_answers.json`, and a visible "Source: rules" with the reason. Decisions were compared with the previous commit and are identical. Tested in a browser with both providers unreachable. Not tested against a real Aitta 429.
+- **OpenShift rollout:** the Reliability work is live on image digest `e7eccf8b5e28`, built from a clean `git archive` export. The API has the model and audio keys through the cluster secrets `reuse-gate-llm` and `reuse-gate-elevenlabs`, and the n8n key through `reuse-gate-n8n`, all declared in `deploy/openshift/api.yaml`. The KServe predictor has no keys, so it serves the decision logic only.
+- **Reliability:** fallback on 429, 5xx, timeouts and truncated responses, 20 seconds per Aitta call, 40 per GLM-5.2 call, 60 per request, a 90-second route timeout, a global concurrency limit, answers saved by normalized text, and a visible source line with the reason. Decisions were compared with the previous commit and are identical. Tested in a browser with both providers unreachable.
+- **Example chips:** `data/prewarmed_answers.json` was regenerated with real models. 6 of 10 chips have AI intents and AI explanations, and 4 use the rules by design because the model gave no usable KPI.
 - **Repo:** private at `ztothez/reuse-gate`, with `main` and `reuse-gate-build` pushed.
 - **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
-- The deployed API and KServe predictor have no model or audio keys, so they run rules-only until a secret provides them.
-- `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
-- The live cluster still runs the image built before the Reliability work, so a rebuild is needed to deploy it.
-- The committed chip file holds model intents but no AI explanations, because it was built from saved responses. Run `python3 -I scripts/prewarm.py data/estate.db` with keys available to add them.
 - Demo recording and pitch outline: not started.
-- n8n ran on a throwaway local instance with test keys, not on your own instance. `.env` has a key but no n8n URL. The digest is not connected to email or Teams.
-- `.env` names the key `ElevenLabs_API_KEY`, which is no longer read. Rename it to `ELEVENLABS_API_KEY`, or Listen shows its "not available" message.
-- `.env` still has `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`. The live API no longer uses them.
-- `frontend/.env.local` sets `VITE_API_URL` to something other than localhost. It was not read or changed. A running frontend uses that API, which needs this code deployed for the loop to work.
+- `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
+- `deploy/openshift/api.yaml` passes a server dry run but has not been applied. The live deployment got the same secret references through `oc set env`, and its route timeout through `oc annotate`.
+- The failure paths are tested with simulated failures and local servers, not against a real Aitta 429.
+- n8n ran on a throwaway local instance. The digest is not connected to email or Teams, and the PingSource's scheduled run has not been observed.
 - The catalog swap is tested with a sample catalog, not a real second division estate.
-- ESLint reports formatting (prettier) errors across the frontend, including older Lovable files. Not fixed, since it does not affect behaviour.
+- ESLint still flags `react-refresh/only-export-components` (7) and one `no-unused-expressions` in the frontend. They do not affect behaviour.
 
 ## Known limitations
 See "Honest limitations" in `README.md`.
