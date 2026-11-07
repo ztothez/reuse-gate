@@ -7,7 +7,7 @@ Sandbox), with synthetic data created by SinceAI. This note says what is protect
 
 | Asset | Why it matters |
 | --- | --- |
-| Model and audio keys (`AITTA_API_KEY`, `FEATHERLESS_API_KEY`, `ELEVENLABS_API_KEY`) | Credit and account abuse |
+| Model and audio keys (`AITTA_API_KEY`, `FEATHERLESS_API_KEY`, `TOGETHER_API_KEY`, `ELEVENLABS_API_KEY`) | Credit and account abuse |
 | `N8N_API_KEY`, `REUSE_GATE_WRITE_TOKEN` | Forged approvals and digests |
 | Decisions and their citations | The product's value is that a decision is deterministic and cited. A model must never change it |
 | The decision log and work items | The audit trail of who approved what |
@@ -31,16 +31,27 @@ Sandbox), with synthetic data created by SinceAI. This note says what is protect
 
 ## Data flows
 
-**CSC Aitta** (`openai/gpt-oss-120b`, primary) and **Featherless** (`zai-org/GLM-5.2`, fallback only when Aitta fails):
+**CSC Aitta** (`openai/gpt-oss-120b`, primary) and **Featherless** (`zai-org/GLM-5.2`, fallback only when Aitta fails), and
+**Together AI** when it is configured as a tier:
+
+| Provider | Where | Role | Sent |
+| --- | --- | --- | --- |
+| CSC Aitta | Finland (CSC) | Default first tier; embeddings; evaluation judge by default | Everything listed below |
+| Featherless | Third party; location not verified here | Default second tier, only when the tier before it fails | The same intent, explanation and question briefs |
+| Together AI (`TOGETHER_API_KEY`, `openai/gpt-oss-120b` by default) | US | Off by default. An outage fallback while Aitta is down, set with `REUSE_GATE_LLM_TIERS=together,featherless`; may also run `scripts/eval_quality.py` as generator and judge | The same briefs as the other providers, including the target's **owner name**. Not a sovereignty claim: data sent to Together leaves the EU |
+
+The tier that answered and any tier that failed are recorded in each result (`ai.tier`, `ai.tiers_failed`), so it is always visible
+which provider received a request.
 
 - Intent: the request text (at most 2000 characters) and the allow lists: product names, market ids and regions, canonical KPI names.
 - Explanation: the request text, the parsed intent and the decision brief. That is the action, the target asset record
   (id, name, type, platform, endorsement, status, views, users and **owner name**), KPI coverage, the rationale, up to 15
   citations with their notes, and up to 5 assets to retire or consolidate with their notes.
 - Question wording: the request text and the rule questions.
-- KPI matching (Aitta only): the request text and KPI phrases for embeddings with `intfloat/multilingual-e5-large`, then
-  one confirmation call with the phrase and a candidate KPI.
-- The evaluation script, run by a person, also sends explanations with the decision and the cited rows to a judge model on Aitta.
+- KPI matching: the request text and KPI phrases for embeddings with `intfloat/multilingual-e5-large`, always on Aitta
+  and only with `AITTA_API_KEY`, then one confirmation call with the phrase and a candidate KPI to the answering tier.
+- The evaluation script, run by a person, also sends explanations with the decision and the cited rows to a judge model: on
+  Aitta by default, or on Together AI with `EVAL_JUDGE_PROVIDER=together`.
 
 **ElevenLabs:**
 
@@ -59,7 +70,7 @@ transcript. The API never stores recordings or transcripts and never writes requ
 ```
 Browser (untrusted) --TLS--> OpenShift router (edge TLS) --> UI pod (static nginx, non-root)
 Browser (untrusted) --TLS--> OpenShift router (edge TLS) --> API pod (non-root, keys from cluster secrets)
-API pod --HTTPS--> CSC Aitta, Featherless, ElevenLabs (third parties: request text, decision brief, audio)
+API pod --HTTPS--> CSC Aitta, Featherless, Together AI, ElevenLabs (third parties: request text, decision brief, audio)
 n8n (separate) --HTTPS, key--> API pod
 Knative PingSource (cluster) --> API pod /radar-ping (read-only)
 ```

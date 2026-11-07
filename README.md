@@ -419,7 +419,7 @@ The xlsx stands in for live metadata. Each sheet would map to a source: `Analyti
 
 Scheduled radar digest: Knative PingSource calls /radar-ping on weekdays
 
-The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references
+The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` (`AITTA_API_KEY`, `FEATHERLESS_API_KEY`, `TOGETHER_API_KEY`) and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references
 in `deploy/openshift/api.yaml`. Without them it runs on the rule baseline. The KServe predictor has no keys, so it serves the decision logic only.
 
 `POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
@@ -453,6 +453,11 @@ tried in the listed order, and the rule baseline always answers last. Every resu
 | `REUSE_GATE_LLM_<TIER>_MODEL` | Model name sent in the request | `aitta`: `openai/gpt-oss-120b`; `featherless`: `zai-org/GLM-5.2` |
 | `REUSE_GATE_LLM_<TIER>_API_KEY` | Bearer key, from a Secret only | `aitta`: `AITTA_API_KEY`; `featherless`: `FEATHERLESS_API_KEY` or `Featherless_AP_KEY` |
 | `REUSE_GATE_LLM_<TIER>_TIMEOUT_S` | Seconds per call | `aitta`: `LLM_TIMEOUT` (20); `featherless`: `LLM_FALLBACK_TIMEOUT` (40); other tiers: `LLM_TIMEOUT` |
+
+Built-in tiers: `aitta` (CSC Aitta, Finland), `featherless`, and `together` (Together AI, US, off by default; `TOGETHER_API_KEY`,
+`TOGETHER_BASE_URL` default `https://api.together.xyz/v1`, `TOGETHER_MODEL` default `openai/gpt-oss-120b`). Together is an outage fallback
+while Aitta is down (`REUSE_GATE_LLM_TIERS=together,featherless`), not a data sovereignty option: it is a US provider and receives the
+same briefs as the others, including the target's owner name. All of them are external to the cluster.
 
 A tier with no base URL or model is skipped. The built-in external tiers are also skipped without a key; any other tier, such as
 a vLLM endpoint inside the cluster, may run without one. `LLM_MODE=rules` still turns every tier off. With none of these variables

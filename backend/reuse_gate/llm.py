@@ -65,6 +65,7 @@ class NoLLM:
 
 AITTA_URL = "https://aitta-api.csc.fi/openai/v1"
 FEATHERLESS_URL = "https://api.featherless.ai/v1"
+TOGETHER_URL = "https://api.together.xyz/v1"  # US provider, an outage fallback for Aitta; off unless named in REUSE_GATE_LLM_TIERS
 PRIMARY_MODEL = "openai/gpt-oss-120b"
 FALLBACK_MODEL = "zai-org/GLM-5.2"
 MAX_CONCURRENT = 4  # model calls at once across the whole server. Aitta is small, shared and limited per user per minute
@@ -87,6 +88,8 @@ DEFAULT_TIERS = "aitta,featherless"
 BUILT_IN_TIERS = {
     "aitta": {"base_url": AITTA_URL, "model": PRIMARY_MODEL, "keys": ("AITTA_API_KEY",), "timeout": call_timeout},
     "featherless": {"base_url": FEATHERLESS_URL, "model": FALLBACK_MODEL, "keys": ("FEATHERLESS_API_KEY", "Featherless_AP_KEY"), "timeout": fallback_timeout},
+    "together": {"base_url": TOGETHER_URL, "model": PRIMARY_MODEL, "keys": ("TOGETHER_API_KEY",), "timeout": call_timeout,
+                 "base_env": "TOGETHER_BASE_URL", "model_env": "TOGETHER_MODEL"},
 }
 
 
@@ -100,8 +103,8 @@ def tier_config(name):
     another tier, such as a vLLM endpoint inside the cluster, needs only a base URL and a model."""
     built_in = BUILT_IN_TIERS.get(name, {})
     prefix = f"REUSE_GATE_LLM_{name.upper()}_"
-    base_url = os.environ.get(prefix + "BASE_URL") or built_in.get("base_url", "")
-    model = os.environ.get(prefix + "MODEL") or built_in.get("model", "")
+    base_url = os.environ.get(prefix + "BASE_URL") or os.environ.get(built_in.get("base_env", ""), "") or built_in.get("base_url", "")
+    model = os.environ.get(prefix + "MODEL") or os.environ.get(built_in.get("model_env", ""), "") or built_in.get("model", "")
     key = os.environ.get(prefix + "API_KEY") or next((os.environ[k] for k in built_in.get("keys", ()) if os.environ.get(k)), "")
     if not base_url or not model or (built_in and not key):
         return None
