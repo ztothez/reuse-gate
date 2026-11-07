@@ -33,6 +33,7 @@ Bayer's evaluation weights: 30% problem fit and business value, 25% governance a
 - `backend/reuse_gate/pipeline.py` `run_request`, the one path: Intent -> Evidence -> Decision -> Spec -> Gates. `backend/reuse_gate/spec_gate.py` quality gates and batch report.
 - `backend/reuse_gate/edge_cases.py`, `backend/tests/test_edge_cases.py`, `backend/tests/test_spec_gate.py`. `scripts/eval_intent.py` live evaluation. `backend/reuse_gate/kpi_match.py`, `scripts/embed_probe.py` embeddings.
 - `backend/reuse_gate/clarify.py` the clarification loop: confidence, rounds, human_review after 3. `data/messy_requests.jsonl`, `scripts/eval_messy.py`, `docs/messy_to_clean.md`.
+- `backend/reuse_gate/remediate.py` `POST /remediate` (simulated owner assignment, gates before and after), the `/approve` record, and Radar `ownership_bottlenecks`.
 - `backend/reuse_gate/speech.py` ElevenLabs text to speech behind `POST /speak`, for the Listen button.
 - `backend/reuse_gate/answers.py` LLM answers saved by a hash of the normalized text. `data/prewarmed_answers.json` the 10 chips, built by `scripts/prewarm.py`. See "Reliability" in the README.
 - `scripts/warmup.py` wakes the live models. `Containerfile`, `deploy/openshift/` OpenShift packaging.

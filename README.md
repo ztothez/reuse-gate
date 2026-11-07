@@ -319,6 +319,20 @@ anyone asking. In the current pack, 13 of 60 owners are inactive. One of them ow
 portfolio-wide model, which alone blocks the most specs in the quality report. This is what ownership is for: assigning one
 person clears those specs.
 
+The numbers: all 80 specs blocked on SM-065 fail only on `owner_and_review_date` and on `evidence_cited`, which needs the owner's
+citation. SM-065's owner, OWN-037, is inactive. Assigning any of the 47 active owners to SM-065 clears the owner blocker on 80 specs,
+and all 80 then pass every gate (specs passing every gate would go from 13/124 to 93/124). Radar lists this under
+`ownership_bottlenecks`: inactive owners ranked by the specs and assets they block, with citations.
+
+### What-if remediation and the decision record
+
+- `POST /remediate` simulates owner assignments and reruns the spec gates. It accepts only `assign_owner` on an existing asset or
+  semantic model, to an owner who exists and is active. It works on an in-memory copy, never writes to `estate.db`, and answers
+  `"applied": "simulated"`. Gates an owner cannot fix, such as an uncertified model, stay failing.
+- `POST /approve` keeps the body as sent and adds a `record` built on the server: the decision and citation count recomputed
+  from the confirmed intent, the gates at approval time, any remediation before and after, the loop rounds, and an estate snapshot
+  id (sha256 of `estate.db`). The client's own action and target are compared with the recomputed ones, not trusted.
+
 ### Roles
 
 The role names come from the `Owners` sheet. The pack does not define duties, so the responsibilities below are our proposal.
@@ -441,8 +455,8 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   explanations are not checked for accuracy and are labelled as AI-generated.
 - **Region is not checked:** model selection matches product scope, not `region_scope`.
 - **Fallback is slower:** GLM-5.2 took a median of about 25 seconds per call in the evaluation, and a request makes two calls.
-- **Gates can run after approval:** `/approve` records a decision without checking gates, so a gate failure blocks release of the
-  spec and not the registered decision. Release itself is not automated, and a spec is a handoff and not a published report.
+- **Gates do not block approval:** `/approve` records the gate results at approval time, but still registers a decision whose gates
+  fail, so a gate failure blocks release of the spec and not the registered decision. The record trusts the client's rounds as sent. Release itself is not automated, and a spec is a handoff and not a published report.
 - **Demo fallback:** if the API is unreachable, the front end shows mock data with a "Demo data" badge, and an unrecognized request
   then gets the first mock answer. Live API rejections are shown as errors.
 - **Open text to speech:** `/speak` accepts any text up to the limit from anyone who can reach the API. The caps limit the cost, but do not
