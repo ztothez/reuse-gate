@@ -68,6 +68,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -353,7 +354,8 @@
               "Forecast Variance",
               "Market Access Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -573,6 +575,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -830,7 +833,8 @@
               "Net Sales Growth",
               "Commercial Reach Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "human_review",
@@ -982,6 +986,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -1247,7 +1252,8 @@
               "Market Access Coverage",
               "Reimbursement Status Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -1531,6 +1537,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -1811,7 +1818,8 @@
               "On-Time In-Full",
               "Inventory Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -2101,6 +2109,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -2380,7 +2389,8 @@
               "Net Sales",
               "Net Sales Growth"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -2629,6 +2639,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -2883,7 +2894,8 @@
               "Budget Variance",
               "Gross-to-Net Rate"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -3123,6 +3135,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -3393,7 +3406,8 @@
               "Net Sales",
               "Net Sales Growth"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "new_build",
@@ -3694,6 +3708,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -4005,7 +4020,8 @@
               "Market Access Coverage",
               "Launch Adoption Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -4320,6 +4336,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -4607,7 +4624,8 @@
               "Reimbursement Status Coverage",
               "Launch Adoption Index"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "repair_and_reuse",
@@ -4806,6 +4824,7 @@
           }
         ]
       },
+      "decision_backend": "local",
       "loop": {
         "status": "clear",
         "rounds_used": 0,
@@ -5117,7 +5136,8 @@
               "Demand Forecast Accuracy",
               "Inventory Coverage"
             ],
-            "decided_by": "deterministic rules, no LLM"
+            "decided_by": "deterministic rules, no LLM",
+            "decision_backend": "local"
           },
           "output": {
             "action": "extend",
@@ -6697,6 +6717,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "clear",
             "rounds_used": 0,
@@ -7003,7 +7024,8 @@
                   "Forecast Variance",
                   "Market Access Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -7344,6 +7366,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -7763,7 +7786,8 @@
                   "Net Sales Growth",
                   "Commercial Reach Index"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "migrate",
@@ -8095,6 +8119,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -8546,7 +8571,8 @@
                   "Market Access Coverage",
                   "Reimbursement Status Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -8925,6 +8951,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -9327,7 +9354,8 @@
                   "On-Time In-Full",
                   "Inventory Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -9710,6 +9738,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -10117,7 +10146,8 @@
                   "Net Sales",
                   "Net Sales Growth"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "repair_and_reuse",
@@ -10378,6 +10408,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -10806,7 +10837,8 @@
                   "Gross-to-Net Rate",
                   "Budget Variance"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -11142,6 +11174,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -11527,7 +11560,8 @@
                   "Net Sales",
                   "Net Sales Growth"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "new_build",
@@ -11909,6 +11943,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -12340,7 +12375,8 @@
                   "Net Sales",
                   "Launch Adoption Index"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",
@@ -12783,6 +12819,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -13221,7 +13258,8 @@
                   "Launch Adoption Index",
                   "Reimbursement Status Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "repair_and_reuse",
@@ -13504,6 +13542,7 @@
               }
             ]
           },
+          "decision_backend": "local",
           "loop": {
             "status": "asking",
             "rounds_used": 0,
@@ -13937,7 +13976,8 @@
                   "Demand Forecast Accuracy",
                   "Inventory Coverage"
                 ],
-                "decided_by": "deterministic rules, no LLM"
+                "decided_by": "deterministic rules, no LLM",
+                "decision_backend": "local"
               },
               "output": {
                 "action": "extend",

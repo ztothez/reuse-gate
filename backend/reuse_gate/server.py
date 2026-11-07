@@ -18,7 +18,7 @@ POST /approve    {request_id, decision, approver, owner, review_by, text?, inten
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
 With REUSE_GATE_WRITE_TOKEN set, POST /approve, /remediate and work item re-checks need a matching X-Access-Code header.
-GET  /health
+GET  /health, /healthz                                 -> ok, the decision backend in use and whether reuse-gate-kserve answers
 GET  /n8n/radar-digest
 POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
 POST /n8n/approval
@@ -38,7 +38,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
-from reuse_gate import security, workitems
+from reuse_gate import decision, security, workitems
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
 from reuse_gate.spec import build_spec
@@ -215,8 +215,8 @@ class Handler(BaseHTTPRequestHandler):
         if url.path.startswith("/requests/"):
             item = STORE.get(url.path[len("/requests/"):])
             return self._send(200, workitems.detail(item)) if item else self._send(404, {"error": "no such request"})
-        if self.path == "/health":
-            self._send(200, {"ok": True, "assets": len(EST.assets)})
+        if self.path in ("/health", "/healthz"):  # always 200 while the process serves, so probes never fail on KServe
+            self._send(200, {"ok": True, "assets": len(EST.assets), **decision.health()})
         elif self.path == "/radar":
             self._send(200, radar(EST))
         elif self.path == "/evaluation":

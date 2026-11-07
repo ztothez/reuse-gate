@@ -41,7 +41,7 @@ Bayer's evaluation weights: 30% problem fit and business value, 25% governance a
 - `PROGRESS.md` current status, kept honest. Read it before the TODO list below, which predates it.
 - `backend/reuse_gate/recommend.py` `parse_request` (rule-based baseline), `assess`, `recommend`, `_migration`. Actions: reuse,
   repair_and_reuse, extend, new_build, retire_and_reuse, migrate, retire, human_review.
-- `backend/reuse_gate/server.py` stdlib HTTP API: POST /recommend, GET /radar, POST /approve, GET /log, GET /health. CORS open.
+- `backend/reuse_gate/server.py` stdlib HTTP API: POST /recommend, GET /radar, POST /approve, GET /log, GET /health and /healthz (decision backend and KServe reachability). CORS allow-list. `backend/reuse_gate/decision.py` sends decisions to KServe when `REUSE_GATE_DECISION_BACKEND=kserve`.
 - `backend/reuse_gate/export_mock.py` builds `data/mock_api.json` (response shapes the front end consumes). Keep shapes stable.
 - `scripts/run_batch.py` runs all 150 business requests. `backend/tests/test_recommend.py` 7 property tests.
 - `backend/reuse_gate/spec.py` DashboardSpec dataclasses (earlier work, useful for the spec stage).
