@@ -26,7 +26,8 @@ The same in YAML, under the `api` container's `env` in `deploy/openshift/api.yam
 
 1. The predictor must run an image built from this commit or later: older predictors only accept `{"text": ...}` and answer
    the intent call with HTTP 400, which the API records as `local_fallback` with reason `http_400`. After the image build,
-   restart it: `oc rollout restart deploy/reuse-gate-kserve-predictor`.
+   replace its pod: `oc delete pod -l app=isvc.reuse-gate-kserve-predictor`. KServe owns the predictor Deployment and
+   undoes `oc rollout restart`, so a restart leaves the old pod and its old image running. The pipeline's rollout task does this.
 2. Then set the variables on the API. Setting them restarts the API pod.
 
 ## Check

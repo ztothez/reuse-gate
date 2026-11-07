@@ -114,6 +114,9 @@ spec:
             image: registry.redhat.io/openshift4/ose-cli:latest
             script: |
               set -e
-              oc rollout restart deployment/reuse-gate deployment/reuse-gate-kserve-predictor
+              oc rollout restart deployment/reuse-gate
+              # KServe owns the predictor Deployment and undoes a rollout restart, so replace its pod; pull policy Always fetches :latest
+              oc delete pod -l app=isvc.reuse-gate-kserve-predictor --wait=false
               oc rollout status deployment/reuse-gate --timeout=240s
-              oc rollout status deployment/reuse-gate-kserve-predictor --timeout=240s
+              sleep 10
+              oc wait --for=condition=Ready pod -l app=isvc.reuse-gate-kserve-predictor --timeout=240s
