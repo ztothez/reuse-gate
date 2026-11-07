@@ -279,6 +279,8 @@ class MessyEvalTest(unittest.TestCase):
                 self.assertEqual(r["unhelpful"], ("human_review", 3, "human_review"), r["id"])
 
     def test_the_committed_report_is_current(self):
+        if not (ROOT / "docs/messy_to_clean.md").exists():
+            self.skipTest("docs/ is not in the container image")
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "report.md"
             out.write_text(eval_messy.report(self.results), encoding="utf-8")
