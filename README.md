@@ -253,6 +253,20 @@ An answer that cannot be used is rejected by name and the question is asked agai
 outside the catalog. Answers are checked for prompt injection like requests. The API keeps no state, so the UI sends all answers
 each time, and approved decisions record them in the log.
 
+### Faithfulness guard and quality evaluation
+
+Every AI explanation is checked before it is shown: each asset id, KPI name, number and status it states must appear in the
+decision or in the rows it cites (`backend/reuse_gate/faithfulness.py`). If not, the rules explanation is shown instead and
+`ai.guard` says `replaced`; otherwise `passed`. The decision itself never changes. All 6 saved chip explanations pass.
+
+`python3 -I scripts/eval_quality.py data/estate.db` writes `data/evaluation.json`, served by `GET /evaluation`: generation
+(deterministic faithfulness, an LLM judge from a different model family with its prompt in `data/judge_prompt.txt`, answer
+relevance, guard replacement rate), retrieval (context precision and recall), intent and decisions (messy set accuracy, KPI
+matching, agreement between rules, gpt-oss and GLM, citation validity) and the data pack (referential integrity, null rates,
+ownerless and duplicate counts). Every metric says in its caveat what it does not show. Keys come from the environment only;
+without them the judge is reported as not run. People can label 20 requests with `data/gold_labels_template.csv`
+(`docs/gold_labels.md`); those scores are reported apart, as "human-labelled".
+
 ### Live provider evaluation
 
 | Backend | Status | Valid | Products | KPIs | Kind | All 3 | Asks | All 4 | Usable | Action agrees | Off-list values | Median s | Max s | Failures |
@@ -324,14 +338,28 @@ citation. SM-065's owner, OWN-037, is inactive. Assigning any of the 47 active o
 and all 80 then pass every gate (specs passing every gate would go from 13/124 to 93/124). Radar lists this under
 `ownership_bottlenecks`: inactive owners ranked by the specs and assets they block, with citations.
 
+### Requests as work items
+
+`POST /requests` keeps a request as a work item with a status: `clarifying`, `awaiting_approval`, `human_review`, `approved`
+or `rejected`. Re-checks reuse the item's stored answers and rounds. `/approve` and `/remediate` take the item's `request_id`,
+set its status and add to its activity trail; a remediation is recorded as simulated. `GET /requests` lists items, newest first.
+Items are stored as JSON lines in `requests.jsonl` next to the decision log, at most 500. An empty store is seeded with the
+10 example chips as samples (`SAMPLE-01` to `SAMPLE-10`, requester "Sample user"), from saved answers and with no model call.
+`/recommend` is unchanged and creates no work item.
+
+With `REUSE_GATE_WRITE_TOKEN` set, `/approve`, `/remediate` and work item re-checks need the same value in an `X-Access-Code`
+header. Reading, creating requests, `/recommend` and `/speak` stay open. Without it the API logs a warning at startup and stays
+open as before. This is a shared code, not user accounts: it stops casual changes, not a determined insider.
+
 ### What-if remediation and the decision record
 
 - `POST /remediate` simulates owner assignments and reruns the spec gates. It accepts only `assign_owner` on an existing asset or
   semantic model, to an owner who exists and is active. It works on an in-memory copy, never writes to `estate.db`, and answers
   `"applied": "simulated"`. Gates an owner cannot fix, such as an uncertified model, stay failing.
 - `POST /approve` keeps the body as sent and adds a `record` built on the server: the decision and citation count recomputed
-  from the confirmed intent, the gates at approval time, any remediation before and after, the loop rounds, and an estate snapshot
-  id (sha256 of `estate.db`). The client's own action and target are compared with the recomputed ones, not trusted.
+  from the confirmed intent, the gates at approval time (`record.gates.at_approval`, with the approver's owner) and, when a
+  remediation was sent, the original blocker (`record.gates.before_remediation`, with the owner the system proposed), the full
+  `/remediate` response, the loop rounds, and an estate snapshot id (sha256 of `estate.db`). The client's own action and target are compared with the recomputed ones, not trusted.
 
 ### Roles
 
@@ -345,6 +373,12 @@ The role names come from the `Owners` sheet. The pack does not define duties, so
 | Data Steward | Owns KPI definitions; resolves conflicting definitions flagged by Radar |
 | Commercial Analytics Lead, Finance BI Product Owner, Launch Excellence Lead, Market Access Analytics Lead, Supply Analytics Lead | Domain approvers; own the reports and review dates in their domain |
 | Reporting Lead | Report owner. All 3 in the pack are inactive, so their assets need reassigning |
+
+### Security
+
+`docs/security.md` has the threat model, the exact data sent to each provider, trust boundaries, what the demo does and does
+not protect, scan results and the production path. `python3 -I scripts/security_check.py URL` runs the black-box checks
+against any running API, and `python3 -I scripts/secret_scan.py` scans the tracked files and git history.
 
 ### Access governance: design only, NOT IMPLEMENTED
 
@@ -461,4 +495,5 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   then gets the first mock answer. Live API rejections are shown as errors.
 - **Open text to speech:** `/speak` accepts any text up to the limit from anyone who can reach the API. The caps limit the cost, but do not
   stop misuse, and the text goes to ElevenLabs, a third party. A real deployment needs the access controls above.
-- **Single process:** one Python process, a local file for the log, and no authentication.
+- **Single process:** one Python process, local files for the log and the work items, and at most a shared access code. On
+  OpenShift those files live in the pod, so a restart loses them and the samples are seeded again.

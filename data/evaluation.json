@@ -1,0 +1,386 @@
+{
+  "generated_at": "2026-11-07T11:50:15+00:00",
+  "estate_snapshot": "sha256:d20e45cf782bc0b0d83f1f25829ea005589789251dfb128fcf296ea80035406f",
+  "groups": [
+    {
+      "group": "impact",
+      "metrics": [
+        {
+          "id": "new_builds_avoided",
+          "name": "New builds avoided (modelled)",
+          "value": 57,
+          "unit": "requests",
+          "n": 150,
+          "method": "requests whose recommendation is not new_build",
+          "basis": "Assumes every recommendation is approved and carried out as recommended.",
+          "caveat": "A modelled outcome over the synthetic request log, not a measured saving. Human review counts as avoided here, and a person may still build."
+        },
+        {
+          "id": "new_builds_avoided_canonical_only",
+          "name": "New builds avoided, canonical definitions only",
+          "value": 33,
+          "unit": "requests",
+          "n": 150,
+          "method": "same count, but a primary KPI row on a conflicting or local definition no longer qualifies a target",
+          "basis": "Sensitivity check on one rule choice; the rule in use has not changed.",
+          "caveat": "Shows how much the headline depends on accepting non-canonical definitions as repairable. Other rule choices were not varied."
+        },
+        {
+          "id": "requests_and_texts",
+          "name": "Requests in the data pack",
+          "value": 150,
+          "unit": "requests",
+          "n": 10,
+          "method": "150 business requests from 10 distinct texts",
+          "basis": "The data pack's Business_Requests sheet as given.",
+          "caveat": "Repeated texts with different products and markets, so 150 decisions are not 150 independent cases."
+        },
+        {
+          "id": "citations_valid",
+          "name": "Citations checked",
+          "value": 1098,
+          "unit": "citations",
+          "n": 1098,
+          "method": "every cited (table, id) exists in the data pack",
+          "basis": "1098 citations over 150 requests, 0 invalid. Assumes the data pack is the source of truth.",
+          "caveat": "A valid citation is a real row, not proof that the row supports the claim."
+        },
+        {
+          "id": "specs_passing_today",
+          "name": "Specs passing every gate today",
+          "value": 13,
+          "unit": "specs",
+          "n": 124,
+          "method": "new_build and extend specs that pass all 7 gates, with the owner the system proposes",
+          "basis": "Today's data pack, owners as recorded.",
+          "caveat": "Gates check governance rules, not whether the spec is what the requester wanted."
+        },
+        {
+          "id": "specs_passing_after_owner_fix",
+          "name": "Specs passing after the SM-065 owner fix (simulated)",
+          "value": 93,
+          "unit": "specs",
+          "n": 124,
+          "method": "80 SM-065 specs from 7 distinct request texts rerun with an active owner (OWN-039) on SM-065 in memory",
+          "basis": "Assumes one active owner is assigned to SM-065; simulated, never written to the data pack. Any of the 47 active owners gives the same result.",
+          "caveat": "Modelled specs, not reports anyone has built, and the 80 come from only 7 distinct texts."
+        },
+        {
+          "id": "estate_assets_today",
+          "name": "Assets in the estate today",
+          "value": 360,
+          "unit": "assets",
+          "n": 360,
+          "method": "Analytics_Assets rows",
+          "basis": "The data pack as given.",
+          "caveat": "Counts assets, not their quality or use."
+        },
+        {
+          "id": "estate_assets_with_gate",
+          "name": "Assets after 150 requests, with Reuse Gate (projection)",
+          "value": 451,
+          "unit": "assets",
+          "n": 150,
+          "method": "today + 93 new builds - 2 retired",
+          "basis": "Assumes every recommendation is carried out, and human review adds nothing.",
+          "caveat": "A projection. The 93 builds cover 67 distinct combinations, so a real team could build fewer."
+        },
+        {
+          "id": "estate_assets_no_check",
+          "name": "Assets after 150 requests, with no check (projection)",
+          "value": 510,
+          "unit": "assets",
+          "n": 150,
+          "method": "today + 150 new builds",
+          "basis": "Assumes every request becomes one new asset; the data pack does not record what would have happened.",
+          "caveat": "An upper-bound projection, not an observed outcome."
+        }
+      ]
+    },
+    {
+      "group": "generation",
+      "metrics": [
+        {
+          "id": "faithfulness_deterministic",
+          "name": "Faithfulness (deterministic claim check)",
+          "value": 1.0,
+          "unit": "share",
+          "n": 6,
+          "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites",
+          "basis": "AI explanations: 6 saved chip",
+          "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete. No AITTA_API_KEY in the environment, so only the saved chip explanations were checked."
+        },
+        {
+          "id": "faithfulness_judge",
+          "name": "Faithfulness (LLM judge)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "meta-llama/Llama-3.3-70B-Instruct as judge; prompt in data/judge_prompt.txt",
+          "basis": "not run",
+          "caveat": "Not run: no AITTA_API_KEY in the environment. Run scripts/eval_quality.py with the key in the environment."
+        },
+        {
+          "id": "guard_replacement_rate",
+          "name": "Guard replacement rate",
+          "value": 0.0,
+          "unit": "share",
+          "n": 6,
+          "method": "share of AI explanations the pipeline guard would replace with the rules explanation",
+          "basis": "AI explanations: 6 saved chip",
+          "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these."
+        },
+        {
+          "id": "answer_relevance",
+          "name": "Answer relevance",
+          "value": 1.0,
+          "unit": "share",
+          "n": 6,
+          "method": "mean share of required items named: the action, the target and each requested KPI",
+          "basis": "AI explanations: 6 saved chip",
+          "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing."
+        }
+      ]
+    },
+    {
+      "group": "retrieval",
+      "metrics": [
+        {
+          "id": "context_precision",
+          "name": "Context precision",
+          "value": 0.937,
+          "unit": "share",
+          "n": 1098,
+          "method": "cited rows that belong to the target asset, its semantic model or the model built on, the requested KPIs, or an invoked rule",
+          "basis": "150 batch requests, rules parser. Not counted as relevant: Migration_Backlog 29, Analytics_Assets 20, Asset_Usage 20",
+          "caveat": "By this definition, rows about assets listed to retire or consolidate later, and about legacy workbooks in a migration, count as not relevant even though the decision needs them. It shows focus, not whether each row was necessary."
+        },
+        {
+          "id": "context_recall",
+          "name": "Context recall",
+          "value": 0.992,
+          "unit": "share",
+          "n": 612,
+          "method": "required rows present: the target and its usage, its primary KPI map rows, the backlog row for a migration, the model and canonical KPIs for a new build, and at least one rule",
+          "basis": "150 batch requests, rules parser",
+          "caveat": "The required set is our own definition of a minimal justification, written by the same person as the rules, so 100% shows the rules cite what they were designed to cite, not that nothing else was needed."
+        }
+      ]
+    },
+    {
+      "group": "intent and decisions",
+      "metrics": [
+        {
+          "id": "intent_accuracy_first",
+          "name": "Intent accuracy, first reading",
+          "value": 0.381,
+          "unit": "share",
+          "n": 21,
+          "method": "products, market, KPIs and kind all equal the expected clean intent, before any question",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "The expected intents and the vocabulary were written by the same person, with these prompts in view. Not a measure of unseen language."
+        },
+        {
+          "id": "intent_accuracy_after_loop",
+          "name": "Intent accuracy, after the clarification loop",
+          "value": 0.952,
+          "unit": "share",
+          "n": 21,
+          "method": "same check after the loop, with answers simulated from the expected intent",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "Answers are simulated and always helpful, so this is a best case for real requesters."
+        },
+        {
+          "id": "kpi_precision_first",
+          "name": "KPI matching precision, first reading",
+          "value": 0.973,
+          "unit": "share",
+          "n": 37,
+          "method": "requested KPIs read correctly over all KPIs read, micro-averaged",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "Misspelled and non-English readings are held as proposals and are not counted here until confirmed."
+        },
+        {
+          "id": "kpi_recall_first",
+          "name": "KPI matching recall, first reading",
+          "value": 0.692,
+          "unit": "share",
+          "n": 52,
+          "method": "expected KPIs that were read, micro-averaged",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "Same caveat as precision."
+        },
+        {
+          "id": "kpi_precision_after_loop",
+          "name": "KPI matching precision, after the loop",
+          "value": 1.0,
+          "unit": "share",
+          "n": 52,
+          "method": "as above, after the loop",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "Simulated answers name the KPIs directly, which makes this easier than real use."
+        },
+        {
+          "id": "kpi_recall_after_loop",
+          "name": "KPI matching recall, after the loop",
+          "value": 1.0,
+          "unit": "share",
+          "n": 52,
+          "method": "as above, after the loop",
+          "basis": "data/messy_requests.jsonl, rules only",
+          "caveat": "Same caveat."
+        },
+        {
+          "id": "agreement_rules_gpt-oss-120b",
+          "name": "Decision agreement: rules and gpt-oss-120b",
+          "value": 0.6,
+          "unit": "share",
+          "n": 10,
+          "method": "same action from the model's intent as from the rule parser's, per distinct request",
+          "basis": "docs/eval_report.json; field agreement {'products': 10, 'kpis': 6, 'kind': 10, 'asks_clarification': 7}",
+          "caveat": "Agreement is not accuracy: there is no ground truth and the model can be right where the rules are not. Measured on the 10 clean texts with an earlier prompt version and pipeline."
+        },
+        {
+          "id": "agreement_rules_glm-5.2",
+          "name": "Decision agreement: rules and GLM-5.2",
+          "value": 0.5,
+          "unit": "share",
+          "n": 10,
+          "method": "same action from the model's intent as from the rule parser's, per distinct request",
+          "basis": "docs/eval_report.json; field agreement {'products': 9, 'kpis': 5, 'kind': 9, 'asks_clarification': 6}",
+          "caveat": "Agreement is not accuracy: there is no ground truth and the model can be right where the rules are not. Measured on the 10 clean texts with an earlier prompt version and pipeline."
+        },
+        {
+          "id": "agreement_gptoss_glm",
+          "name": "Decision agreement: gpt-oss and GLM",
+          "value": 0.833,
+          "unit": "share",
+          "n": 6,
+          "method": "same action from both models' intents, on requests where both gave a usable intent",
+          "basis": "docs/eval_report.json",
+          "caveat": "Small sample, and only requests both models could read. Two models agreeing can both be wrong."
+        },
+        {
+          "id": "citation_validity",
+          "name": "Citation validity",
+          "value": 1.0,
+          "unit": "share",
+          "n": 1098,
+          "method": "every cited (table, id) exists in the data pack",
+          "basis": "150 batch requests: 1098 citations checked, 0 invalid",
+          "caveat": "A valid citation is a real row. It does not show the row supports the claim it is cited for; context precision looks at that."
+        }
+      ]
+    },
+    {
+      "group": "data",
+      "metrics": [
+        {
+          "id": "referential_integrity",
+          "name": "Referential integrity",
+          "value": 1.0,
+          "unit": "share",
+          "n": 5345,
+          "method": "id columns that point to another table (owners, workspaces, models, KPIs, assets, products, markets, lineage ends) resolve to a row",
+          "basis": "data pack in data/estate.db; broken: none",
+          "caveat": "Checks that references resolve, not that they are right: an asset can point to an existing but wrong owner."
+        },
+        {
+          "id": "null_rate",
+          "name": "Null or empty cells",
+          "value": 0.002,
+          "unit": "share",
+          "n": 68953,
+          "method": "share of all cells that are null or empty",
+          "basis": "all 22 tables; highest columns: Data_Dictionary.unit 77%, Product_Market_Monthly.forecast_variance_pct 11%, Analytics_Assets.owner_id 6%",
+          "caveat": "Some columns are empty by design (for example optional notes), so a null is not always a defect."
+        },
+        {
+          "id": "ownerless_assets",
+          "name": "Assets with no active owner",
+          "value": 86,
+          "unit": "assets",
+          "n": 360,
+          "method": "no owner id, an owner id not in the Owners table, or an inactive owner",
+          "basis": "21 with no owner id at all, 0 with an unknown owner id, the rest with an inactive owner",
+          "caveat": "Synthetic data, deliberately messy. Counts gaps, not how much they matter."
+        },
+        {
+          "id": "duplicate_asset_names",
+          "name": "Assets sharing a name",
+          "value": 84,
+          "unit": "assets",
+          "n": 360,
+          "method": "assets whose name equals another asset's name",
+          "basis": "40 names used more than once",
+          "caveat": "Names are not used for matching because they do not reflect coverage. Same name does not mean same content."
+        },
+        {
+          "id": "non_canonical_kpis",
+          "name": "Non-canonical KPI definitions",
+          "value": 38,
+          "unit": "definitions",
+          "n": 56,
+          "method": "KPI catalog rows whose definition status is not canonical (duplicates, conflicts, local variants)",
+          "basis": "KPI_Catalog",
+          "caveat": "A variant can be legitimate locally; this counts what needs a steward's decision."
+        }
+      ]
+    },
+    {
+      "group": "human-labelled",
+      "metrics": [
+        {
+          "id": "gold_action_accuracy",
+          "name": "Action accuracy (human-labelled)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "system action equals the labeller's expected action",
+          "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+          "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. A labeller who saw the cited rows first may lean towards the system."
+        },
+        {
+          "id": "gold_target_accuracy",
+          "name": "Target accuracy (human-labelled)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "system target equals the expected target, or both are none",
+          "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+          "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Several assets can be acceptable targets; this counts one."
+        },
+        {
+          "id": "gold_kpi_precision",
+          "name": "KPI precision (human-labelled)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "KPIs read that the labeller expected",
+          "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+          "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Only canonical KPI names are accepted."
+        },
+        {
+          "id": "gold_kpi_recall",
+          "name": "KPI recall (human-labelled)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "expected KPIs that were read",
+          "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+          "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. "
+        },
+        {
+          "id": "gold_context_precision",
+          "name": "Cited row relevance (human-labelled)",
+          "value": null,
+          "unit": "share",
+          "n": 0,
+          "method": "cited rows the labeller marked relevant",
+          "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+          "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Relevance is a judgement; two labellers may differ."
+        }
+      ]
+    }
+  ]
+}

@@ -3,9 +3,9 @@
 
 Usage: python3 -I scripts/warmup.py [API URL]
 Calls gpt-oss-120b (primary), GLM-5.2 (fallback) and the embedding model once each, bypassing the cache,
-with a long timeout. Then calls GET /radar on the API (default: REUSE_GATE_API_URL, else the live route), so its
-ownership bottleneck is computed and cached before the demo. Exit code: 0 primary ready, 1 only the fallback ready,
-2 no chat model ready. The Radar call is reported and does not change the exit code. Never prints keys.
+with a long timeout. Then calls GET /radar and GET /requests on the API (default: REUSE_GATE_API_URL, else the live route), so the
+ownership bottleneck is cached and the sample work items are seen before the demo. Exit code: 0 primary ready, 1 only the fallback ready,
+2 no chat model ready. The API calls are reported and do not change the exit code. Never prints keys.
 """
 import json
 import os
@@ -49,6 +49,23 @@ def check(label, call):
     return True
 
 
+def warm_requests(api):
+    """GET /requests once. True when it answered with a list of work items."""
+    started = time.monotonic()
+    try:
+        with urllib.request.urlopen(f"{api.rstrip('/')}/requests", timeout=60) as resp:
+            body = json.load(resp)
+    except (OSError, ValueError) as exc:
+        print(f"requests {api}: FAILED after {time.monotonic() - started:.1f}s: {exc}", flush=True)
+        return False
+    if not isinstance(body, list):
+        print(f"requests {api}: unexpected answer, not a list", flush=True)
+        return False
+    samples = sum(r.get("origin") == "sample" for r in body)
+    print(f"requests {api}: {len(body)} work item(s), {samples} sample(s), in {time.monotonic() - started:.1f}s", flush=True)
+    return True
+
+
 def main():
     load_env()
     nonce = str(time.time())
@@ -68,7 +85,9 @@ def main():
     else:
         embedder.use_cache, embedder.timeout = False, TIMEOUT
         check(f"embeddings {EMBED_MODEL}", lambda: embedder.embed([f"warm-up {nonce}"], EMBED_MODEL))
-    warm_radar(sys.argv[1] if len(sys.argv) > 1 else os.environ.get("REUSE_GATE_API_URL", LIVE_API))
+    api = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("REUSE_GATE_API_URL", LIVE_API)
+    warm_radar(api)
+    warm_requests(api)
     return 0 if ready["primary"] else 1 if ready["fallback"] else 2
 
 
