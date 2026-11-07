@@ -31,9 +31,9 @@ describe("reuse gate rules", () => {
   it("does not count a decision whose action the log does not record", () => {
     expect(newBuildsAvoided([e(null, "approve")])).toBe(0);
   });
-  it("mock recommend matches by the first 30 characters, else falls back to the first request", () => {
+  it("mock recommend matches examples and rejects unmatched requests", () => {
     expect(mockRecommend("please create a power bi replacement for x").request_id).toBe("REQ-0002");
-    expect(mockRecommend("something unrelated").request_id).toBe("REQ-0001");
+    expect(() => mockRecommend("something unrelated")).toThrow(/No demo example/);
   });
 });
 
@@ -66,7 +66,7 @@ describe("decision log from GET /log", () => {
     expect((fetcher.mock.calls[0] as unknown as [string])[0]).toBe("http://api.test/log");
   });
 
-  it("keeps demo decisions in memory when the API is unreachable", async () => {
+  it("does not create a decision or log record when the live API is unreachable", async () => {
     vi.stubEnv("VITE_API_URL", "http://api.test");
     vi.stubGlobal(
       "fetch",
@@ -75,10 +75,9 @@ describe("decision log from GET /log", () => {
       }),
     );
     const api = await import("@/lib/api");
-    const res = await api.approve({ ...row, action: "extend", text: "t", target: "AST-1" });
+    await expect(api.approve({ ...row, action: "extend", text: "t", target: "AST-1" })).rejects.toThrow(/Check the API connection/);
     const log = await api.getLog();
-    expect(log).toHaveLength(1);
-    expect(log[0]).toMatchObject({ registered_id: res.registered_id, action: "extend" });
+    expect(log).toHaveLength(0);
   });
 
   it("reports health honestly and never switches to demo data", async () => {
