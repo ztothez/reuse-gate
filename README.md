@@ -419,6 +419,10 @@ The xlsx stands in for live metadata. Each sheet would map to a source: `Analyti
 
 ### OpenShift
 
+What runs where, the KServe decision path, model tier portability, reliability, known limits, the Red Hat evidence text and a
+console shot list: [docs/openshift.md](docs/openshift.md). Final rollout: `sh deploy/openshift/rollout.sh`; before a demo:
+`sh deploy/openshift/wake.sh`.
+
 Scheduled radar digest: Knative PingSource calls /radar-ping on weekdays
 
 The API gets its model and audio keys from the cluster secrets `reuse-gate-llm` (`AITTA_API_KEY`, `FEATHERLESS_API_KEY`, `TOGETHER_API_KEY`) and `reuse-gate-elevenlabs`, and its n8n key from `reuse-gate-n8n`, as optional references

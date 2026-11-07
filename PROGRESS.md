@@ -49,6 +49,13 @@ citations). Not verified: how the dashboard's Deployments page now shows it, sin
 profile is set: the project cannot list `hardwareprofiles`, so the field stays empty, which is expected for a custom CPU runtime.
 Restore: `oc apply -f deploy/openshift/backup/inferenceservice-reuse-gate-kserve.live.yaml` after removing `status` and `resourceVersion`.
 
+## Red Hat OpenShift AI work (2026-11-07, not rolled out)
+See `docs/openshift.md`. Done and tested locally: env-driven model tiers with the answering and failed tiers in every result;
+an optional Together AI tier; `REUSE_GATE_DECISION_BACKEND=kserve` with a recorded local fallback and a parity test; `/healthz`;
+a state volume with startup reload; pipeline evaluation and security gates; probes, non-root read-only API pods; `wake.sh` and
+`rollout.sh`; the write token on `/approve` and `/remediate` only; load-time cleaning of asset and KPI names. Applied live: the
+ServingRuntime for `reuse-gate-kserve`. In-cluster model tier: measured and rejected (no-go), trial service deleted.
+
 ## Bayer constraints for the Red Hat work
 Sources: `Bayer_SinceAI2026/Since_AI_Bayer_Challenge_Brief_FINAL.pdf` (and the same text in the docx),
 `Analytics_Dashboard_Factory_Hackathon.pdf` (Bayer's technical talk), `Red_Hat_SinceAI2026_FINAL_BUILDER_GUIDE-2.pdf`.
@@ -122,7 +129,7 @@ c) **Bayer's wording for the business problem:** "Enterprise self-service BI cre
 - The failure paths are tested with simulated failures and local servers, not against a real Aitta 429.
 - n8n ran on a throwaway local instance. The digest is not connected to email or Teams, and the PingSource's scheduled run has not been observed.
 - `data/mock_api.json` has `owners`, `radar.ownership_bottlenecks` and `work_items`, but the frontend copy must be synced with `cp data/mock_api.json frontend/src/data/mock_api.json`. The frontend has no screen for work items, `/remediate` or the record.
-- Work items and the decision log are files in the pod with no volume, so a restart loses them.
+- Work items and the decision log are files in the live pod with no volume, so a restart loses them. `api.yaml` adds the PVC `reuse-gate-state`; not applied yet.
 - The live API and UI do not have the clarification loop yet. Model wording is tested with a fake client, not a real model.
 - `MESSY-21` ("not Xarelto") stays wrong: the rules do not read negation. The messy vocabulary was written with those prompts in view.
 - The UI's Decision log is stored per browser in `localStorage`, so a fresh browser shows it empty even when the API's `GET /log` has entries.
