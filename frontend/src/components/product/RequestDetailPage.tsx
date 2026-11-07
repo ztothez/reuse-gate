@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
-import { getLog, getRequest, saveRequest, type Answer, type WorkItem } from "@/lib/api";
+import {
+  getApiBaseUrl,
+  getLog,
+  getRequest,
+  isDemo,
+  saveRequest,
+  type Answer,
+  type WorkItem,
+} from "@/lib/api";
+import { RequestChat } from "./RequestChat";
 import { displayText } from "@/lib/display-text";
 import { requestGates } from "@/lib/governance";
 import { roleTab, roleView, type RequestTab } from "@/lib/role";
@@ -60,6 +69,8 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
   const [tab, setTab] = useState<RequestTab>(roleTab(role));
   useEffect(() => setTab(roleTab(role)), [role]);
   const approves = role === "approver" || role === "admin";
+  // Chat needs the live API; the bundled fixture has no threads.
+  const canChat = Boolean(getApiBaseUrl()) && !isDemo();
   const [text, setText] = useState(item.text);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -396,6 +407,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
           </>
         )}
       </section>
+      {canChat && <RequestChat id={item.request_id} />}
     </>
   );
 }

@@ -16,7 +16,7 @@ HEADERS = {
     "Strict-Transport-Security": "max-age=31536000",
 }
 # Requests a minute per client address on each costly route. RATE_<ROUTE> overrides, for example RATE_RECOMMEND=60.
-LIMITS = {"/recommend": 30, "/requests": 30, "/speak": 10, "/remediate": 30, "/approve": 30, "/spec": 30}
+LIMITS = {"/recommend": 30, "/requests": 30, "/speak": 10, "/remediate": 30, "/approve": 30, "/spec": 30, "/chat": 20}
 SECRET_ENV = ("AITTA_API_KEY", "FEATHERLESS_API_KEY", "Featherless_AP_KEY", "ELEVENLABS_API_KEY", "N8N_API_KEY", "n8n_API_KEY",
               "REUSE_GATE_WRITE_TOKEN", "LLM_API_KEY")
 

@@ -27,6 +27,7 @@ GET  /operations                                       -> the operator wall: fai
 GET  /config; POST /config/changes; POST /config/changes/{id} {decision}
                                                        -> decision settings, change requests with their measured impact, review
 GET  /notifications; POST /notifications/test          -> email delivery status and outbox (admin)
+GET  /requests/{id}/chat; POST {message, ask_agent?}   -> the request's chat thread; the agent answers from the request's facts only
 State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
 startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
 Access: with REUSE_GATE_ROLE_CODES set (see access.py), every endpoint but health, the PingSource and n8n needs an X-Access-Code
@@ -53,7 +54,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env, tier_config, tier_names
 from reuse_gate.pipeline import run_request
-from reuse_gate import access, config_changes, dashboards, decision, explore, notify, report, security, workitems
+from reuse_gate import access, chat, config_changes, dashboards, decision, explore, notify, report, security, workitems
 from reuse_gate.jsonl import JsonlStore
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate, snapshot_id
@@ -75,6 +76,7 @@ LIMITER = security.RateLimiter()  # enabled at startup; off in tests unless a te
 DB_PATH = str(Path(__file__).resolve().parents[2] / "data" / "estate.db")
 DASHBOARDS = JsonlStore(key="id")
 CHANGES = JsonlStore(key="id")
+CHATS = JsonlStore(key="id", limit=5000)
 
 
 def providers():
@@ -245,6 +247,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         route = urlsplit(self.path).path
+        if route.startswith("/requests/") and route.endswith("/chat"):
+            route = "/chat"  # one limit for every thread
         if route in security.LIMITS and not LIMITER.allow(route, self._client()):
             self._drain()
             return self._send(429, {"error": "too many requests from this address; wait a minute", "code": "rate_limited"})
@@ -289,6 +293,13 @@ class Handler(BaseHTTPRequestHandler):
             if status and status not in workitems.STATUSES:
                 return self._send(400, {"error": f"status must be one of {', '.join(workitems.STATUSES)}"})
             return self._send(200, STORE.list(status, q, keep=lambda item: access.can_see(who, item)))
+        if url.path.startswith("/requests/") and url.path.endswith("/chat"):
+            if not (who := self._who("chat")):
+                return
+            item = STORE.get(url.path[len("/requests/"):-len("/chat")])
+            if not item or not access.can_see(who, item):
+                return self._send(404, {"error": "no such request"})
+            return self._send(200, chat.redact(who, chat.thread(CHATS, item["request_id"]), access.DECIDERS))
         if url.path.startswith("/requests/"):
             if not (who := self._who("requests.read")):
                 return
@@ -374,6 +385,20 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/radar-ping":  # a PingSource cannot send the n8n key; this exposes nothing beyond GET /radar
             self._drain()
             return self._send(200, radar_digest())
+        if self.path.startswith("/requests/") and self.path.endswith("/chat"):
+            try:
+                body = self._body()
+            except ValueError as exc:
+                return self._send(400, {"error": "invalid JSON" if isinstance(exc, json.JSONDecodeError) else str(exc)})
+            if not (who := self._who("chat")):
+                return
+            item = STORE.get(self.path[len("/requests/"):-len("/chat")])
+            if not item or not access.can_see(who, item):
+                return self._send(404, {"error": "no such request"})
+            try:
+                return self._send(200, chat.redact(who, chat.post(CHATS, LLM_CLIENT, EST, item, body, who), access.DECIDERS))
+            except chat.ChatError as exc:
+                return self._send(400, {"error": str(exc)})
         if self.path in POST_ROUTES or self.path.startswith("/config/changes/"):
             action, handler = POST_ROUTES.get(self.path) or ("config.decide", Handler._decide_change)
             try:
@@ -630,6 +655,7 @@ if __name__ == "__main__":
     STORE = open_store(state / "requests.jsonl")
     DASHBOARDS = JsonlStore(state / "dashboards.jsonl", key="id")
     CHANGES = JsonlStore(state / "config_changes.jsonl", key="id")
+    CHATS = JsonlStore(state / "chats.jsonl", key="id", limit=5000)
     notify.OUTBOX = JsonlStore(state / "notifications.jsonl", key="id")
     print(f"Email: {'through n8n' if notify.configured() else 'not configured (REUSE_GATE_NOTIFY_URL, N8N_WEBHOOK_SECRET)'}", file=sys.stderr)
     LIMITER = security.RateLimiter(enabled=os.environ.get("RATE_LIMITS", "on") != "off")

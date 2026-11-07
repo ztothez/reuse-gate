@@ -156,3 +156,54 @@ class NotifyTest(unittest.TestCase):
         finally:
             hook.shutdown()
             hook.server_close()
+
+
+class FakeModel:
+    configured = True
+    last_tier = "fake"
+
+    def __init__(self, answer):
+        self.answer = answer
+
+    def json_chat(self, messages, **params):
+        return {"answer": self.answer}
+
+
+@unittest.skipUnless(DB.exists(), "run load_estate.py first")
+class ChatTest(Api):
+    @classmethod
+    def setUpClass(cls):
+        cls.env = patch.dict(os.environ, {"REUSE_GATE_ROLE_CODES": ENV})
+        cls.env.start()
+        cls.stores = patch.multiple(server, CHATS=JsonlStore(key="id"))
+        cls.stores.start()
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.stores.stop()
+        cls.env.stop()
+
+    def test_agent_answers_from_the_request_and_the_guard_drops_invented_facts(self):
+        code, msgs = self.call("/requests/SAMPLE-07/chat", {"message": "Which gates block release?"}, CODES["analyst"])
+        self.assertEqual(code, 200)
+        self.assertEqual([m["role"] for m in msgs], ["analyst", "agent"])
+        self.assertEqual(msgs[0]["author"], "Ana Analyst")
+        self.assertIn("owner and review date", msgs[1]["text"])
+        with patch.object(server, "LLM_CLIENT", FakeModel("It reuses AST-9999 with 4242 views.")):
+            _, msgs = self.call("/requests/SAMPLE-07/chat", {"message": "Why?"}, CODES["analyst"])
+        self.assertEqual(msgs[1]["source"], "rules_guard", "an invented ID never reaches the thread")
+        self.assertNotIn("AST-9999", msgs[1]["text"])
+        with patch.object(server, "LLM_CLIENT", FakeModel("A person should review the owner first.")):
+            _, msgs = self.call("/requests/SAMPLE-07/chat", {"message": "What next?"}, CODES["developer"])
+        self.assertEqual((msgs[1]["source"], msgs[1]["tier"]), ("llm", "fake"))
+        code, thread = self.call("/requests/SAMPLE-07/chat", code=CODES["approver"])
+        self.assertEqual((code, len(thread)), (200, 6))
+        self.assertEqual(thread[0]["text"], "Which gates block release?", "oldest first")
+
+    def test_only_people_who_see_the_request_can_chat(self):
+        self.assertEqual(self.call("/requests/SAMPLE-07/chat", code=CODES["operator"])[0], 403)
+        self.assertEqual(self.call("/requests/SAMPLE-07/chat", code=CODES["business"])[0], 404, "not their request")
+        self.assertEqual(self.call("/requests/SAMPLE-07/chat", {"message": " "}, CODES["analyst"])[0], 400)
+        self.assertEqual(self.call("/requests/SAMPLE-07/chat", {"message": "hi"})[0], 401)

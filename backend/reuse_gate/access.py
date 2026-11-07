@@ -32,6 +32,7 @@ PERMISSIONS = {
     "requests.create": frozenset({"business", "admin"}),
     "requests.read": EVERYONE - {"operator"},  # business: own items only, see can_see(); operators see queue counts only
     "speak": EVERYONE,
+    "chat": EVERYONE - {"operator"},  # on items the caller may see
     "transcribe": frozenset({"business", "admin"}),
     "evaluation": EVERYONE,
     "radar": frozenset({"analyst", "approver", "admin"}),
