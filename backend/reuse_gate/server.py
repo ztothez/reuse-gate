@@ -7,6 +7,7 @@ POST /speak      {"text": "..."}                       -> audio/mpeg from Eleven
 POST /transcribe raw audio body, Content-Type audio/webm|ogg|mp4|wav, at most 1 MB -> {text, language}. Not stored or logged
 POST /spec       {intent, recommendation, owner, review_by} -> {spec, gates}
 GET  /radar                                            -> radar summary, with ownership_bottlenecks
+GET  /evaluation                                       -> data/evaluation.json, written by scripts/eval_quality.py
 GET  /owners                                           -> active owners who can be assigned, Semantic Model Owners first
 POST /remediate  {request_id | intent, remediations: [{type: assign_owner, target, owner_id}], owner?, review_by?, as_of?}
                                                        -> simulated before and after gates. Never changes the estate
@@ -49,6 +50,7 @@ LOG = []
 LOG_FILE = "decision_log.jsonl"
 LLM_CLIENT = None
 N8N_API_KEY = os.environ.get("N8N_API_KEY", "")
+EVALUATION = Path(__file__).resolve().parents[2] / "data" / "evaluation.json"
 WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
 MAX_BODY = 1_000_000
 STORE = workitems.Store()  # replaced at startup by a store next to the decision log
@@ -167,6 +169,11 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {"ok": True, "assets": len(EST.assets)})
         elif self.path == "/radar":
             self._send(200, radar(EST))
+        elif self.path == "/evaluation":
+            try:
+                self._send(200, json.loads(EVALUATION.read_text(encoding="utf-8")))
+            except (OSError, ValueError):
+                self._send(404, {"error": "no evaluation on this server; run scripts/eval_quality.py"})
         elif self.path == "/owners":
             self._send(200, active_owners(EST))
         elif self.path == "/log":

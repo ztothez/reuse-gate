@@ -5,6 +5,7 @@ The shapes here are the contract the front end consumes from the API.
 """
 import json
 import sys
+from pathlib import Path
 from collections import Counter, defaultdict
 
 from reuse_gate.estate import Estate
@@ -46,6 +47,17 @@ def radar(est):
     }
 
 
+EVALUATION = Path(__file__).resolve().parents[2] / "data" / "evaluation.json"
+
+
+def evaluation():
+    """data/evaluation.json as GET /evaluation serves it, or None before scripts/eval_quality.py has run."""
+    try:
+        return json.loads(EVALUATION.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 SAMPLE_TIME = "2026-11-07T08:00:00+00:00"  # fixed, so the export is reproducible
 
 
@@ -64,7 +76,8 @@ def main(db, out):
             continue
         seen.add(req["request_text"])
         items.append(run_request(est, req, NoLLM(), as_of=req["request_date"]))  # rules only, reproducible
-    json.dump({"requests": items, "radar": radar(est), "owners": active_owners(est), "work_items": sample_work_items(est)},
+    json.dump({"requests": items, "radar": radar(est), "owners": active_owners(est), "work_items": sample_work_items(est),
+               "evaluation": evaluation()},
               open(out, "w"), indent=2, default=str)
     print(f"{len(items)} requests exported to {out}")
 

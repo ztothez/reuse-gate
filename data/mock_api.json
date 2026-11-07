@@ -120,6 +120,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -620,6 +621,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: human review. the migration backlog marks the remaining legacy workbooks for human review, so a person must decide."
       },
       "pipeline": [
@@ -1026,6 +1028,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only. 1 low-usage, uncertified duplicates: retire after the new asset is live."
       },
       "pipeline": [
@@ -1572,6 +1575,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: extend. All Pharma Market Access Monthly is alive and covers On-Time In-Full as primary KPIs; Inventory Coverage is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -2138,6 +2142,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: extend. Kerendia Gross-to-Net Monthly is alive and covers Net Sales as primary KPIs; Net Sales Growth is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -2661,6 +2666,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -3150,6 +3156,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -3720,6 +3727,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: extend. All Pharma Executive - US is alive and covers Market Access Coverage, Launch Adoption Index as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -4341,6 +4349,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: repair and reuse. All Pharma Executive Legacy is alive and covers Reimbursement Status Coverage, Launch Adoption Index as primary KPIs, but has governance gaps. closing the gaps is cheaper than a new build and avoids another overlapping asset."
       },
       "pipeline": [
@@ -4824,6 +4833,7 @@
         "cached": false,
         "reason": "off",
         "notice": "AI models are off on this server, so the rule baseline answered.",
+        "guard": null,
         "speech": "Recommendation: extend. All Pharma Budget Legacy is alive and covers Demand Forecast Accuracy, Inventory Coverage as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -6709,6 +6719,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: extend. The active, certified Nubeqa Gross-to\u2011Net Monthly report already provides Net Sales Growth and Market Access Coverage, so we should extend it to add Forecast Variance as a primary KPI and replace the non\u2011canonical KPI variants. This follows governance rules to reuse existing assets and prioritize canonical KPIs, while also fixing the failed refresh of its underlying semantic model."
           },
           "pipeline": [
@@ -7412,6 +7423,7 @@
             "cached": true,
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
+            "guard": null,
             "speech": "Recommendation: migrate. backlog path for Xarelto Launch - US is REBUILD_ON_SHARED_MODEL; migrate it onto SM-024. 1 other overlapping assets to consolidate later: migrate users first, owner review required."
           },
           "pipeline": [
@@ -8153,6 +8165,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: extend. We\u2019ll extend the existing All Pharma Executive Legacy dashboard to include Market Access Coverage as a primary KPI, since it already serves Reimbursement Status Coverage and is heavily used, rather than building a new report. The two low\u2011usage duplicate apps will be retired, and we\u2019ll promote the missing KPI to primary while fixing owner and semantic model issues."
           },
           "pipeline": [
@@ -8982,6 +8995,7 @@
             "cached": true,
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
+            "guard": null,
             "speech": "Recommendation: extend. All Pharma Market Access Monthly is alive and covers On-Time In-Full as primary KPIs; Inventory Coverage is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
           },
           "pipeline": [
@@ -9763,6 +9777,7 @@
             "cached": true,
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
+            "guard": null,
             "speech": "Recommendation: repair and reuse. Kerendia Gross-to-Net New is alive and covers Net Sales, Net Sales Growth as primary KPIs, but has governance gaps. closing the gaps is cheaper than a new build and avoids another overlapping asset."
           },
           "pipeline": [
@@ -10429,6 +10444,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: extend. The system recommends extending the existing All Pharma Inventory v2 report instead of creating a new one because it is already active, widely used, and already provides the Gross\u2011to\u2011Net Rate and Budget Variance KPIs. By adding Net Sales as a primary KPI (and correcting the Budget Variance definition), the request is fulfilled while following the governance rule to reuse assets before building new ones. This approach avoids duplicate work and keeps the semantic model consistent."
           },
           "pipeline": [
@@ -11185,6 +11201,7 @@
             "cached": true,
             "reason": "saved_rules",
             "notice": "The AI model could not read this example, so its rule-based reading was saved. No model was called.",
+            "guard": null,
             "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
           },
           "pipeline": [
@@ -11950,6 +11967,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: extend. The recommendation is to extend the existing All Pharma Executive \u2013 US Power\u202fBI dashboard because it already includes the Market Access Coverage and Launch Adoption Index KPIs. You should add the missing Net Sales KPI as a primary, canonical metric and replace the non\u2011canonical Launch Adoption Index variant with its canonical definition."
           },
           "pipeline": [
@@ -12819,6 +12837,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: repair and reuse. We recommend fixing the governance issues (switch to the canonical KPI, resolve the refresh warning and improve AI\u2011readiness) and then reusing the existing Beyonttra Demand \u2013 EMEA report instead of building a new one. The report already covers the requested Launch Adoption Index and Reimbursement Status Coverage KPIs, is certified, active, and has high user adoption, making repair cheaper and avoiding duplication. After repair, it can serve the country\u2011level launch\u2011readiness and reimbursement progress needs."
           },
           "pipeline": [
@@ -13537,6 +13556,7 @@
             "cached": true,
             "reason": null,
             "notice": null,
+            "guard": "passed",
             "speech": "Recommendation: extend. We\u2019ll extend the existing All Pharma Budget Legacy Power\u202fBI report (AST\u20110088) to add Net\u202fSales as a primary KPI, because it already provides the requested Demand Forecast Accuracy and Inventory Coverage and is an active, widely used asset. Reusing this report follows the governance rule to reuse before building new assets and ensures all KPIs are sourced from canonical definitions."
           },
           "pipeline": [
@@ -14116,5 +14136,296 @@
         ]
       }
     }
+  },
+  "evaluation": {
+    "generated_at": "2026-11-07T11:43:03+00:00",
+    "estate_snapshot": "sha256:d20e45cf782bc0b0d83f1f25829ea005589789251dfb128fcf296ea80035406f",
+    "groups": [
+      {
+        "group": "generation",
+        "metrics": [
+          {
+            "id": "faithfulness_deterministic",
+            "name": "Faithfulness (deterministic claim check)",
+            "value": 1.0,
+            "unit": "share",
+            "n": 6,
+            "method": "every asset id, KPI name, number and status in the explanation must appear in the decision or the rows it cites",
+            "basis": "AI explanations: 6 saved chip",
+            "caveat": "Shows that no invented ids, numbers, KPIs or statuses got through. Does not show that the reasoning is right, that a true fact is attached to the right asset, or that the explanation is complete. No AITTA_API_KEY in the environment, so only the saved chip explanations were checked."
+          },
+          {
+            "id": "faithfulness_judge",
+            "name": "Faithfulness (LLM judge)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "meta-llama/Llama-3.3-70B-Instruct as judge; prompt in data/judge_prompt.txt",
+            "basis": "not run",
+            "caveat": "Not run: no AITTA_API_KEY in the environment. Run scripts/eval_quality.py with the key in the environment."
+          },
+          {
+            "id": "guard_replacement_rate",
+            "name": "Guard replacement rate",
+            "value": 0.0,
+            "unit": "share",
+            "n": 6,
+            "method": "share of AI explanations the pipeline guard would replace with the rules explanation",
+            "basis": "AI explanations: 6 saved chip",
+            "caveat": "A low rate shows the generator rarely states unsupported facts on these requests. It depends on the prompt and model of this run, and says nothing about requests unlike these."
+          },
+          {
+            "id": "answer_relevance",
+            "name": "Answer relevance",
+            "value": 1.0,
+            "unit": "share",
+            "n": 6,
+            "method": "mean share of required items named: the action, the target and each requested KPI",
+            "basis": "AI explanations: 6 saved chip",
+            "caveat": "Keyword presence, not understanding: an explanation can name everything and still be unclear, and a correct synonym counts as missing."
+          }
+        ]
+      },
+      {
+        "group": "retrieval",
+        "metrics": [
+          {
+            "id": "context_precision",
+            "name": "Context precision",
+            "value": 0.937,
+            "unit": "share",
+            "n": 1098,
+            "method": "cited rows that belong to the target asset, its semantic model or the model built on, the requested KPIs, or an invoked rule",
+            "basis": "150 batch requests, rules parser. Not counted as relevant: Migration_Backlog 29, Analytics_Assets 20, Asset_Usage 20",
+            "caveat": "By this definition, rows about assets listed to retire or consolidate later, and about legacy workbooks in a migration, count as not relevant even though the decision needs them. It shows focus, not whether each row was necessary."
+          },
+          {
+            "id": "context_recall",
+            "name": "Context recall",
+            "value": 0.992,
+            "unit": "share",
+            "n": 612,
+            "method": "required rows present: the target and its usage, its primary KPI map rows, the backlog row for a migration, the model and canonical KPIs for a new build, and at least one rule",
+            "basis": "150 batch requests, rules parser",
+            "caveat": "The required set is our own definition of a minimal justification, written by the same person as the rules, so 100% shows the rules cite what they were designed to cite, not that nothing else was needed."
+          }
+        ]
+      },
+      {
+        "group": "intent and decisions",
+        "metrics": [
+          {
+            "id": "intent_accuracy_first",
+            "name": "Intent accuracy, first reading",
+            "value": 0.381,
+            "unit": "share",
+            "n": 21,
+            "method": "products, market, KPIs and kind all equal the expected clean intent, before any question",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "The expected intents and the vocabulary were written by the same person, with these prompts in view. Not a measure of unseen language."
+          },
+          {
+            "id": "intent_accuracy_after_loop",
+            "name": "Intent accuracy, after the clarification loop",
+            "value": 0.952,
+            "unit": "share",
+            "n": 21,
+            "method": "same check after the loop, with answers simulated from the expected intent",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "Answers are simulated and always helpful, so this is a best case for real requesters."
+          },
+          {
+            "id": "kpi_precision_first",
+            "name": "KPI matching precision, first reading",
+            "value": 0.973,
+            "unit": "share",
+            "n": 37,
+            "method": "requested KPIs read correctly over all KPIs read, micro-averaged",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "Misspelled and non-English readings are held as proposals and are not counted here until confirmed."
+          },
+          {
+            "id": "kpi_recall_first",
+            "name": "KPI matching recall, first reading",
+            "value": 0.692,
+            "unit": "share",
+            "n": 52,
+            "method": "expected KPIs that were read, micro-averaged",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "Same caveat as precision."
+          },
+          {
+            "id": "kpi_precision_after_loop",
+            "name": "KPI matching precision, after the loop",
+            "value": 1.0,
+            "unit": "share",
+            "n": 52,
+            "method": "as above, after the loop",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "Simulated answers name the KPIs directly, which makes this easier than real use."
+          },
+          {
+            "id": "kpi_recall_after_loop",
+            "name": "KPI matching recall, after the loop",
+            "value": 1.0,
+            "unit": "share",
+            "n": 52,
+            "method": "as above, after the loop",
+            "basis": "data/messy_requests.jsonl, rules only",
+            "caveat": "Same caveat."
+          },
+          {
+            "id": "agreement_rules_gpt-oss-120b",
+            "name": "Decision agreement: rules and gpt-oss-120b",
+            "value": 0.6,
+            "unit": "share",
+            "n": 10,
+            "method": "same action from the model's intent as from the rule parser's, per distinct request",
+            "basis": "docs/eval_report.json; field agreement {'products': 10, 'kpis': 6, 'kind': 10, 'asks_clarification': 7}",
+            "caveat": "Agreement is not accuracy: there is no ground truth and the model can be right where the rules are not. Measured on the 10 clean texts with an earlier prompt version and pipeline."
+          },
+          {
+            "id": "agreement_rules_glm-5.2",
+            "name": "Decision agreement: rules and GLM-5.2",
+            "value": 0.5,
+            "unit": "share",
+            "n": 10,
+            "method": "same action from the model's intent as from the rule parser's, per distinct request",
+            "basis": "docs/eval_report.json; field agreement {'products': 9, 'kpis': 5, 'kind': 9, 'asks_clarification': 6}",
+            "caveat": "Agreement is not accuracy: there is no ground truth and the model can be right where the rules are not. Measured on the 10 clean texts with an earlier prompt version and pipeline."
+          },
+          {
+            "id": "agreement_gptoss_glm",
+            "name": "Decision agreement: gpt-oss and GLM",
+            "value": 0.833,
+            "unit": "share",
+            "n": 6,
+            "method": "same action from both models' intents, on requests where both gave a usable intent",
+            "basis": "docs/eval_report.json",
+            "caveat": "Small sample, and only requests both models could read. Two models agreeing can both be wrong."
+          },
+          {
+            "id": "citation_validity",
+            "name": "Citation validity",
+            "value": 1.0,
+            "unit": "share",
+            "n": 1098,
+            "method": "every cited (table, id) exists in the data pack",
+            "basis": "150 batch requests: 1098 citations checked, 0 invalid",
+            "caveat": "A valid citation is a real row. It does not show the row supports the claim it is cited for; context precision looks at that."
+          }
+        ]
+      },
+      {
+        "group": "data",
+        "metrics": [
+          {
+            "id": "referential_integrity",
+            "name": "Referential integrity",
+            "value": 1.0,
+            "unit": "share",
+            "n": 5345,
+            "method": "id columns that point to another table (owners, workspaces, models, KPIs, assets, products, markets, lineage ends) resolve to a row",
+            "basis": "data pack in data/estate.db; broken: none",
+            "caveat": "Checks that references resolve, not that they are right: an asset can point to an existing but wrong owner."
+          },
+          {
+            "id": "null_rate",
+            "name": "Null or empty cells",
+            "value": 0.002,
+            "unit": "share",
+            "n": 68953,
+            "method": "share of all cells that are null or empty",
+            "basis": "all 22 tables; highest columns: Data_Dictionary.unit 77%, Product_Market_Monthly.forecast_variance_pct 11%, Analytics_Assets.owner_id 6%",
+            "caveat": "Some columns are empty by design (for example optional notes), so a null is not always a defect."
+          },
+          {
+            "id": "ownerless_assets",
+            "name": "Assets with no active owner",
+            "value": 86,
+            "unit": "assets",
+            "n": 360,
+            "method": "no owner id, an owner id not in the Owners table, or an inactive owner",
+            "basis": "21 with no owner id at all, 0 with an unknown owner id, the rest with an inactive owner",
+            "caveat": "Synthetic data, deliberately messy. Counts gaps, not how much they matter."
+          },
+          {
+            "id": "duplicate_asset_names",
+            "name": "Assets sharing a name",
+            "value": 84,
+            "unit": "assets",
+            "n": 360,
+            "method": "assets whose name equals another asset's name",
+            "basis": "40 names used more than once",
+            "caveat": "Names are not used for matching because they do not reflect coverage. Same name does not mean same content."
+          },
+          {
+            "id": "non_canonical_kpis",
+            "name": "Non-canonical KPI definitions",
+            "value": 38,
+            "unit": "definitions",
+            "n": 56,
+            "method": "KPI catalog rows whose definition status is not canonical (duplicates, conflicts, local variants)",
+            "basis": "KPI_Catalog",
+            "caveat": "A variant can be legitimate locally; this counts what needs a steward's decision."
+          }
+        ]
+      },
+      {
+        "group": "human-labelled",
+        "metrics": [
+          {
+            "id": "gold_action_accuracy",
+            "name": "Action accuracy (human-labelled)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "system action equals the labeller's expected action",
+            "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+            "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. A labeller who saw the cited rows first may lean towards the system."
+          },
+          {
+            "id": "gold_target_accuracy",
+            "name": "Target accuracy (human-labelled)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "system target equals the expected target, or both are none",
+            "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+            "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Several assets can be acceptable targets; this counts one."
+          },
+          {
+            "id": "gold_kpi_precision",
+            "name": "KPI precision (human-labelled)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "KPIs read that the labeller expected",
+            "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+            "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Only canonical KPI names are accepted."
+          },
+          {
+            "id": "gold_kpi_recall",
+            "name": "KPI recall (human-labelled)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "expected KPIs that were read",
+            "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+            "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. "
+          },
+          {
+            "id": "gold_context_precision",
+            "name": "Cited row relevance (human-labelled)",
+            "value": null,
+            "unit": "share",
+            "n": 0,
+            "method": "cited rows the labeller marked relevant",
+            "basis": "not labelled yet: copy data/gold_labels_template.csv to data/gold_labels.csv and fill it in (docs/gold_labels.md)",
+            "caveat": "Labelled by people on 20 requests at most, so one row moves a score by 5 points or more. Relevance is a judgement; two labellers may differ."
+          }
+        ]
+      }
+    ]
   }
 }
