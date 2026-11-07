@@ -6,6 +6,14 @@ estate problems without anyone asking. Built for the Since AI Hackathon 2026, Ba
 
 **Live UI:** https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
 
+**Judges:** sign in with the judge access code given in the submission. "Viewing as" then switches between all seven roles
+(Business, Analyst, Developer, Approver, Admin, Executive, Operator), and the API serves each view exactly that role's data and
+rights. Every request page has a **Discussion** button for the request's chat with the agent.
+
+Each role has its own app: Business asks and gets one answer; Analyst builds dashboards from the data pack; Developer proposes
+configuration changes that are measured on all 150 requests; Approver decides; Executive reads a plain-language report; Operator
+watches a wall screen; Admin runs workflows and email through n8n. See "Who sees what" below.
+
 Every request takes the same visible path, and the front end shows the input and output of each stage:
 
 ```
@@ -92,12 +100,12 @@ Bayer's judge confirmed they may be committed to this public repo. They are not 
 
 | Path | Contents |
 | --- | --- |
-| `backend/reuse_gate/` | The decision service: API, recommender, pipeline, spec, gates, LLM and speech clients |
+| `backend/reuse_gate/` | The decision service: API, recommender, pipeline, spec, gates, LLM and speech clients; `access.py` roles, `explore.py` and `dashboards.py` the dashboard studio, `config_changes.py` measured configuration changes, `report.py` executive report and operator wall, `notify.py` email through n8n, `chat.py` the request discussion |
 | `backend/tests/` | Python tests |
 | `scripts/` | Command-line tools: load data, batch run, evaluation, warm-up |
 | `data/` | Data pack, SQLite copy, division catalog, mock API data |
 | `deploy/openshift/`, `deploy/n8n/` | OpenShift manifests and n8n workflows |
-| `docs/` | Generated reports and evaluation results |
+| `docs/` | Generated reports and evaluation results, `pitch.md` the pitch and demo path, `demo_voiceover.txt` the narration script |
 | `frontend/` | React front end |
 
 The `Containerfile` is at the repo root, because the OpenShift BuildConfig expects it there. Run all commands from the repo root.

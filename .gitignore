@@ -13,3 +13,6 @@ venv/
 # challenge brief documents (not ours to redistribute)
 Bayer_SinceAI2026/*.pdf
 Bayer_SinceAI2026/*.docx
+
+# live YAML saved before each rollout; kept locally, not committed
+deploy/openshift/backup/deploy-*.yaml

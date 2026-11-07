@@ -1,0 +1,21 @@
+Every new business question tends to become a new dashboard. Over time that means sprawl: duplicate logic, conflicting KPI definitions, reports nobody owns, and technical debt. Reuse Gate sits before the build and asks one question first. Should we build anything at all?
+
+A business user types a request in plain words. First prompts are rarely clean. In our test set of twenty-one messy prompts, eight were clear at first, and twenty were clear after at most three rounds of questions. The rules decide what to ask. A language model only words the questions and reads the request.
+
+Here is the answer, on one card. Do not build a new dashboard. Extend Nubeqa Gross-to-Net Monthly. It already covers two of the three KPIs as primary, and Forecast Variance needs adding. The business user can listen to it, and sees nothing technical.
+
+The same request, viewed as an analyst. Every row behind the decision is cited: the report, the KPI definitions, the governance rules. Across all one hundred and fifty requests in Bayer's data pack, one thousand and ninety-eight citations are made, and every one of them exists.
+
+The analyst can go one step further, to Bayer's render preview. Starting from the request's spec, the dashboard studio turns the requested KPIs into tiles filled with real rows from the data pack. Drag a measure onto the canvas, drag a field onto a tile to group or split it, then save, share, or export.
+
+Now governance. This oncology request needs a new build, but its semantic model belongs to an inactive owner, so the gates block release. The approver simulates assigning one active owner. The gates go from five of seven to seven of seven, and the approver approves with an owner and a review date. The decision record keeps the gates before and after. Across the whole estate, that one owner fix would raise passing specs from thirteen to ninety-three of one hundred and twenty-four. That figure is modelled.
+
+Developers change configuration, not reports. Here a developer proposes that a report counts as unused below three hundred views a quarter. Before anyone approves it, the change is measured on all one hundred and fifty requests. New builds avoided would drop from fifty-seven to fifty-one, and seven decisions would change. It goes to an approver, who can never approve their own change, and an approved change becomes a patch for the next release.
+
+Everyone gets their own app, and only their own data. The executive reads one page in plain words, with a source under every section, and can print it or email it. The operator gets a wall screen in large type: failed refreshes and who to call, query errors, and supply risk. Every person on a request can discuss it with the agent, which answers only from that request's facts, and cannot approve or change anything.
+
+Approvers, requesters and developers are told by email. Reuse Gate posts each event to an n8n workflow, which sends it, and the admin sees every message in an outbox.
+
+It runs on Red Hat OpenShift AI. Decisions are served by a KServe InferenceService, and a Tekton pipeline runs the tests, the governance, evaluation and security gates before every rollout. Decisions are deterministic and cited, so they are repeatable and auditable. Language models only read requests and word explanations, and if every model is down, the decisions stay the same.
+
+On Bayer's data, fifty-seven of one hundred and fifty requests avoid a new build. Build less, build better, with a person in charge.

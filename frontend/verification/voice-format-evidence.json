@@ -1,7 +1,0 @@
-{
-  "browser": "Chromium with real MediaRecorder and synthetic microphone",
-  "mime": "audio/webm;codecs=opus",
-  "bytes": 12581,
-  "containerHeader": "1a45dfa3",
-  "provider": "Intercepted test response; no provider call"
-}
