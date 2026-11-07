@@ -4,6 +4,7 @@ An LLM sits on top (intent parsing, explanations). The decision itself is rule b
 repeatable and auditable. Every recommendation carries evidence as (table, id, note) tuples,
 which supports RULE-008 (explain every lifecycle action with cited evidence).
 """
+import difflib
 import re
 from dataclasses import dataclass, field
 
@@ -26,6 +27,8 @@ MAX_TEXT = 2000  # longer requests are cut before parsing or any LLM call
 MAX_LLM_CLARIFICATIONS = 3
 MAX_ANSWERS = 10
 MAX_ANSWER = 300
+FUZZY = 0.82  # how close a misspelled phrase must be to count as a proposal
+FUZZY_NAME = 0.75  # product names are invented words, so a typo moves them further
 CONFIRM = re.compile(r"^\s*(yes|y|ok|okay|confirm(ed)?|correct|right|sure|fine|agreed)\b", re.I)
 ALL_PRODUCTS = re.compile(r"\b(all( products)?|whole portfolio|portfolio)\b", re.I)
 ASSET_ID = re.compile(r"\bAST-\d+\b", re.I)
@@ -43,9 +46,10 @@ INJECTION = re.compile(
 class Question(str):
     """A clarification that knows which field an answer fills. Serializes as a plain string."""
 
-    def __new__(cls, field_name, text):
+    def __new__(cls, field_name, text, basis="assumed"):
         q = super().__new__(cls, text)
         q.field = field_name
+        q.basis = basis  # why this field is unclear, which sets its confidence
         return q
 
 
@@ -62,6 +66,8 @@ class Intent:
     named_assets: list = field(default_factory=list)  # existing asset ids named in the request
     missing_assets: list = field(default_factory=list)  # named ids that do not exist in the estate
     blocked: str | None = None  # why this request must go to a person without a decision
+    proposed_kpis: list = field(default_factory=list)  # misspelled or non-English readings, not used until the requester confirms
+    basis: dict = field(default_factory=dict)  # field -> how a clear value was read
 
 
 @dataclass
@@ -103,21 +109,37 @@ def _named_markets(est, text):
     return sorted(hits, key=hits.get)
 
 
+def _close_markets(est, text):
+    """A misspelled market or region name, or None. Short ids are skipped: too many ordinary words sit close to them."""
+    names = {m["market_name"].lower(): i for i, m in est.markets.items()} | {m["region"].lower(): m["region"] for m in est.markets.values()}
+    for word in re.findall(r"[^\W\d_]{4,}", text):
+        hit = difflib.get_close_matches(word.lower(), names, 1, FUZZY)
+        if hit:
+            return word, names[hit[0]]
+    return None
+
+
 def resolve_market(est, req, text, model_market=None):
     """Batch requests carry a market in their metadata. Ad hoc requests have none, so read it from the text."""
     if req["market_context"]:
         return model_market or req["market_context"], []
     named = _named_markets(est, text)
     if len(named) == 1:
+        if named[0] != GLOBAL and re.search(r"\b(global|globally|worldwide)\b", text, re.I):
+            return named[0], [Question("market", f"both global and {named[0]} were named: searched {named[0]}, please confirm", "contradiction")]
         return named[0], []
     if named:
         regions = {est.markets[m]["region"] if m in est.markets else m for m in named}
         market = regions.pop() if len(regions) == 1 else GLOBAL
-        return market, [Question("market", f"several markets were named ({', '.join(named)}): searched {market}, please confirm")]
+        return market, [Question("market", f"several markets were named ({', '.join(named)}): searched {market}, please confirm", "contradiction")]
     if re.search(r"\b(global|globally|worldwide)\b", text, re.I):
         return GLOBAL, []
     if model_market:
         return model_market, [Question("market", f"no market name was recognised, so the model's reading of {model_market} was used: please confirm")]
+    close = _close_markets(est, text)
+    if close:
+        word, market = close
+        return market, [Question("market", f"'{word}' was read as {market}: please confirm", "fuzzy")]
     return GLOBAL, [Question("market", "no market was named: searched all markets (Global), please confirm")]
 
 
@@ -185,6 +207,40 @@ def _kpis_in(est, text):
     return kpis
 
 
+def _close_products(est, text):
+    """Products a misspelled word in the text is close to, with the word as written."""
+    names, found = {p.lower(): p for p in est.products}, {}
+    known = {w.lower() for w in est.catalog["known_terms"]}
+    for word in re.findall(r"[^\W\d_]{4,}", text):
+        hit = difflib.get_close_matches(word.lower(), names, 1, FUZZY_NAME) if word.lower() not in known else []
+        if hit:
+            found[names[hit[0]]] = word
+    return found
+
+
+def _proposed_kpis(est, text, kpis):
+    """Readings too unsure to use unprompted: non-English words and misspellings. Returns [(phrase, kpi)] for KPIs not already read."""
+    low, out = text.lower(), []
+    for pattern, names in est.catalog.get("kpi_foreign", []):
+        m = re.search(pattern, low)
+        if m:
+            word = re.search(r"\w*" + re.escape(m.group()) + r"\w*", low).group()
+            out += [(word, n) for n in names]
+    words = re.findall(r"[\w-]+", low)
+    for phrase, names in est.catalog.get("kpi_phrases", []):
+        size = len(phrase.split())
+        grams = [" ".join(words[i:i + size]) for i in range(len(words) - size + 1)]
+        close = [g for g in grams if g != phrase and difflib.SequenceMatcher(None, g, phrase).ratio() >= FUZZY]
+        if close and phrase not in grams:
+            out += [(close[0], n) for n in names]
+    seen, kept = set(kpis), []
+    for phrase, kpi in out:
+        if kpi not in seen:
+            seen.add(kpi)
+            kept.append((phrase, kpi))
+    return kept
+
+
 @dataclass
 class Answers:
     """What the requester told us, read deterministically. Sent back in full on each re-check, so the API stays stateless."""
@@ -200,7 +256,7 @@ class Answers:
     any: bool = False
 
 
-def read_answers(est, text, answers, model_on=False):
+def read_answers(est, text, answers):
     out = Answers(text, text)
     appended = []
     for item in answers[:MAX_ANSWERS]:
@@ -241,8 +297,19 @@ def read_answers(est, text, answers, model_on=False):
                 out.confirmed.add("kpi")
             else:
                 out.unread["kpi"], keep = answer, False
-                if model_on:  # a model may still read it; the rule parser would only misread it
-                    appended.append(answer)
+        elif field_name == "kind":
+            if CONFIRM.search(answer):
+                out.confirmed.add("kind")
+            else:
+                out.unread["kind"], keep = answer, False
+        elif field_name == "scope":
+            if CONFIRM.search(answer):
+                out.confirmed.add("scope")
+            elif precheck(answer):
+                out.unread["scope"], keep = answer, False
+            else:
+                out.base_text = answer
+                keep = False  # it replaced the request, as a restatement does
         elif field_name == "model":
             appended.append(answer)
         if field_name == "confirm" or item.get("question"):
@@ -263,6 +330,10 @@ def apply_answers(est, intent, answers):
             intent.blocked = None
     if answers.kpis:
         intent.kpis = answers.kpis
+    elif "kpi" in answers.confirmed and intent.proposed_kpis:
+        intent.kpis = intent.kpis + [k for k in intent.proposed_kpis if k not in intent.kpis]
+    if answers.kpis or "kpi" in answers.confirmed:
+        intent.proposed_kpis = []
     kept = []
     for q in intent.clarifications:
         name = getattr(q, "field", "model")
@@ -272,10 +343,11 @@ def apply_answers(est, intent, answers):
             or (name == "market" and (answers.market or "market" in answers.confirmed))
             or (name == "product" and (answers.products or ("product" in answers.confirmed and intent.products)))
             or (name == "kpi" and (answers.kpis or ("kpi" in answers.confirmed and intent.kpis)))
+            or (name in ("kind", "scope") and name in answers.confirmed)
         )
         if settled:
             continue
-        kept.append(Question(name, f"'{answers.unread[name]}' could not be used. {q}") if name in answers.unread else q)
+        kept.append(Question(name, f"'{answers.unread[name]}' could not be used. {q}", getattr(q, "basis", "assumed")) if name in answers.unread else q)
     intent.clarifications = kept
 
 
@@ -289,30 +361,56 @@ def parse_request(est, req):
     variants, named, missing, notes = _guard_notes(est, full)
     products = [p for p in est.products if re.search(rf"\b{re.escape(p)}\b", text, re.I)]
     blocked = None
+    basis = {"product": "named"}
+    if len(products) > 1 and re.search(est.catalog.get("unsure_pattern", r"$^"), text, re.I):
+        notes.append(Question("product", f"{' and '.join(products)} were both named, and the request sounds unsure: which do you mean? Say yes to keep both", "contradiction"))
+    group = next((names for pattern, names in est.catalog.get("product_groups", []) if re.search(pattern, text, re.I)), None) if not products else None
     if not products and re.search(est.catalog["cross_product_pattern"], text, re.I):
         products = [est.all_scope]  # cross-product request
-    if not products:
+        basis["product"] = "cross_product"
+    if not products and group:
+        blocked = f"the product is ambiguous: it could be {', '.join(group)}"
+        notes.append(Question("product", f"which product do you mean: {', '.join(group)}, or all products?", "ambiguous"))
+    close = _close_products(est, text) if not products and not group else {}
+    if close:
+        products = list(close)
+        said = ", ".join(f"'{w}' as {p}" for p, w in close.items())
+        notes.append(Question("product", f"read {said}: please confirm", "fuzzy"))
+    if not products and not group:
         unknown = _unknown_names(est, text)
         if unknown:
             blocked = f"not in the loaded {est.catalog['division']} catalog: {', '.join(unknown)}, so nothing can be matched"
-            notes.append(Question("product", f"not a known product: {', '.join(unknown)}. Which of {', '.join(est.products)} do you mean?"))
+            notes.append(Question("product", f"not a known product: {', '.join(unknown)}. Which of {', '.join(est.products)} do you mean?", "unknown"))
         else:
             products = [ctx]
             notes.append(Question("product", f"the request names no product: assumed {ctx} from the requester context, please confirm"))
-    kind, kpis = "new_report", []
+    kind, kpis, proposed = "new_report", [], []
+    hint = re.search(est.catalog.get("legacy_hint_pattern", r"$^"), text, re.I)
     if LEGACY.search(text):
         kind, kpis = "migration", list(est.catalog["migration_kpis"])
+    elif hint:
+        kind, kpis = "migration", list(est.catalog["migration_kpis"])
+        notes.append(Question("kind", f"'{hint.group()}' was read as a migration of legacy Tableau content: please confirm", "fuzzy"))
     else:
         kpis = _kpis_in(est, text)
         for kid in variants:
             metric = est.kpis[kid]["canonical_metric"]
             if metric not in kpis:
                 kpis.append(metric)
-        if not kpis:
-            notes.append(Question("kpi", "no KPI could be identified: which metrics do you need? Requests in other languages may need rephrasing"))
+        readings = _proposed_kpis(est, text, kpis)
+        proposed = [kpi for _, kpi in readings]
+        if readings:
+            said = ", ".join(f"'{phrase}' as {kpi}" for phrase, kpi in readings)
+            notes.append(Question("kpi", f"read {said}: please confirm, or name the KPIs you need", "fuzzy"))
+        elif not kpis:
+            notes.append(Question("kpi", "no KPI could be identified: which metrics do you need? Requests in other languages may need rephrasing", "missing"))
+    if re.search(est.catalog.get("two_asks_pattern", r"$^"), text, re.I):
+        notes.append(Question("scope", "this reads as two requests in one: say yes to keep them together, or restate the one to check first", "contradiction"))
     market, market_notes = resolve_market(est, req, text)
+    basis["market"] = "metadata" if req["market_context"] else "named"
+    basis["kpi"] = basis["kind"] = "named"
     return Intent(req["request_id"], text, products, market, kpis, kind, notes + market_notes,
-                  variants, named, missing, blocked)
+                  variants, named, missing, blocked, proposed, basis)
 
 
 def clean_llm_intent(est, req, value):

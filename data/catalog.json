@@ -1,26 +1,54 @@
 {
   "division": "Pharmaceuticals",
   "all_scope": "All Pharma",
-  "cross_product_pattern": "oncology brands|bayer pharma|by (product|medicine)",
+  "cross_product_pattern": "onco(logy)? brands|bayer pharma|by (prod(uct)?|medicine)\\b|per (product|tuote)|je (produkt|arzneimittel)",
   "migration_kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
   "market_aliases": {"USA": "US", "US": "US", "U.S.": "US", "UK": "UK", "Britain": "UK", "Great Britain": "UK",
-                     "Europe": "EMEA", "APAC": "Asia Pacific", "Asia": "Asia Pacific", "LATAM": "Latin America"},
+                     "Europe": "EMEA", "APAC": "Asia Pacific", "Asia": "Asia Pacific", "LATAM": "Latin America", "NA": "North America",
+                     "GER": "DE", "Deutschland": "DE", "Saksa": "DE", "Suomi": "FI", "Ruotsi": "SE", "Schweden": "SE",
+                     "Ranska": "FR", "Frankreich": "FR", "Espanja": "ES", "Spanien": "ES", "Japani": "JP",
+                     "koko maailma": "Global", "weltweit": "Global"},
   "known_terms": ["Power", "Tableau", "Bayer", "Pharma", "Excel", "Global", "Monday", "Tuesday", "Wednesday", "Thursday",
                   "Friday", "January", "February", "March", "April", "May", "June", "July", "August", "September",
                   "October", "November", "December", "Asia", "Pacific", "North", "Latin", "America"],
   "kpi_patterns": [
-    ["sales growth", ["Net Sales Growth"]],
+    ["sales growth|\\bnsg\\b", ["Net Sales Growth"]],
     ["net sales", ["Net Sales"]],
     ["first sales", ["Net Sales"]],
-    ["forecast variance", ["Forecast Variance"]],
-    ["budget variance", ["Budget Variance"]],
-    ["gross-to-net", ["Gross-to-Net Rate"]],
-    ["market access", ["Market Access Coverage"]],
+    ["forecast variance|\\bfcst\\.? var", ["Forecast Variance"]],
+    ["budget variance|\\bbud\\.? var", ["Budget Variance"]],
+    ["gross-to-net|\\bgtn\\b", ["Gross-to-Net Rate"]],
+    ["market access|\\bmkt\\.? access", ["Market Access Coverage"]],
     ["reimbursement", ["Reimbursement Status Coverage"]],
     ["launch readiness|adoption", ["Launch Adoption Index"]],
     ["forecast accuracy", ["Demand Forecast Accuracy"]],
     ["inventory", ["Inventory Coverage"]],
     ["supply[- ]risk", ["On-Time In-Full", "Inventory Coverage"]],
-    ["monthly performance|product performance", ["Net Sales", "Net Sales Growth"]]
-  ]
+    ["monthly perf|product performance|\\bprod\\.? perf", ["Net Sales", "Net Sales Growth"]],
+    ["\\botif\\b", ["On-Time In-Full"]]
+  ],
+  "kpi_phrases": [
+    ["sales growth", ["Net Sales Growth"]], ["net sales", ["Net Sales"]], ["first sales", ["Net Sales"]],
+    ["forecast variance", ["Forecast Variance"]], ["budget variance", ["Budget Variance"]],
+    ["gross-to-net", ["Gross-to-Net Rate"]], ["market access", ["Market Access Coverage"]],
+    ["reimbursement", ["Reimbursement Status Coverage"]], ["launch readiness", ["Launch Adoption Index"]],
+    ["adoption", ["Launch Adoption Index"]], ["forecast accuracy", ["Demand Forecast Accuracy"]],
+    ["inventory coverage", ["Inventory Coverage"]], ["supply risk", ["On-Time In-Full", "Inventory Coverage"]],
+    ["monthly performance", ["Net Sales", "Net Sales Growth"]], ["product performance", ["Net Sales", "Net Sales Growth"]]
+  ],
+  "kpi_foreign": [
+    ["umsatz|liikevaihto|myyn(ti|nin|nist)", ["Net Sales"]],
+    ["lieferrisiko|toimitusriski", ["On-Time In-Full", "Inventory Coverage"]],
+    ["korvattavuu|erstattung", ["Reimbursement Status Coverage"]],
+    ["marktzugang|markkinoille p", ["Market Access Coverage"]],
+    ["varastokattavuu|lagerbestand", ["Inventory Coverage"]],
+    ["ennustetarkkuu|prognosegenauigkeit", ["Demand Forecast Accuracy"]]
+  ],
+  "product_groups": [
+    ["\\bthe onco(logy)? (one|product|drug|brand)\\b", ["Nubeqa", "Hyrnuo"]],
+    ["\\bthe (cardio|heart) (one|product|drug|brand)\\b", ["Xarelto", "Kerendia", "Beyonttra"]]
+  ],
+  "two_asks_pattern": "\\b(and also|also need|second (report|dashboard)|separate (report|dashboard)|another (report|dashboard)|ja lis\u00e4ksi|und zus\u00e4tzlich)\\b",
+  "unsure_pattern": "\\b(not sure|or maybe|either|actually|tai siis|oder doch)\\b",
+  "legacy_hint_pattern": "\\b(old|altes?|alten|vanha|vanhan)\\b.{0,20}\\btabl\\w*|\\bleg\\w*\\W+tabl\\w*"
 }

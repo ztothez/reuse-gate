@@ -8,8 +8,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
+from reuse_gate import clarify
 from reuse_gate.llm import LLM
-from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, scoped_assessments, target_coverage
+from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
@@ -25,6 +26,7 @@ RULES_NOTICES = {
     "unusable": "The AI model could not read this request, so the rule baseline answered.",
     "unavailable": "AI models did not respond, so the rule baseline answered.",
     "timeout": "AI models took too long, so the rule baseline answered.",
+    "loop": "The request changed during clarification, so the rules read the new text. Models only reword questions in the loop.",
 }
 MAX_SHOWN = 5  # the API returns every listed asset; displays show this many and a "+N more" count
 
@@ -87,8 +89,12 @@ def speech_script(action, lines):
     return script
 
 
+# Bayer's legend: user_input orange, agentic yellow, deterministic green, state blue. Prompt and the loop are drawn from result["loop"].
+ROLES = {"Intent": "state", "Evidence": "deterministic", "Decision": "deterministic", "Spec": "state", "Gates": "deterministic"}
+
+
 def _stage(stage, status, summary, input_, output):
-    return {"stage": stage, "status": status, "summary": summary, "input": input_, "output": output}
+    return {"stage": stage, "role": ROLES[stage], "status": status, "summary": summary, "input": input_, "output": output}
 
 
 def stages(est, req, intent, rec, result, source, as_of):
@@ -100,7 +106,7 @@ def stages(est, req, intent, rec, result, source, as_of):
         f"{len(parsed['kpis'])} KPI(s), {len(parsed['clarifications'])} question(s), parsed by {'the LLM' if source == 'llm' else 'rules'}",
         {"text": intent.text, "product_context": req["product_context"], "market_context": req["market_context"], "answers": result["answers"]},
         {**parsed, "parser": source, "model": result["ai"]["model"], "named_assets": intent.named_assets, "missing_assets": intent.missing_assets,
-         "conflicting_kpis": intent.variants, "stopped_because": intent.blocked},
+         "conflicting_kpis": intent.variants, "stopped_because": intent.blocked, "proposed_kpis": intent.proposed_kpis, "loop": result.get("loop")},
     )]
 
     query = {"products": parsed["products"], "market": parsed["market"], "kpis": parsed["kpis"]}
@@ -151,23 +157,34 @@ def stages(est, req, intent, rec, result, source, as_of):
     return out
 
 
-def run_request(est, req, client=None, as_of=None, answers=None):
+def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
     """Run one request through every stage. Never raises for bad input: unclear requests end in human_review.
 
-    answers are the requester's replies to earlier clarifications. They are applied, and the whole request is decided again.
+    answers are the requester's replies to earlier clarifications, and rounds the loop record so far. Answers are applied,
+    the whole request is decided again, and this check is recorded as a round.
     """
     client = client or LLM()
-    read = read_answers(est, req["request_text"], answers or [], client.configured)
+    answers = answers or []
+    read = read_answers(est, req["request_text"], answers)
     effective = {**req, "request_text": read.text}
     deadline = time.monotonic() + REQUEST_DEADLINE
-    try:
-        parsed = _within(REQUEST_DEADLINE, lambda: parse_with_reason(est, effective, client)) if client.configured else parse_with_reason(est, effective, client)
-    except TimeoutError:
-        parsed = Parsed(parse_request(est, effective), "rules", "timeout")
+    first_text = next((r.get("text") for r in clarify.clean_rounds(rounds)), req["request_text"])
+    if read.text not in (req["request_text"], first_text) or req["request_text"] != first_text:  # models only reword questions inside the loop
+        parsed = Parsed(parse_request(est, effective), "rules", "loop")
+    else:
+        try:
+            parsed = _within(REQUEST_DEADLINE, lambda: parse_with_reason(est, effective, client)) if client.configured else parse_with_reason(est, effective, client)
+        except TimeoutError:
+            parsed = Parsed(parse_request(est, effective), "rules", "timeout")
     intent, source = parsed.intent, parsed.source
     apply_answers(est, intent, read)
+    before = clarify.snapshot(parse_request(est, req)) if answers and not rounds else None
+    loop = clarify.advance(intent, read, answers, rounds, before)
     rec = recommend(est, intent)
+    if loop["status"] == "human_review":
+        rec.evidence.append(_rule(est, "RULE-008"))
     result = rec_json(est, intent, rec)
+    result["loop"] = loop
     result["text"] = read.base_text[:MAX_TEXT]
     result["answers"] = read.applied
     result["ai"] = {"source": source, "intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
@@ -189,6 +206,16 @@ def run_request(est, req, client=None, as_of=None, answers=None):
                 lines = None
         if lines:
             result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
+    if loop["status"] == "asking" and client.configured and (parsed.reason == "loop" or (source == "llm" and (not parsed.cached or answers))):
+        try:
+            wording, model = _within(deadline - time.monotonic(), lambda: clarify.phrase(est, client, intent.text, result["intent"]["questions"]))
+        except Exception:  # the rule wording stands in
+            wording, model = {}, None
+        if wording:
+            loop["phrased_by"] = model
+            for q in result["intent"]["questions"] + loop["rounds"][-1]["questions"]:
+                if q["text"] in wording:
+                    q["phrased"] = wording[q["text"]]
     result["ai"]["speech"] = speech_script(rec.action, result["ai"]["explanation"])
     result["pipeline"] = stages(est, req, intent, rec, result, source, as_of or date.today().isoformat())
     return result

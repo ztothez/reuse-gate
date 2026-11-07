@@ -301,6 +301,29 @@ class LLM:
             raise LLMError("LLM explanation must be an array of strings")
         return explanation[:3]
 
+    def phrase_questions(self, request, questions):
+        """Reword clarifying questions. The rules decide what to ask; a caller checks the wording before showing it."""
+        value = self.json_chat(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        "Reword each clarifying question so a business user understands it. One short sentence each. "
+                        "Keep every product, market and KPI name, and any proposed value, exactly as written. Add no new "
+                        'options and ask nothing new. Return JSON only, exactly this shape: {"questions": ["question"]}, '
+                        "with the questions in the same order."
+                    ),
+                },
+                {"role": "user", "content": json.dumps({"request": request, "questions": questions})},
+            ],
+            temperature=0,
+            max_tokens=600,
+        )
+        phrased = value.get("questions")
+        if not isinstance(phrased, list) or len(phrased) != len(questions) or not all(isinstance(x, str) for x in phrased):
+            raise LLMError("LLM questions must be an array of strings, one per question")
+        return phrased
+
     def embed(self, texts, model):
         """Embeddings from the OpenAI-compatible endpoint, cached like chat replies."""
         key = hashlib.sha256(json.dumps({"embed": model, "input": texts}).encode()).hexdigest()

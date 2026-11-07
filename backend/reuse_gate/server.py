@@ -37,10 +37,10 @@ N8N_API_KEY = os.environ.get("N8N_API_KEY", "")
 MAX_BODY = 1_000_000
 
 
-def do_recommend(text, answers=None):
+def do_recommend(text, answers=None, rounds=None):
     req = {"request_id": "ADHOC-" + uuid.uuid4().hex[:6].upper(), "request_text": text,
            "product_context": EST.all_scope, "market_context": None}
-    return run_request(EST, req, LLM_CLIENT, answers=answers)
+    return run_request(EST, req, LLM_CLIENT, answers=answers, rounds=rounds)
 
 
 def register_decision(body):
@@ -143,7 +143,10 @@ class Handler(BaseHTTPRequestHandler):
                 answers = body.get("answers", [])
                 if not isinstance(answers, list) or not all(isinstance(a, dict) and isinstance(a.get("answer", ""), str) for a in answers):
                     return self._send(400, {"error": "answers must be a list of objects with a text answer"})
-                return self._send(200, do_recommend(text.strip(), answers))
+                rounds = body.get("rounds", [])
+                if not isinstance(rounds, list) or not all(isinstance(r, dict) for r in rounds):
+                    return self._send(400, {"error": "rounds must be a list of objects"})
+                return self._send(200, do_recommend(text.strip(), answers, rounds))
             if self.path == "/speak":
                 try:
                     return self._send_audio(speak(body.get("text")))

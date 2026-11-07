@@ -68,6 +68,45 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "Nubeqa"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "market": {
+            "value": "EMEA",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales Growth",
+              "Forecast Variance",
+              "Market Access Coverage"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -86,6 +125,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "3 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -112,11 +152,52 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "Nubeqa"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "market": {
+                  "value": "EMEA",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales Growth",
+                    "Forecast Variance",
+                    "Market Access Coverage"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "63 asset(s) in scope, 18 alive, 7 citation(s)",
           "input": {
@@ -258,6 +339,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "new build",
           "input": {
@@ -286,6 +368,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -394,6 +477,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "2 of 7 gates failed, release is blocked",
           "input": {
@@ -485,6 +569,45 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "Xarelto"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "market": {
+            "value": "JP",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Net Sales Growth",
+              "Commercial Reach Index"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "migration",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -502,6 +625,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "3 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -528,11 +652,52 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "Xarelto"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "market": {
+                  "value": "JP",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Net Sales Growth",
+                    "Commercial Reach Index"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "migration",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "11 asset(s) in scope, 3 alive, 2 citation(s)",
           "input": {
@@ -647,6 +812,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "human review",
           "input": {
@@ -674,6 +840,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "skipped",
           "summary": "no new artifact for this decision",
           "input": {
@@ -687,6 +854,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "skipped",
           "summary": "no spec to check",
           "input": {
@@ -806,6 +974,44 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "All Pharma"
+            ],
+            "score": 0.9,
+            "basis": "cross_product"
+          },
+          "market": {
+            "value": "US",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Market Access Coverage",
+              "Reimbursement Status Coverage"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -825,6 +1031,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "2 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -850,11 +1057,51 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "All Pharma"
+                  ],
+                  "score": 0.9,
+                  "basis": "cross_product"
+                },
+                "market": {
+                  "value": "US",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Market Access Coverage",
+                    "Reimbursement Status Coverage"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "3 asset(s) in scope, 0 alive, 11 citation(s)",
           "input": {
@@ -979,6 +1226,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "new build",
           "input": {
@@ -1009,6 +1257,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -1111,6 +1360,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "2 of 7 gates failed, release is blocked",
           "input": {
@@ -1269,6 +1519,44 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "All Pharma"
+            ],
+            "score": 0.9,
+            "basis": "cross_product"
+          },
+          "market": {
+            "value": "JP",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "On-Time In-Full",
+              "Inventory Coverage"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -1289,6 +1577,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "2 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -1314,11 +1603,51 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "All Pharma"
+                  ],
+                  "score": 0.9,
+                  "basis": "cross_product"
+                },
+                "market": {
+                  "value": "JP",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "On-Time In-Full",
+                    "Inventory Coverage"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "7 asset(s) in scope, 1 alive, 8 citation(s)",
           "input": {
@@ -1457,6 +1786,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "extend",
           "input": {
@@ -1490,6 +1820,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -1593,6 +1924,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "1 of 7 gates failed, release is blocked",
           "input": {
@@ -1753,6 +2085,44 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "Kerendia"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "market": {
+            "value": "SE",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -1773,6 +2143,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "2 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -1798,11 +2169,51 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "Kerendia"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "market": {
+                  "value": "SE",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Net Sales Growth"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "12 asset(s) in scope, 3 alive, 8 citation(s)",
           "input": {
@@ -1940,6 +2351,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "extend",
           "input": {
@@ -1975,6 +2387,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -2078,6 +2491,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "1 of 7 gates failed, release is blocked",
           "input": {
@@ -2195,6 +2609,45 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "All Pharma"
+            ],
+            "score": 0.9,
+            "basis": "cross_product"
+          },
+          "market": {
+            "value": "MX",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Budget Variance",
+              "Gross-to-Net Rate"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -2213,6 +2666,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "3 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -2239,11 +2693,52 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "All Pharma"
+                  ],
+                  "score": 0.9,
+                  "basis": "cross_product"
+                },
+                "market": {
+                  "value": "MX",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Budget Variance",
+                    "Gross-to-Net Rate"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "3 asset(s) in scope, 0 alive, 7 citation(s)",
           "input": {
@@ -2354,6 +2849,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "new build",
           "input": {
@@ -2382,6 +2878,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -2490,6 +2987,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "2 of 7 gates failed, release is blocked",
           "input": {
@@ -2601,6 +3099,44 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "All Pharma"
+            ],
+            "score": 0.9,
+            "basis": "cross_product"
+          },
+          "market": {
+            "value": "ES",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Net Sales Growth"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -2619,6 +3155,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "2 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -2644,11 +3181,51 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "All Pharma"
+                  ],
+                  "score": 0.9,
+                  "basis": "cross_product"
+                },
+                "market": {
+                  "value": "ES",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Net Sales Growth"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "6 asset(s) in scope, 1 alive, 6 citation(s)",
           "input": {
@@ -2779,6 +3356,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "new build",
           "input": {
@@ -2806,6 +3384,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -2903,6 +3482,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "2 of 7 gates failed, release is blocked",
           "input": {
@@ -3086,6 +3666,45 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "Lynkuet"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "market": {
+            "value": "Global",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Market Access Coverage",
+              "Launch Adoption Index"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -3106,6 +3725,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "3 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -3132,11 +3752,52 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "Lynkuet"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "market": {
+                  "value": "Global",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Market Access Coverage",
+                    "Launch Adoption Index"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "89 asset(s) in scope, 19 alive, 11 citation(s)",
           "input": {
@@ -3302,6 +3963,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "extend",
           "input": {
@@ -3336,6 +3998,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -3450,6 +4113,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "1 of 7 gates failed, release is blocked",
           "input": {
@@ -3624,6 +4288,44 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "Beyonttra"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "market": {
+            "value": "UK",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Reimbursement Status Coverage",
+              "Launch Adoption Index"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -3644,6 +4346,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "2 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -3669,11 +4372,51 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "Beyonttra"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "market": {
+                  "value": "UK",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Reimbursement Status Coverage",
+                    "Launch Adoption Index"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "10 asset(s) in scope, 6 alive, 10 citation(s)",
           "input": {
@@ -3819,6 +4562,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "repair and reuse",
           "input": {
@@ -3852,6 +4596,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "skipped",
           "summary": "no new artifact for this decision",
           "input": {
@@ -3865,6 +4610,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "skipped",
           "summary": "no spec to check",
           "input": {
@@ -4024,6 +4770,45 @@
           }
         ]
       },
+      "loop": {
+        "status": "clear",
+        "rounds_used": 0,
+        "max_rounds": 3,
+        "clear_at": 0.8,
+        "confidence": {
+          "product": {
+            "value": [
+              "All Pharma"
+            ],
+            "score": 0.9,
+            "basis": "cross_product"
+          },
+          "market": {
+            "value": "EMEA",
+            "score": 0.9,
+            "basis": "metadata"
+          },
+          "kpi": {
+            "value": [
+              "Net Sales",
+              "Demand Forecast Accuracy",
+              "Inventory Coverage"
+            ],
+            "score": 1.0,
+            "basis": "named"
+          },
+          "kind": {
+            "value": "new_report",
+            "score": 1.0,
+            "basis": "named"
+          }
+        },
+        "open_fields": [],
+        "asked_by": "rules",
+        "phrased_by": null,
+        "stopped_because": null,
+        "rounds": []
+      },
       "answers": [],
       "ai": {
         "source": "rules",
@@ -4044,6 +4829,7 @@
       "pipeline": [
         {
           "stage": "Intent",
+          "role": "state",
           "status": "ok",
           "summary": "3 KPI(s), 0 question(s), parsed by rules",
           "input": {
@@ -4070,11 +4856,52 @@
             "named_assets": [],
             "missing_assets": [],
             "conflicting_kpis": [],
-            "stopped_because": null
+            "stopped_because": null,
+            "proposed_kpis": [],
+            "loop": {
+              "status": "clear",
+              "rounds_used": 0,
+              "max_rounds": 3,
+              "clear_at": 0.8,
+              "confidence": {
+                "product": {
+                  "value": [
+                    "All Pharma"
+                  ],
+                  "score": 0.9,
+                  "basis": "cross_product"
+                },
+                "market": {
+                  "value": "EMEA",
+                  "score": 0.9,
+                  "basis": "metadata"
+                },
+                "kpi": {
+                  "value": [
+                    "Net Sales",
+                    "Demand Forecast Accuracy",
+                    "Inventory Coverage"
+                  ],
+                  "score": 1.0,
+                  "basis": "named"
+                },
+                "kind": {
+                  "value": "new_report",
+                  "score": 1.0,
+                  "basis": "named"
+                }
+              },
+              "open_fields": [],
+              "asked_by": "rules",
+              "phrased_by": null,
+              "stopped_because": null,
+              "rounds": []
+            }
           }
         },
         {
           "stage": "Evidence",
+          "role": "deterministic",
           "status": "ok",
           "summary": "30 asset(s) in scope, 8 alive, 12 citation(s)",
           "input": {
@@ -4240,6 +5067,7 @@
         },
         {
           "stage": "Decision",
+          "role": "deterministic",
           "status": "ok",
           "summary": "extend",
           "input": {
@@ -4274,6 +5102,7 @@
         },
         {
           "stage": "Spec",
+          "role": "state",
           "status": "ok",
           "summary": "draft, final only after human approval",
           "input": {
@@ -4388,6 +5217,7 @@
         },
         {
           "stage": "Gates",
+          "role": "deterministic",
           "status": "fail",
           "summary": "1 of 7 gates failed, release is blocked",
           "input": {
