@@ -10,8 +10,8 @@
  * The @theme inline block maps CSS custom properties to Tailwind utility
  * classes (e.g. --color-primary -> bg-primary, text-primary).
  *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
+ * The :root block takes its values from the Reuse Gate design system (tokens.json):
+ * page, surface-1, surface-2, text-*, border*, and the accent, warning, danger and success pairs.
  *
  * To add a new semantic color:
  * 1. Add the variable to :root (light value) and .dark (dark value)
@@ -58,8 +58,10 @@
   --color-tone-amber: var(--tone-amber);
   --color-tone-gray: var(--tone-gray);
   --color-tone-red: var(--tone-red);
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -72,46 +74,67 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.975 0.006 85);
-  --tone-green: oklch(0.5 0.13 150);
-  --tone-teal: oklch(0.5 0.09 190);
-  --tone-blue: oklch(0.48 0.14 250);
-  --tone-indigo: oklch(0.45 0.15 275);
-  --tone-amber: oklch(0.55 0.13 70);
-  --tone-gray: oklch(0.5 0.02 255);
-  --tone-red: oklch(0.52 0.18 27);
-  --shadow-panel: 0 1px 2px oklch(0.2 0.03 255 / 6%);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.34 0.055 190);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.45 0.04 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.5 0.18 27);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.4 0.07 190);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius-panel: 0.75rem;
+  /* Design system tokens */
+  --page: #f6f6f3;
+  --surface-1: #eeeee9;
+  --surface-2: #ffffff;
+  --border-strong: #85867d;
+  --text-secondary: #51524b;
+  --text-accent: #1a56a8;
+  --bg-accent: #e3edfb;
+  --border-accent: #2a67c4;
+  --bg-warning: #fdefc6;
+  --text-warning: #6a4300;
+  --bg-danger: #fbe3e0;
+  --text-danger: #9b1c16;
+  --bg-success: #ddf2df;
+  --text-success: #17602a;
+  --flow-input-bg: #fde5d2;
+  --flow-input-fg: #7a3410;
+  --flow-agent-bg: #faf0b8;
+  --flow-agent-fg: #5c4d00;
+  /* App variables, mapped to the tokens */
+  --background: var(--page);
+  --tone-green: var(--text-success);
+  --tone-teal: var(--text-success);
+  --tone-blue: var(--text-accent);
+  --tone-indigo: var(--text-accent);
+  --tone-amber: var(--text-warning);
+  --tone-gray: var(--text-secondary);
+  --tone-red: var(--text-danger);
+  --shadow-panel: none;
+  --foreground: #1b1c1a;
+  --card: var(--surface-2);
+  --card-foreground: #1b1c1a;
+  --popover: var(--surface-2);
+  --popover-foreground: #1b1c1a;
+  --primary: #1f5fbd;
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface-1);
+  --secondary-foreground: #1b1c1a;
+  --muted: var(--surface-1);
+  --muted-foreground: #62635b;
+  --accent: var(--bg-accent);
+  --accent-foreground: var(--text-accent);
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: #d9d9d2;
+  --input: var(--border-strong);
+  --ring: var(--border-accent);
+  --chart-1: #1f5fbd;
+  --chart-2: #1d7a33;
+  --chart-3: #f0ae1c;
+  --chart-4: #b3261e;
+  --chart-5: #85867d;
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: #1b1c1a;
+  --sidebar-primary: #1f5fbd;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--bg-accent);
+  --sidebar-accent-foreground: var(--text-accent);
+  --sidebar-border: #d9d9d2;
+  --sidebar-ring: var(--border-accent);
 }
 
 .dark {
@@ -165,58 +188,58 @@
   box-shadow: var(--shadow-panel);
 }
 @utility tone-green {
-  --t: var(--tone-green);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 9%, white);
-  border-color: color-mix(in oklab, var(--t) 35%, white);
+  --t: var(--text-success);
+  color: var(--text-success);
+  background: var(--bg-success);
+  border-color: color-mix(in oklab, var(--text-success) 30%, var(--bg-success));
 }
 @utility tone-teal {
-  --t: var(--tone-teal);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 9%, white);
-  border-color: color-mix(in oklab, var(--t) 35%, white);
+  --t: var(--text-success);
+  color: var(--text-success);
+  background: var(--bg-success);
+  border-color: color-mix(in oklab, var(--text-success) 30%, var(--bg-success));
 }
 @utility tone-blue {
-  --t: var(--tone-blue);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 9%, white);
-  border-color: color-mix(in oklab, var(--t) 35%, white);
+  --t: var(--text-accent);
+  color: var(--text-accent);
+  background: var(--bg-accent);
+  border-color: color-mix(in oklab, var(--text-accent) 30%, var(--bg-accent));
 }
 @utility tone-indigo {
-  --t: var(--tone-indigo);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 9%, white);
-  border-color: color-mix(in oklab, var(--t) 35%, white);
+  --t: var(--text-accent);
+  color: var(--text-accent);
+  background: var(--bg-accent);
+  border-color: color-mix(in oklab, var(--text-accent) 30%, var(--bg-accent));
 }
 @utility tone-amber {
-  --t: oklch(0.47 0.12 65);
-  color: var(--t);
-  background: color-mix(in oklab, var(--tone-amber) 12%, white);
-  border-color: color-mix(in oklab, var(--tone-amber) 40%, white);
+  --t: var(--text-warning);
+  color: var(--text-warning);
+  background: var(--bg-warning);
+  border-color: color-mix(in oklab, var(--text-warning) 30%, var(--bg-warning));
 }
 @utility tone-orange {
-  --t: oklch(0.5 0.15 45);
-  color: var(--t);
-  background: color-mix(in oklab, oklch(0.7 0.17 50) 14%, white);
-  border-color: color-mix(in oklab, oklch(0.7 0.17 50) 50%, white);
+  --t: var(--flow-input-fg);
+  color: var(--flow-input-fg);
+  background: var(--flow-input-bg);
+  border-color: color-mix(in oklab, var(--flow-input-fg) 30%, var(--flow-input-bg));
 }
 @utility tone-yellow {
-  --t: oklch(0.45 0.09 95);
-  color: var(--t);
-  background: color-mix(in oklab, oklch(0.85 0.16 95) 28%, white);
-  border-color: color-mix(in oklab, oklch(0.8 0.16 95) 65%, white);
+  --t: var(--flow-agent-fg);
+  color: var(--flow-agent-fg);
+  background: var(--flow-agent-bg);
+  border-color: color-mix(in oklab, var(--flow-agent-fg) 30%, var(--flow-agent-bg));
 }
 @utility tone-gray {
-  --t: var(--tone-gray);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 8%, white);
-  border-color: color-mix(in oklab, var(--t) 30%, white);
+  --t: var(--text-secondary);
+  color: var(--text-secondary);
+  background: var(--surface-1);
+  border-color: color-mix(in oklab, var(--text-secondary) 30%, var(--surface-1));
 }
 @utility tone-red {
-  --t: var(--tone-red);
-  color: var(--t);
-  background: color-mix(in oklab, var(--t) 8%, white);
-  border-color: color-mix(in oklab, var(--t) 35%, white);
+  --t: var(--text-danger);
+  color: var(--text-danger);
+  background: var(--bg-danger);
+  border-color: color-mix(in oklab, var(--text-danger) 30%, var(--bg-danger));
 }
 
 /* Keep wide data inside its own scrolling region. */
@@ -251,7 +274,8 @@ section {
   --space-2: 1rem;
   --space-3: 1.5rem;
   --space-4: 2rem;
-  --control-min: 4rem;
+  --control-min: 2.5rem;
+  --control-glove: 4rem;
   --type-meta: 0.75rem;
   --type-body: 0.875rem;
   --type-section: 1.25rem;
@@ -259,7 +283,7 @@ section {
   --nav-slim: 6.5rem;
   --record-max: 48rem;
   --weight-medium: 500;
-  --weight-semibold: 600;
+  --weight-semibold: 500;
   --motion-reduced: 0.01ms;
   --page-min-height: 100vh;
   --table-max-height: 70vh;
@@ -277,7 +301,7 @@ section {
 }
 .app-nav {
   display: none;
-  background: var(--card);
+  background: var(--sidebar);
   border-right: 1px solid var(--border);
   padding: var(--space-2);
   min-width: 0;
@@ -300,11 +324,11 @@ section {
   padding: var(--space-2);
   border-radius: var(--radius);
   font-size: var(--type-body);
-  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
 }
 .nav-active {
-  background: var(--secondary);
-  color: var(--primary);
+  background: var(--bg-accent);
+  color: var(--text-accent);
 }
 .control,
 .primary-action {
@@ -314,8 +338,8 @@ section {
   gap: var(--space-1);
   min-height: var(--control-min);
   min-width: var(--control-min);
-  padding: var(--space-2) var(--space-2);
-  border: 1px solid var(--border);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   background: var(--card);
   font-size: var(--type-body);
@@ -335,21 +359,21 @@ button:disabled {
   cursor: not-allowed;
 }
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 3px solid var(--ring);
-  outline-offset: 3px;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 .panel {
   min-width: 0;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-panel);
   background: var(--card);
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   box-shadow: var(--shadow-panel);
 }
 .section-title {
   margin-bottom: var(--space-2);
-  font-size: var(--type-section);
-  font-weight: var(--weight-semibold);
+  font-size: 0.9375rem;
+  font-weight: var(--weight-medium);
 }
 .table-region {
   max-width: 100%;
@@ -412,9 +436,10 @@ button:disabled {
     grid-column: 1 / -1;
   }
 }
-[data-lens="business"] :is(button, input, select, textarea, a[href], summary) {
-  min-height: var(--control-min);
-  min-width: var(--control-min);
+/* The Business view keeps glove-sized targets; other views use the design system's compact controls. */
+[data-lens="business"] :is(button, input, select, textarea, a[href], summary):not(.crumb) {
+  min-height: var(--control-glove);
+  min-width: var(--control-glove);
 }
 @media (min-width: 768px) {
   .app-shell.nav-collapsed {

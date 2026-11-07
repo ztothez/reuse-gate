@@ -127,7 +127,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
   return (
     <>
       <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/requests" className="underline">
+        <Link to="/requests" className="crumb underline">
           Requests
         </Link>
         <ChevronRight aria-hidden className="h-4 w-4" />
