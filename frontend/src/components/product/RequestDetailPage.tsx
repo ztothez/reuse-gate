@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MessageSquare } from "lucide-react";
 import {
   getApiBaseUrl,
   getLog,
@@ -207,6 +207,17 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
           >
             Copy link
           </button>
+          {canChat && (
+            <button
+              type="button"
+              className="control"
+              onClick={() =>
+                document.getElementById("discussion")?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              <MessageSquare aria-hidden className="h-4 w-4" /> Discussion
+            </button>
+          )}
         </div>
       </section>
       {copy && (

@@ -48,7 +48,7 @@ export function RequestChat({ id }: { id: string }) {
       .finally(() => setBusy(false));
   };
   return (
-    <section className="panel mt-8" aria-label="Discussion">
+    <section id="discussion" className="panel mt-8 scroll-mt-4" aria-label="Discussion">
       <h2 className="section-title">Discussion</h2>
       <p className="mb-4 text-sm text-muted-foreground">
         Everyone who can open this request sees this thread. Ask the agent why, which gates block,
