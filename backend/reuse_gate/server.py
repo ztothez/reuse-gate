@@ -9,9 +9,13 @@ GET  /radar                                            -> radar summary, with ow
 GET  /owners                                           -> active owners who can be assigned, Semantic Model Owners first
 POST /remediate  {request_id | intent, remediations: [{type: assign_owner, target, owner_id}], owner?, review_by?, as_of?}
                                                        -> simulated before and after gates. Never changes the estate
+POST /requests   {text, answers?, rounds?, request_id?, requester?}   -> {request_id, status, result}. Creates, or re-checks a work item
+GET  /requests?status=&q=                              -> work items, newest first, at most 200
+GET  /requests/{id}                                    -> one work item with its result, rounds, remediation, decision and activity
 POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
+With REUSE_GATE_WRITE_TOKEN set, POST /approve, /remediate and work item re-checks need a matching X-Access-Code header.
 GET  /health
 GET  /n8n/radar-digest
 POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
@@ -22,6 +26,8 @@ import hmac
 import os
 import sys
 import uuid
+from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -29,6 +35,8 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
+from reuse_gate import workitems
+from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
@@ -39,7 +47,9 @@ LOG = []
 LOG_FILE = "decision_log.jsonl"
 LLM_CLIENT = None
 N8N_API_KEY = os.environ.get("N8N_API_KEY", "")
+WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
 MAX_BODY = 1_000_000
+STORE = workitems.Store()  # replaced at startup by a store next to the decision log
 
 
 def do_recommend(text, answers=None, rounds=None):
@@ -48,13 +58,41 @@ def do_recommend(text, answers=None, rounds=None):
     return run_request(EST, req, LLM_CLIENT, answers=answers, rounds=rounds)
 
 
-def register_decision(body):
+def register_decision(body, context=None):
+    """context adds what the server knows about a work item to the record. The body is stored as sent."""
     entry = {**body, "registered_id": "REG-" + uuid.uuid4().hex[:8].upper(),
-             "time": datetime.now(timezone.utc).isoformat(), "record": decision_record(EST, body)}
+             "time": datetime.now(timezone.utc).isoformat(), "record": decision_record(EST, context or body)}
     LOG.append(entry)
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(entry) + "\n")
     return entry
+
+
+def write_authorized(handler):
+    """Open when no token is set. Otherwise X-Access-Code must match, compared in constant time."""
+    if not WRITE_TOKEN:
+        return True
+    return hmac.compare_digest(handler.headers.get("X-Access-Code", "").encode(), WRITE_TOKEN.encode())
+
+
+def with_item(body):
+    """The work item a body names, and the body with that item's intent, rounds and text filled in where missing."""
+    item = STORE.get(body.get("request_id")) if isinstance(body.get("request_id"), str) else None
+    if not item:
+        return None, body
+    known = {"intent": workitems.intent_of(item), "rounds": item["rounds"], "text": item["text"]}
+    return item, {**{k: v for k, v in known.items() if k not in body}, **body, "request_id": None}
+
+
+def run_item(request_id, text, answers, rounds):
+    req = {"request_id": request_id, "request_text": text, "product_context": EST.all_scope, "market_context": None}
+    return run_request(EST, req, LLM_CLIENT, answers=answers, rounds=rounds)
+
+
+def seed_samples():
+    answers = getattr(LLM_CLIENT, "answers", None) or AnswerStore()
+    client = workitems.SavedAnswersOnly(answers)
+    return STORE.seed(EST, lambda req: run_request(EST, req, client), workitems.chip_texts(EST))
 
 
 def n8n_authorized(handler):
@@ -87,7 +125,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
         self.wfile.write(data)
@@ -113,6 +151,16 @@ class Handler(BaseHTTPRequestHandler):
         self._send(204, {})
 
     def do_GET(self):
+        url = urlsplit(self.path)
+        if url.path == "/requests":
+            query = parse_qs(url.query)
+            status, q = (query.get("status") or [None])[0], (query.get("q") or [None])[0]
+            if status and status not in workitems.STATUSES:
+                return self._send(400, {"error": f"status must be one of {', '.join(workitems.STATUSES)}"})
+            return self._send(200, STORE.list(status, q))
+        if url.path.startswith("/requests/"):
+            item = STORE.get(url.path[len("/requests/"):])
+            return self._send(200, workitems.detail(item)) if item else self._send(404, {"error": "no such request"})
         if self.path == "/health":
             self._send(200, {"ok": True, "assets": len(EST.assets)})
         elif self.path == "/radar":
@@ -159,16 +207,32 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send_audio(speak(body.get("text")))
                 except SpeechError as exc:
                     return self._send(exc.status, {"error": str(exc)})
+            if self.path == "/requests":
+                return self._requests(body)
             if self.path == "/remediate":
+                if not write_authorized(self):
+                    return self._send(401, {"error": "access code required"})
+                item, context = with_item(body)
                 try:
-                    return self._send(200, simulate(EST, body))
+                    response = simulate(EST, context)
                 except RemediationError as exc:
                     return self._send(400, {"error": str(exc), "applied": "nothing"})
+                if item:
+                    response["request_id"] = item["request_id"]
+                    STORE.remediated(item["request_id"], response, body.get("actor"))
+                return self._send(200, response)
             if self.path == "/approve":
+                if not write_authorized(self):
+                    return self._send(401, {"error": "access code required"})
                 missing = [k for k in ("request_id", "decision", "approver", "owner") if not body.get(k)]
                 if missing or body["decision"] not in ("approve", "reject"):
                     return self._send(400, {"error": f"missing or invalid: {missing or 'decision'}"})
-                entry = register_decision(body)
+                item, context = with_item(body)
+                if item and item["status"] in ("approved", "rejected"):
+                    return self._send(409, {"error": f"{item['request_id']} is already {item['status']}"})
+                entry = register_decision(body, context)
+                if item:
+                    STORE.decide(item["request_id"], entry)
                 return self._send(200, {"ok": True, "registered_id": entry["registered_id"]})
             if self.path == "/n8n/approval":
                 if not n8n_authorized(self):
@@ -191,6 +255,34 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as exc:
             self._send(400, {"error": str(exc)})
 
+    def _requests(self, body):
+        """POST /requests: create a work item, or re-check one. Answers are sent in full, as with /recommend."""
+        rid = body.get("request_id")
+        answers, rounds, text = body.get("answers"), body.get("rounds"), body.get("text")
+        if answers is not None and (not isinstance(answers, list) or not all(isinstance(a, dict) and isinstance(a.get("answer", ""), str) for a in answers)):
+            return self._send(400, {"error": "answers must be a list of objects with a text answer"})
+        if rounds is not None and (not isinstance(rounds, list) or not all(isinstance(r, dict) for r in rounds)):
+            return self._send(400, {"error": "rounds must be a list of objects"})
+        if text is not None and not isinstance(text, str):
+            return self._send(400, {"error": "text must be a string"})
+        requester = body.get("requester") if isinstance(body.get("requester"), str) else None
+        if rid is None:
+            if not (text or "").strip():
+                return self._send(400, {"error": "text is required"})
+            new = workitems.new_id()
+            item = STORE.create(run_item(new, text.strip(), answers or [], rounds or []), requester and requester[:100], request_id=new)
+            return self._send(200, {"request_id": item["request_id"], "status": item["status"], "result": item["result"]})
+        if not write_authorized(self):
+            return self._send(401, {"error": "access code required"})
+        item = STORE.get(rid) if isinstance(rid, str) else None
+        if not item:
+            return self._send(404, {"error": "no such request"})
+        if item["status"] in ("approved", "rejected"):
+            return self._send(409, {"error": f"{rid} is already {item['status']}; submit a new request"})
+        result = run_item(rid, (text or item["text"]).strip(), item["answers"] if answers is None else answers, item["rounds"] if rounds is None else rounds)
+        item = STORE.update(rid, result, requester and requester[:100])
+        return self._send(200, {"request_id": rid, "status": item["status"], "result": result})
+
     def log_message(self, fmt, *args):
         sys.stderr.write("%s %s\n" % (self.address_string(), fmt % args))
 
@@ -200,6 +292,13 @@ if __name__ == "__main__":
     N8N_API_KEY = os.environ.get("N8N_API_KEY") or os.environ.get("n8n_API_KEY", "")
     EST = Estate(sys.argv[1], os.environ.get("CATALOG_PATH", DEFAULT_CATALOG))
     LLM_CLIENT = live_client()
+    WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
+    if not WRITE_TOKEN:
+        print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve, remediate and work item updates are open to anyone", file=sys.stderr)
+    STORE = workitems.Store(Path(LOG_FILE).parent / "requests.jsonl")
+    seeded = seed_samples()
+    if seeded:
+        print(f"Seeded {seeded} sample work items")
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
     print(f"Reuse Gate API on http://0.0.0.0:{port}")
     ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()

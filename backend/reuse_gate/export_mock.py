@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 from reuse_gate.estate import Estate
 from reuse_gate.llm import NoLLM
 from reuse_gate.pipeline import run_request
+from reuse_gate import workitems
 from reuse_gate.remediate import active_owners, ownership_bottlenecks
 
 
@@ -45,6 +46,16 @@ def radar(est):
     }
 
 
+SAMPLE_TIME = "2026-11-07T08:00:00+00:00"  # fixed, so the export is reproducible
+
+
+def sample_work_items(est):
+    """What GET /requests and GET /requests/{id} return on a fresh server: the seeded samples, from saved answers only."""
+    store, client = workitems.Store(), workitems.SavedAnswersOnly()
+    store.seed(est, lambda req: run_request(est, req, client, as_of="2026-11-07"), workitems.chip_texts(est), SAMPLE_TIME)
+    return {"list": store.list(), "detail": {i: workitems.detail(store.get(i)) for i in sorted(store.items)}}
+
+
 def main(db, out):
     est = Estate(db)
     seen, items = set(), []
@@ -53,7 +64,8 @@ def main(db, out):
             continue
         seen.add(req["request_text"])
         items.append(run_request(est, req, NoLLM(), as_of=req["request_date"]))  # rules only, reproducible
-    json.dump({"requests": items, "radar": radar(est), "owners": active_owners(est)}, open(out, "w"), indent=2, default=str)
+    json.dump({"requests": items, "radar": radar(est), "owners": active_owners(est), "work_items": sample_work_items(est)},
+              open(out, "w"), indent=2, default=str)
     print(f"{len(items)} requests exported to {out}")
 
 
