@@ -179,7 +179,13 @@ export interface RemediationResult {
   })[];
   before: { owner: string | null; gates: GateSnapshot };
   after: { owner: string | null; gates: GateSnapshot };
-  diff: { gate: string; before: boolean; after: boolean; detail_before: string; detail_after: string }[];
+  diff: {
+    gate: string;
+    before: boolean;
+    after: boolean;
+    detail_before: string;
+    detail_after: string;
+  }[];
   fixed: string[];
   still_failing: string[];
   passed_before: boolean | null;
@@ -282,45 +288,125 @@ export interface LogRecord extends ApprovePayload {
   time: string;
   mode?: "demo";
 }
-export type WorkStatus = "clarifying" | "awaiting_approval" | "human_review" | "approved" | "rejected";
+export type WorkStatus =
+  "clarifying" | "awaiting_approval" | "human_review" | "approved" | "rejected";
 export interface WorkItemRow {
-  request_id: string; text: string; status: WorkStatus; action: Action;
-  target: string | null; target_name: string | null; owner: string | null;
-  created: string; updated: string; open_questions: number; gates_passed: boolean | null;
+  model_id?: string | null;
+  request_id: string;
+  text: string;
+  status: WorkStatus;
+  action: Action;
+  target: string | null;
+  target_name: string | null;
+  owner: string | null;
+  created: string;
+  updated: string;
+  open_questions: number;
+  gates_passed: boolean | null;
   origin: "user" | "sample";
   local_only?: boolean | undefined;
 }
 export interface WorkDecision {
-  registered_id: string; decision: "approve" | "reject"; approver: string; owner: string;
-  review_by: string; time: string; gates_passed: boolean | null; estate_snapshot: string;
+  registered_id: string;
+  decision: "approve" | "reject";
+  approver: string;
+  owner: string;
+  review_by: string;
+  time: string;
+  gates_passed: boolean | null;
+  estate_snapshot: string;
 }
 export interface WorkItem {
-  request_id: string; text: string; status: WorkStatus; created: string; updated: string;
-  origin: "user" | "sample"; requester: string | null; result: RecommendResult;
-  rounds: LoopRound[]; remediation: RemediationResult | null; decision: WorkDecision | null;
-  activity: { time: string; actor: string; event: "seeded" | "created" | "rechecked" | "remediation_simulated" | "approved" | "rejected"; detail: string }[];
+  request_id: string;
+  text: string;
+  status: WorkStatus;
+  created: string;
+  updated: string;
+  origin: "user" | "sample";
+  requester: string | null;
+  result: RecommendResult;
+  rounds: LoopRound[];
+  remediation: RemediationResult | null;
+  decision: WorkDecision | null;
+  activity: {
+    time: string;
+    actor: string;
+    event: "seeded" | "created" | "rechecked" | "remediation_simulated" | "approved" | "rejected";
+    detail: string;
+  }[];
   local_only?: boolean | undefined;
 }
-export interface RequestFilters { status?: string | undefined; q?: string | undefined; }
+export interface RequestFilters {
+  status?: string | undefined;
+  q?: string | undefined;
+}
 export const getApiBaseUrl = () => API ?? "";
 export const ACCESS_CODE_KEY = "reuse-gate-access-code";
-export function getAccessCode(): string { try { return sessionStorage.getItem(ACCESS_CODE_KEY) ?? ""; } catch { return ""; } }
-export function saveAccessCode(code: string) { sessionStorage.setItem(ACCESS_CODE_KEY, code); }
-export class ApiError extends Error {
-  constructor(message: string, public status: number) { super(message); this.name = "ApiError"; }
+export function getAccessCode(): string {
+  try {
+    return sessionStorage.getItem(ACCESS_CODE_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
-function writeHeaders() { const code = getAccessCode(); return { "Content-Type": "application/json", ...(code ? { "X-Access-Code": code } : {}) }; }
+export function saveAccessCode(code: string) {
+  sessionStorage.setItem(ACCESS_CODE_KEY, code);
+}
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+function writeHeaders() {
+  const code = getAccessCode();
+  return { "Content-Type": "application/json", ...(code ? { "X-Access-Code": code } : {}) };
+}
 export const getRequests = (filters: RequestFilters = {}) => {
   const query = new URLSearchParams();
   if (filters.status) query.set("status", filters.status);
   if (filters.q) query.set("q", filters.q);
-  return call<WorkItemRow[]>(`/requests${query.size ? `?${query}` : ""}`, undefined, () => localItems().map(itemRow).filter((row) => (!filters.status || row.status === filters.status) && (!filters.q || `${row.text} ${row.request_id} ${row.target_name ?? ""}`.toLowerCase().includes(filters.q.toLowerCase()))).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 200), true);
+  return call<WorkItemRow[]>(
+    `/requests${query.size ? `?${query}` : ""}`,
+    undefined,
+    () =>
+      localItems()
+        .map(itemRow)
+        .filter(
+          (row) =>
+            (!filters.status || row.status === filters.status) &&
+            (!filters.q ||
+              `${row.text} ${row.request_id} ${row.target_name ?? ""}`
+                .toLowerCase()
+                .includes(filters.q.toLowerCase())),
+        )
+        .sort((a, b) => b.updated.localeCompare(a.updated))
+        .slice(0, 200),
+    true,
+  );
 };
-export const getRequest = (id: string) => id.startsWith("LOCAL-") ? Promise.resolve(localItems().find((item) => item.request_id === id) ?? null).then((item) => { if (!item) throw new Error("Local draft not found."); return item; }) : call<WorkItem>(`/requests/${encodeURIComponent(id)}`, undefined, () => {
-  const item = localItems().find((candidate) => candidate.request_id === id);
-  if (!item) throw new Error("Request not found in offline data. Connect to the API or open a sample.");
-  return item;
-}, true);
+export const getRequest = (id: string): Promise<WorkItem> => {
+  if (id.startsWith("LOCAL-")) {
+    setDemo();
+    const item = localItems().find((candidate) => candidate.request_id === id);
+    return item ? Promise.resolve(item) : Promise.reject(new Error("Local draft not found."));
+  }
+  return call<WorkItem>(
+    `/requests/${encodeURIComponent(id)}`,
+    undefined,
+    () => {
+      const item = localItems().find((candidate) => candidate.request_id === id);
+      if (!item)
+        throw new Error("Request not found in offline data. Connect to the API or open a sample.");
+      return item;
+    },
+    true,
+  );
+};
+
 export interface Health {
   status: "live" | "down" | "demo";
   assets?: number | undefined;
@@ -339,10 +425,20 @@ export const onDemoChange = (fn: (d: boolean) => void) => {
     listeners.delete(fn);
   };
 };
-const setMode = (next: boolean) => { if (demo !== next) { demo = next; listeners.forEach((listener) => listener(next)); } };
+const setMode = (next: boolean) => {
+  if (demo !== next) {
+    demo = next;
+    listeners.forEach((listener) => listener(next));
+  }
+};
 const setDemo = () => setMode(true);
 
-async function call<T>(path: string, init: RequestInit | undefined, fallback: () => T, workResource = false): Promise<T> {
+async function call<T>(
+  path: string,
+  init: RequestInit | undefined,
+  fallback: () => T,
+  workResource = false,
+): Promise<T> {
   if (API) {
     let rejected = "";
     try {
@@ -353,7 +449,11 @@ async function call<T>(path: string, init: RequestInit | undefined, fallback: ()
       if (res.status >= 400 && res.status < 500)
         rejected = `The API rejected the request (${res.status}).`;
       else if (!res.ok) throw new Error(String(res.status));
-      else { const body = (await res.json()) as T; if (workResource) setMode(false); return body; }
+      else {
+        const body = (await res.json()) as T;
+        if (workResource) setMode(false);
+        return body;
+      }
     } catch {
       setDemo();
     }
@@ -370,7 +470,10 @@ export function mockRecommend(text: string): RecommendResult {
     const head = r.text.toLowerCase().slice(0, 30);
     return q.includes(head) || (q.length > 0 && head.includes(q.slice(0, 30)));
   });
-  if (!hit) throw new Error("No demo example matches this request. Choose an example or connect the live API.");
+  if (!hit)
+    throw new Error(
+      "No demo example matches this request. Choose an example or connect the live API.",
+    );
   return { ...hit, text };
 }
 
@@ -395,16 +498,21 @@ export async function speak(text: string): Promise<Blob> {
 
 export const getRadar = () => call<Radar>("/radar", undefined, () => data.radar);
 
-export async function approve(p: ApprovePayload): Promise<{ ok: true; registered_id: string; mode?: "demo" }> {
-  if (!API || demo) throw new Error("Approval needs the live API. Offline decisions are not recorded.");
+export async function approve(
+  p: ApprovePayload,
+): Promise<{ ok: true; registered_id: string; mode?: "demo" }> {
+  if (!API || demo)
+    throw new Error("Approval needs the live API. Offline decisions are not recorded.");
   try {
     const res = await fetch(`${API}/approve`, {
       method: "POST",
       headers: writeHeaders(),
       body: JSON.stringify(p),
     });
-    if (res.status === 401) throw new ApiError("Access code required. Enter it in Admin settings.", 401);
-    if (res.status === 409) throw new ApiError("This request already has a decision. Refresh the item.", 409);
+    if (res.status === 401)
+      throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+    if (res.status === 409)
+      throw new ApiError("This request already has a decision. Refresh the item.", 409);
     if (!res.ok) throw new Error("Approval rejected");
     const body = await res.json();
     if (body?.ok !== true || typeof body.registered_id !== "string" || !body.registered_id) {
@@ -489,29 +597,70 @@ export async function remediate(payload: RemediationPayload): Promise<Remediatio
     throw new Error("Could not recheck gates. Check the API connection and try again.");
   }
   const body = await response.json().catch(() => null);
-  if (response.status === 401) throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+  if (response.status === 401)
+    throw new ApiError("Access code required. Enter it in Admin settings.", 401);
   if (response.status === 409) throw new ApiError("This request is closed. Refresh the item.", 409);
   if (!response.ok) {
-    throw new Error(typeof body?.error === "string" ? body.error : "Could not recheck gates. The simulation needs the live API with /remediate available.");
+    throw new Error(
+      typeof body?.error === "string"
+        ? body.error
+        : "Could not recheck gates. The simulation needs the live API with /remediate available.",
+    );
   }
-  if (body?.applied !== "simulated" || !Array.isArray(body.before?.gates?.gates) || !Array.isArray(body.after?.gates?.gates)) {
+  if (
+    body?.applied !== "simulated" ||
+    !Array.isArray(body.before?.gates?.gates) ||
+    !Array.isArray(body.after?.gates?.gates)
+  ) {
     throw new Error("The API did not confirm a simulated gate check. Try again.");
   }
   return body as RemediationResult;
 }
 
-export interface SaveRequestPayload { text?: string; answers?: Answer[]; rounds?: LoopRound[]; request_id?: string; requester?: string; }
-export interface SaveRequestResponse { request_id: string; status: WorkStatus; result: RecommendResult; }
+export interface SaveRequestPayload {
+  text?: string;
+  answers?: Answer[];
+  rounds?: LoopRound[];
+  request_id?: string;
+  requester?: string;
+}
+export interface SaveRequestResponse {
+  request_id: string;
+  status: WorkStatus;
+  result: RecommendResult;
+}
 export async function saveRequest(payload: SaveRequestPayload): Promise<SaveRequestResponse> {
   if (API) {
     let response: Response | null = null;
-    try { response = await fetch(`${API}/requests`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, ...(payload.request_id?.startsWith("LOCAL-") ? { request_id: undefined } : {}) }) }); }
-    catch { setDemo(); }
+    try {
+      response = await fetch(`${API}/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payload,
+          ...(payload.request_id?.startsWith("LOCAL-") ? { request_id: undefined } : {}),
+        }),
+      });
+    } catch {
+      setDemo();
+    }
     if (response) {
-      if (response.status === 409) throw new ApiError("This request already has a decision. Refresh the item.", 409);
-      if (!response.ok) throw new ApiError(response.status === 404 ? "Request not found on the server." : "The request could not be saved. Check the text and try again.", response.status);
+      if (response.status === 409)
+        throw new ApiError("This request already has a decision. Refresh the item.", 409);
+      if (!response.ok)
+        throw new ApiError(
+          response.status === 404
+            ? "Request not found on the server."
+            : "The request could not be saved. Check the text and try again.",
+          response.status,
+        );
       const body = await response.json();
-      if (typeof body?.request_id !== "string" || !body.result || typeof body.result.text !== "string") throw new Error("The API did not return a saved request.");
+      if (
+        typeof body?.request_id !== "string" ||
+        !body.result ||
+        typeof body.result.text !== "string"
+      )
+        throw new Error("The API did not return a saved request.");
       setMode(false);
       return body as SaveRequestResponse;
     }
@@ -519,14 +668,131 @@ export async function saveRequest(payload: SaveRequestPayload): Promise<SaveRequ
   const prior = localItems().find((item) => item.request_id === payload.request_id);
   const text = payload.text ?? prior?.text ?? "";
   if (!text.trim()) throw new Error("Describe the report you need before saving.");
-  const id = prior?.local_only ? prior.request_id : `LOCAL-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const sample = prior ?? localItems().find((item) => item.text.toLowerCase() === text.toLowerCase());
+  const id = prior?.local_only
+    ? prior.request_id
+    : `LOCAL-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const sample =
+    (prior?.text === text ? prior : undefined) ??
+    localItems().find((item) => item.text.toLowerCase() === text.toLowerCase());
   const now = new Date().toISOString();
-  const result: RecommendResult = sample ? { ...sample.result, request_id: id, text, answers: payload.answers ?? sample.result.answers ?? [] } : {
-    request_id: id, text, intent: { products: [], market: "", kpis: [], kind: "new_report", clarifications: [], questions: [] },
-    recommendation: { action: "human_review", target: null, build_on: null, retire: [], repair: [], rationale: ["This local draft has not been analysed. Connect to the live API to check existing reports."], evidence: [] }, answers: payload.answers ?? [],
+  const result: RecommendResult = sample
+    ? {
+        ...sample.result,
+        request_id: id,
+        text,
+        answers: payload.answers ?? sample.result.answers ?? [],
+      }
+    : {
+        request_id: id,
+        text,
+        intent: {
+          products: [],
+          market: "",
+          kpis: [],
+          kind: "new_report",
+          clarifications: [],
+          questions: [],
+        },
+        recommendation: {
+          action: "human_review",
+          target: null,
+          build_on: null,
+          retire: [],
+          repair: [],
+          rationale: [
+            "This local draft has not been analysed. Connect to the live API to check existing reports.",
+          ],
+          evidence: [],
+        },
+        answers: payload.answers ?? [],
+      };
+  const item: WorkItem = {
+    request_id: id,
+    text,
+    status: sample?.status ?? "human_review",
+    created: prior?.created ?? now,
+    updated: now,
+    origin: "user",
+    requester: payload.requester ?? prior?.requester ?? null,
+    result,
+    rounds: payload.rounds ?? prior?.rounds ?? [],
+    remediation: null,
+    decision: null,
+    activity: [
+      ...(prior?.activity ?? []),
+      {
+        time: now,
+        actor: payload.requester ?? "Local user",
+        event: prior ? "rechecked" : "created",
+        detail: "Draft saved locally only. No live analysis or decision was performed.",
+      },
+    ],
+    local_only: true,
   };
-  const item: WorkItem = { request_id: id, text, status: sample?.status ?? "human_review", created: prior?.created ?? now, updated: now, origin: sample?.origin ?? "user", requester: payload.requester ?? prior?.requester ?? null, result, rounds: payload.rounds ?? prior?.rounds ?? [], remediation: null, decision: null, activity: [...(prior?.activity ?? []), { time: now, actor: payload.requester ?? "Local user", event: prior ? "rechecked" : "created", detail: "Draft saved locally only. No live analysis or decision was performed." }], local_only: true };
   saveLocalItem(item);
   return { request_id: id, status: item.status, result };
+}
+
+export async function getProviderInfo(): Promise<
+  Partial<Record<"intent" | "explanation" | "speech" | "transcription", string>>
+> {
+  if (!API) return {};
+  try {
+    const response = await fetch(`${API}/health`);
+    if (!response.ok) return {};
+    const body = (await response.json()) as { providers?: Record<string, unknown> };
+    const allowed = new Set([
+      "ready",
+      "configured",
+      "unavailable",
+      "not_configured",
+      "off",
+      "error",
+    ]);
+    return Object.fromEntries(
+      ["intent", "explanation", "speech", "transcription"].flatMap((name) => {
+        const status = body.providers?.[name];
+        return typeof status === "string" && allowed.has(status) ? [[name, status]] : [];
+      }),
+    );
+  } catch {
+    return {};
+  }
+}
+
+// Model associations are not part of list rows. Confirm them from item details.
+export async function requestsForView(
+  filters: RequestFilters,
+  model?: string,
+): Promise<WorkItemRow[]> {
+  const rows = await getRequests(filters);
+  if (!model?.startsWith("SM-")) return rows;
+  const result = [...rows];
+  let cursor = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(4, rows.length) }, async () => {
+      while (cursor < rows.length) {
+        const index = cursor++;
+        const row = rows[index]!;
+        if (row.model_id !== undefined) continue;
+        const detail = await getRequest(row.request_id);
+        result[index] = { ...row, model_id: detail.result.recommendation.build_on };
+      }
+    }),
+  );
+  return result;
+}
+export async function findModelRequest(
+  rows: WorkItemRow[],
+  model: string,
+): Promise<WorkItemRow | null> {
+  const open = rows.filter((row) => row.status !== "approved" && row.status !== "rejected");
+  for (const row of open) if (row.model_id === model) return row;
+  for (const row of open.filter(
+    (candidate) => candidate.action === "new_build" || candidate.action === "extend",
+  )) {
+    const detail = await getRequest(row.request_id);
+    if (detail.result.recommendation.build_on === model) return row;
+  }
+  return null;
 }

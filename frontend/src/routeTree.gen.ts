@@ -16,6 +16,7 @@ import { Route as LogRouteImport } from './routes/log'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as AssetsAssetIdRouteImport } from './routes/assets.$assetId'
 import { Route as RequestsRequestIdRouteImport } from './routes/requests.$requestId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -53,6 +54,11 @@ const RequestsRoute = RequestsRouteImport.update({
   path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssetsAssetIdRoute = AssetsAssetIdRouteImport.update({
+  id: '/assets/$assetId',
+  path: '/assets/$assetId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsRequestIdRoute = RequestsRequestIdRouteImport.update({
   id: '/$requestId',
   path: '/$requestId',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/assets/$assetId': typeof AssetsAssetIdRoute
   '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/radar'
     | '/requests'
+    | '/assets/$assetId'
     | '/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/radar'
     | '/requests'
+    | '/assets/$assetId'
     | '/requests/$requestId'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/overview'
     | '/radar'
     | '/requests'
+    | '/assets/$assetId'
     | '/requests/$requestId'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   OverviewRoute: typeof OverviewRoute
   RadarRoute: typeof RadarRoute
   RequestsRoute: typeof RequestsRouteWithChildren
+  AssetsAssetIdRoute: typeof AssetsAssetIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assets/$assetId': {
+      id: '/assets/$assetId'
+      path: '/assets/$assetId'
+      fullPath: '/assets/$assetId'
+      preLoaderRoute: typeof AssetsAssetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests/$requestId': {
       id: '/requests/$requestId'
       path: '/$requestId'
@@ -214,6 +234,7 @@ const rootRouteChildren: RootRouteChildren = {
   OverviewRoute: OverviewRoute,
   RadarRoute: RadarRoute,
   RequestsRoute: RequestsRouteWithChildren,
+  AssetsAssetIdRoute: AssetsAssetIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

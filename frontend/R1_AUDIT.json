@@ -1,0 +1,2794 @@
+{
+  "repository": {
+    "version": "1.0.0",
+    "target": "/home/ztothez/Studio/SinceAI-ui/frontend",
+    "generatedAt": "2026-11-07T14:02:23.492Z",
+    "filesScanned": 134,
+    "bytesScanned": 493608,
+    "skippedFiles": [],
+    "findings": [],
+    "summary": {
+      "errors": 0,
+      "warnings": 0,
+      "info": 0
+    },
+    "passed": true,
+    "evidenceBoundary": {
+      "verifierLimitations": [
+        "Static source patterns cannot prove rendered placement, runtime state, backend availability, or whether an interaction succeeds.",
+        "Medium-confidence findings require repository-context review before remediation or suppression."
+      ],
+      "humanReviewRequired": [
+        "A qualified reviewer must evaluate domain fit, architectural trade-offs, task coherence, and any accepted static-rule exception."
+      ]
+    }
+  },
+  "runtime": {
+    "version": "1.1.0",
+    "url": "http://127.0.0.1:8084/",
+    "generatedAt": "2026-11-07T14:04:04.396Z",
+    "browser": "Chromium 158.0.8127.18",
+    "outputDirectory": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final",
+    "viewports": [
+      {
+        "name": "phone320",
+        "width": 320,
+        "height": 900
+      },
+      {
+        "name": "phone375",
+        "width": 375,
+        "height": 900
+      },
+      {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      }
+    ],
+    "colorSchemes": [
+      "light"
+    ],
+    "screenshots": [
+      {
+        "name": "phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "bc01e23dd533a8cfa7963e569d4021ca4f551afc1949e0a57de9ca2e40d4a3e9",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "1b6421557c2b0ebc547635947762c8fc930e6ff217e187a5711311d3dcdbfa26",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "7468634cae445209e6371a2e0ce1498c8fdced5e832a4cded58bb2aace3eeeb8",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "3a127c1db56db2f0ac2f0fbfa45344d5c32766a64e6fc02e69241877aad1c277",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-requests-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-requests-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "ccd8d914139cde7bf19dc36902eb5662c633fe3e174a3329ece7bc5f6c6b7f80",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-requests-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-requests-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "25c8acafc81e95b4e4f2dbd7062dd82af000df5f739effd7a3019116565d7f7f",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-requests-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-requests-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "82945a2d9c787ca2dbab5ca6179cd5c965494b227e6ac7bcfceddc0f84680ba8",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-requests-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-requests-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "62972fc55eae17a6d67b6e2ad29f34c22cad6d0ee5c93d1e7be6d2d5070f1dc3",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-item-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-item-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "24b4b1e6c2e2d58860657877e15eae23c0e9cedafdf724fadc1a7ad16e367864",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-item-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-item-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "7e9ddeddbafbe1e4e6b4df1f95782a0f27d582e874f6af8445d167557157d1ef",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-item-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-item-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "ee495c404e692b9c21362884c6d14f834a9167a2e3809e4c176d72c8e8fce524",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-item-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-item-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "9d741f3c8f424169c6b22e119f31f74aebaeb468f674a0c208290928d7d481e4",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-approvals-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-approvals-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "633510d078ad407ab3ac7e4f8bc1a9ee197cc0f42e68b2f15ab61a3ed5b186e4",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-approvals-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-approvals-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "cf05496c82954de5efbfd1429c2885c8d60441c1076a50c6c37ec6a90026195d",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-approvals-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-approvals-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "fad3afe8a9e827f20d6ec5fc3a357a6889cb71005c7e88d53e2b3cd98ef31eb9",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-approvals-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-approvals-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "d2fd0345bbc23794dedcc52415dab1c86894718c41243f21d5fb5caaa07ec521",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-overview-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-overview-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "f147ab8a913af1b6527792321dcf2c43d70526914fa365aaa7bf70e33a69a515",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-overview-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-overview-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "5f493bb37536389bf83c8d3fda25432b6e035fa18365b5c4574e9932ee9aef89",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-overview-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-overview-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "706457c760db3f631afec4c3c3828754ea578c2750c2a396086ffb7c4b82625b",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-overview-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-overview-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "b432a504ed4f4dfb6a14f99ad7aca3df7946723e186b7ca4d4be26daec000983",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-radar-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-radar-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "13e0ffa967f1866e7e6fa63c45081ee71e2ef5e53efa747eaa8f2d7ea6e7fe2d",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-radar-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-radar-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "3e8f7a7ce98732f2c98e0de4e9bd1e8d6cb836860cf92fcea7bf90141c0c714b",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-radar-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-radar-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "0479782345168d397672768061b36854bdccdb2f85fdec42a0e97404c8c0ebbd",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-radar-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-radar-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "49f8f0d93cedb5fa70a263598165cfc09b40d21065a01385d3b0a3b6ca1ac455",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-log-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-log-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "dc81068d84f9fdf982326e022455ec51481bbc010980a8e63ee95d4bcbca6e6d",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-log-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-log-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "6e21332b00eff9f7ae3e97c41511ba3b890340b1b9788b4823b83c0d5e13ff7f",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-log-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-log-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "2bf02fc4f7b2aa621fa6beac1f493d9bbe9bb40142d800caec4622aff6f57415",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-log-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-log-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "33ff7fcbbbf9b144b3aba9259ac4585dac159bfe0c74442ad8ab3301c55280e1",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-admin-phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-admin-phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "5c50ade94ea500edac868c14ea78a50615d7fbe8250a6b822768b14a9e3ba106",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-admin-phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-admin-phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "0a5eed804a539d1ea0abadda82d39058714295bc43302aa8c93eaf91013aa069",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-admin-tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-admin-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "196aecefd32da44d0f09181a796167c5045d0ce9c1715d9cc0925df7388d1801",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "journey-admin-desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-admin-desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "8139b34b6a48f920d0643d22dc9e396e7dbd5040800f49065b7ce0c89c04f874",
+        "dynamicSelectors": []
+      }
+    ],
+    "screenshotRegression": {
+      "status": "not-configured",
+      "compared": 0,
+      "mismatches": []
+    },
+    "journeys": [
+      {
+        "name": "requests",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-requests-phone320.png"
+      },
+      {
+        "name": "item",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-item-phone320.png"
+      },
+      {
+        "name": "approvals",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-approvals-phone320.png"
+      },
+      {
+        "name": "overview",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-overview-phone320.png"
+      },
+      {
+        "name": "radar",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-radar-phone320.png"
+      },
+      {
+        "name": "log",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-log-phone320.png"
+      },
+      {
+        "name": "admin",
+        "passed": true,
+        "stepsCompleted": 2,
+        "totalSteps": 2,
+        "evidence": [],
+        "checkpoints": [],
+        "screenshot": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T14-02-46-301Z-reuse-gate-r1-final/journey-admin-phone320.png"
+      }
+    ],
+    "expectedNetwork": [],
+    "findings": [
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 149 text elements, including 148 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 148,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 26 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 26,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "phone320"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 149 text elements, including 148 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 148,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 26 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 26,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "phone375"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 158 text elements, including 157 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 157,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 34 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 34,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 34 focusable controls."
+        ],
+        "viewport": "tablet"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 158 text elements, including 157 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 157,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 34 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 34,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 34 focusable controls."
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 133 text elements, including 132 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 132,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 29 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 13 of 29 visible controls before focus repeated at input.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone320",
+        "selector": "input",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 133 text elements, including 132 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 132,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 29 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 29 visible controls before focus repeated at input.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone375",
+        "selector": "input",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 142 text elements, including 141 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 141,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 37 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 37,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 37 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 37 visible controls before focus repeated at input.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "tablet",
+        "selector": "input",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 142 text elements, including 141 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 141,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 37 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 37,
+          "skippedCount": 0
+        },
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 37 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 37 visible controls before focus repeated at input.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "desktop",
+        "selector": "input",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "requests"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 244 text elements, including 242 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 242,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 21 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 12 of 21 visible controls before focus repeated at button.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone320",
+        "selector": "button",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 244 text elements, including 242 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 242,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 21 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 12 of 21 visible controls before focus repeated at #global-search.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone375",
+        "selector": "#global-search",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 253 text elements, including 251 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 251,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 29 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 20 of 29 visible controls before focus repeated at button.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "tablet",
+        "selector": "button",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 253 text elements, including 251 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 251,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 29 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 20 of 29 visible controls before focus repeated at button.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "desktop",
+        "selector": "button",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "item"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 77 text elements, including 76 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 76,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 18 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 17 of 18 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone320",
+        "selector": "#review",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 77 text elements, including 76 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 76,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 18 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 18 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone375",
+        "selector": "#review",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 86 text elements, including 85 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 85,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 26 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "tablet",
+        "selector": "#review",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 86 text elements, including 85 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 85,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        },
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 26 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "desktop",
+        "selector": "#review",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "approvals"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 58 text elements, including 52 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 52,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 22 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 22 of 22 visible controls before focus repeated at #what-if-review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone320",
+        "selector": "#what-if-review",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 58 text elements, including 52 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 52,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 22 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 22 visible controls before focus repeated at #what-if-review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone375",
+        "selector": "#what-if-review",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 67 text elements, including 61 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 61,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 30 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 30 visible controls before focus repeated at #what-if-review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "tablet",
+        "selector": "#what-if-review",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 67 text elements, including 61 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 61,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 29 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 29,
+          "skippedCount": 0
+        },
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 30 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 1 of 30 visible controls before focus repeated at #what-if-review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "desktop",
+        "selector": "#what-if-review",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "overview"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 547 text elements, including 545 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 545,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 91 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 91,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 91 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 547 text elements, including 545 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 545,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 91 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 91,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 91 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-010",
+        "severity": "error",
+        "message": "Independent interactive controls overlap in the rendered layout.",
+        "evidence": [
+          "div.min-w-0 > main.min-w-0 > section.mb-8 > div.table-region overlaps tbody > tr > td > a.request-link by 160px by 64px.",
+          "Recompose the layout or use data-ztothez-design-allow-overlap only for an intentional, verified interaction."
+        ],
+        "viewport": "tablet",
+        "selector": "div.min-w-0 > main.min-w-0 > section.mb-8 > div.table-region",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 556 text elements, including 554 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 554,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 99 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 99,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 99 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-010",
+        "severity": "error",
+        "message": "Independent interactive controls overlap in the rendered layout.",
+        "evidence": [
+          "div.min-w-0 > main.min-w-0 > section.mb-8 > div.table-region overlaps tbody > tr > td > a.request-link by 143px by 64px.",
+          "Recompose the layout or use data-ztothez-design-allow-overlap only for an intentional, verified interaction."
+        ],
+        "viewport": "desktop",
+        "selector": "div.min-w-0 > main.min-w-0 > section.mb-8 > div.table-region",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-010",
+        "severity": "error",
+        "message": "Independent interactive controls overlap in the rendered layout.",
+        "evidence": [
+          "tbody > tr > td > a.request-link overlaps tr > td > div.space-y-2 > a.request-link by 125px by 55px.",
+          "Recompose the layout or use data-ztothez-design-allow-overlap only for an intentional, verified interaction."
+        ],
+        "viewport": "desktop",
+        "selector": "tbody > tr > td > a.request-link",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 556 text elements, including 554 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 554,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 99 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 99,
+          "skippedCount": 0
+        },
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 99 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "radar"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 59 text elements, including 56 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 56,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 17 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 59 text elements, including 56 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 56,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 17 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 68 text elements, including 65 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 65,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 25 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 68 text elements, including 65 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 65,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        },
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 25 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "log"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 221 text elements, including 220 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 220,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 13 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 13,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 13 focusable controls."
+        ],
+        "viewport": "phone320",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 221 text elements, including 220 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 220,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 13 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 13,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 13 focusable controls."
+        ],
+        "viewport": "phone375",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 230 text elements, including 229 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 229,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 21 focusable controls."
+        ],
+        "viewport": "tablet",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 230 text elements, including 229 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 229,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 21 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 21,
+          "skippedCount": 0
+        },
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 21 focusable controls."
+        ],
+        "viewport": "desktop",
+        "journey": "admin"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop",
+        "journey": "admin"
+      }
+    ],
+    "decisionSignals": {},
+    "summary": {
+      "errors": 19,
+      "warnings": 0,
+      "info": 128
+    },
+    "passed": false,
+    "evidenceBoundary": {
+      "verifierLimitations": [
+        "Solid-color contrast sampling cannot establish contrast over gradients, images, video, canvas, or transparency without separate evidence.",
+        "Composition and rendered-asset checks apply only to explicitly instrumented roots. DOM metadata cannot establish source truth, legal clearance, or whether an unmarked visual should have been declared.",
+        "Static DOM and browser checks cannot establish metric correctness, backend availability beyond observed requests, legal clearance, or representative-user comprehension.",
+        "Screenshot hashes detect rendered change only; they do not prove visual quality or improvement."
+      ],
+      "humanReviewRequired": [
+        "An attributable reviewer must assess hierarchy, balance, scanability, density, domain fit, and intentional baseline changes.",
+        "Representative-user evidence is required for claims about task comprehension, confidence, efficiency, or usability."
+      ]
+    }
+  },
+  "populated_review": {
+    "version": "1.1.0",
+    "url": "http://127.0.0.1:8084/approvals?id=WI-31CF5342",
+    "generatedAt": "2026-11-07T13:45:50.312Z",
+    "browser": "Chromium 158.0.8127.18",
+    "outputDirectory": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T13-45-37-909Z-reuse-gate-r1-review-pane-recheck",
+    "viewports": [
+      {
+        "name": "phone320",
+        "width": 320,
+        "height": 900
+      },
+      {
+        "name": "phone375",
+        "width": 375,
+        "height": 900
+      },
+      {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      {
+        "name": "desktop",
+        "width": 1280,
+        "height": 900
+      }
+    ],
+    "colorSchemes": [
+      "light"
+    ],
+    "screenshots": [
+      {
+        "name": "phone320",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T13-45-37-909Z-reuse-gate-r1-review-pane-recheck/phone320.png",
+        "width": 320,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "2d3f2c145dfb3e1066dd7ddf9d1b15110536fe76b18e2a01622541f21bbb0d2f",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "phone375",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T13-45-37-909Z-reuse-gate-r1-review-pane-recheck/phone375.png",
+        "width": 375,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "9727268c93aa4e95a78b3fb795f95cebaea1c4da619c227f7ec2071c68cd6492",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "tablet",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T13-45-37-909Z-reuse-gate-r1-review-pane-recheck/tablet.png",
+        "width": 768,
+        "height": 1024,
+        "fullPage": true,
+        "sha256": "4039ba38a528a4af7c986296ec24e34a1d2468dac5eaee20c4e8e6b0e3003fd5",
+        "dynamicSelectors": []
+      },
+      {
+        "name": "desktop",
+        "path": "/home/ztothez/.npm/_npx/1740d3027a4ac49c/node_modules/@ztothez/design-engineering/.ztothez-design-runtime/2026-11-07T13-45-37-909Z-reuse-gate-r1-review-pane-recheck/desktop.png",
+        "width": 1280,
+        "height": 900,
+        "fullPage": true,
+        "sha256": "1242aff22542bdae5e122b58ffcb1e112d773b0e31bcd82967bcfe86f91e6ca6",
+        "dynamicSelectors": []
+      }
+    ],
+    "screenshotRegression": {
+      "status": "not-configured",
+      "compared": 0,
+      "mismatches": []
+    },
+    "journeys": [],
+    "expectedNetwork": [],
+    "findings": [
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 77 text elements, including 76 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 76,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone320",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 18 focusable controls."
+        ],
+        "viewport": "phone320"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 17 of 18 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone320",
+        "selector": "#review"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone320"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 77 text elements, including 76 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 76,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 17 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "phone375",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 17,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 18 focusable controls."
+        ],
+        "viewport": "phone375"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 17 of 18 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "phone375",
+        "selector": "#review"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "phone375"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 86 text elements, including 85 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 85,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "tablet",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "tablet"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 25 of 26 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "tablet",
+        "selector": "#review"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "tablet"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-011-MEASURED",
+        "severity": "info",
+        "message": "Text contrast measurement coverage recorded.",
+        "evidence": [
+          "Measured 86 text elements, including 85 normal-sized samples; skipped 0.",
+          "Normal-text samples only; inputs, pseudo-elements, large text and unmodeled backgrounds need separate review."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "normal-text-contrast",
+          "minimum": 4.9535088573571375,
+          "measuredCount": 85,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-012-MEASURED",
+        "severity": "info",
+        "message": "Interactive target measurement coverage recorded.",
+        "evidence": [
+          "Measured 25 interactive targets; skipped 0.",
+          "Inline text links are excluded. Dimensions do not establish keyboard operation or absence of occlusion."
+        ],
+        "viewport": "desktop",
+        "measurement": {
+          "version": "1.0",
+          "kind": "effective-target-size",
+          "minimum": 64,
+          "measuredCount": 25,
+          "skippedCount": 0
+        }
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-006-MEASURED",
+        "severity": "info",
+        "message": "Keyboard behavior was directly measured.",
+        "evidence": [
+          "Evaluated 26 focusable controls."
+        ],
+        "viewport": "desktop"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-014",
+        "severity": "error",
+        "message": "Keyboard traversal repeated focus before reaching all visible controls.",
+        "evidence": [
+          "Reached 25 of 26 visible controls before focus repeated at #review.",
+          "Remove Tab interception or focus redirection that prevents users from reaching the remaining controls."
+        ],
+        "viewport": "desktop",
+        "selector": "#review"
+      },
+      {
+        "checkId": "ZTDE-RUNTIME-016-MEASURED",
+        "severity": "info",
+        "message": "Reduced motion behavior was directly measured.",
+        "evidence": [
+          "Evaluated page animations and transitions."
+        ],
+        "viewport": "desktop"
+      }
+    ],
+    "decisionSignals": {},
+    "summary": {
+      "errors": 4,
+      "warnings": 0,
+      "info": 16
+    },
+    "passed": false,
+    "evidenceBoundary": {
+      "verifierLimitations": [
+        "Solid-color contrast sampling cannot establish contrast over gradients, images, video, canvas, or transparency without separate evidence.",
+        "Composition and rendered-asset checks apply only to explicitly instrumented roots. DOM metadata cannot establish source truth, legal clearance, or whether an unmarked visual should have been declared.",
+        "Static DOM and browser checks cannot establish metric correctness, backend availability beyond observed requests, legal clearance, or representative-user comprehension.",
+        "Screenshot hashes detect rendered change only; they do not prove visual quality or improvement."
+      ],
+      "humanReviewRequired": [
+        "An attributable reviewer must assess hierarchy, balance, scanability, density, domain fit, and intentional baseline changes.",
+        "Representative-user evidence is required for claims about task comprehension, confidence, efficiency, or usability."
+      ]
+    }
+  }
+}

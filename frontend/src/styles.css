@@ -94,7 +94,7 @@
   --muted-foreground: oklch(0.45 0.04 257.417);
   --accent: oklch(0.968 0.007 247.896);
   --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.5 0.18 27);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
@@ -220,42 +220,232 @@
 }
 
 /* Keep wide data inside its own scrolling region. */
-main, main > *, section { min-width: 0; }
-.overflow-x-auto { max-width: 100%; }
-[data-slot="tabs-trigger"] { color: var(--foreground); }
+main,
+main > *,
+section {
+  min-width: 0;
+}
+.overflow-x-auto {
+  max-width: 100%;
+}
+[data-slot="tabs-trigger"] {
+  color: var(--foreground);
+}
 
 /* Isolate the intrinsic width of wide tables from the document. */
-.overflow-x-auto { contain: inline-size layout; }
+.overflow-x-auto {
+  contain: inline-size layout;
+}
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: var(--motion-reduced) !important;
+    transition-duration: var(--motion-reduced) !important;
   }
 }
 
+:root {
+  --space-1: 0.5rem;
+  --space-1half: 0.75rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --control-min: 4rem;
+  --type-meta: 0.75rem;
+  --type-body: 0.875rem;
+  --type-section: 1.25rem;
+  --nav-full: 14rem;
+  --nav-slim: 6.5rem;
+  --record-max: 48rem;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --motion-reduced: 0.01ms;
+  --page-min-height: 100vh;
+  --table-max-height: 70vh;
+  --request-column-min: 15rem;
+  --request-column-max: 28rem;
+}
 /* Product shell uses an eight-pixel spacing rhythm. */
-.app-shell { display: grid; min-height: 100vh; }
-.app-nav { display: none; background: var(--card); border-right: 1px solid var(--border); padding: 1rem; min-width: 0; }
-.app-nav.mobile-open { display: block; }
-.app-topbar { display: grid; gap: 1rem; padding: 1rem; background: var(--card); border-bottom: 1px solid var(--border); }
-.nav-link { display: flex; align-items: center; gap: .75rem; min-height: 4rem; padding: .75rem; border-radius: var(--radius); font-size: .875rem; font-weight: 500; }
-.nav-active { background: var(--secondary); color: var(--primary); }
-.control, .primary-action { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 4rem; min-width: 4rem; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); font-size: .875rem; color: var(--foreground); }
-input.control, select.control { justify-content: start; }
-.primary-action { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); font-weight: 600; }
-button:disabled { cursor: not-allowed; }
-:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
-.panel { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); padding: 1.5rem; box-shadow: var(--shadow-panel); }
-.section-title { margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600; }
-.table-region { max-width: 100%; overflow-x: auto; contain: inline-size layout; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
-.product-table { width: 100%; text-align: left; font-size: .875rem; }
-.product-table th { padding: 1rem; font-size: .75rem; color: var(--muted-foreground); font-weight: 500; white-space: nowrap; }
-.product-table td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
-.product-table td:first-child { min-width: 15rem; max-width: 28rem; }
-.request-link { display: inline-flex; align-items: center; min-height: 4rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
-@media (min-width: 768px) { .app-shell { grid-template-columns: 14rem minmax(0,1fr); } .app-shell.nav-collapsed { grid-template-columns: 5.5rem minmax(0,1fr); } .app-nav { display: block; } .app-topbar { padding: 1rem 2rem; } }
-@media (min-width: 1280px) { .app-topbar { grid-template-columns: minmax(12rem,1fr) auto; align-items: center; } .app-topbar > :last-child { grid-column: 1 / -1; } }
-[data-lens="requester"] :is(button, input, select, textarea, a[href], summary) { min-height: 4rem; min-width: 4rem; }
-@media (min-width: 768px) { .app-shell.nav-collapsed { grid-template-columns: 6.5rem minmax(0,1fr); } }
+.app-shell {
+  display: grid;
+  min-height: var(--page-min-height);
+}
+.app-nav {
+  display: none;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: var(--space-2);
+  min-width: 0;
+}
+.app-nav.mobile-open {
+  display: block;
+}
+.app-topbar {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-min);
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  font-size: var(--type-body);
+  font-weight: var(--weight-medium);
+}
+.nav-active {
+  background: var(--secondary);
+  color: var(--primary);
+}
+.control,
+.primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--control-min);
+  min-width: var(--control-min);
+  padding: var(--space-2) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: var(--type-body);
+  color: var(--foreground);
+}
+input.control,
+select.control {
+  justify-content: start;
+}
+.primary-action {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  font-weight: var(--weight-semibold);
+}
+button:disabled {
+  cursor: not-allowed;
+}
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+.panel {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-panel);
+}
+.section-title {
+  margin-bottom: var(--space-2);
+  font-size: var(--type-section);
+  font-weight: var(--weight-semibold);
+}
+.table-region {
+  max-width: 100%;
+  overflow-x: auto;
+  contain: inline-size layout;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.product-table {
+  width: 100%;
+  text-align: left;
+  font-size: var(--type-body);
+}
+.product-table th {
+  padding: var(--space-2);
+  font-size: var(--type-meta);
+  color: var(--muted-foreground);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+.product-table td {
+  padding: var(--space-2);
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+.product-table td:first-child {
+  min-width: var(--request-column-min);
+  max-width: var(--request-column-max);
+}
+.request-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-min);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (min-width: 768px) {
+  .app-shell {
+    grid-template-columns: var(--nav-full) minmax(0, 1fr);
+  }
+  .app-shell.nav-collapsed {
+    grid-template-columns: var(--nav-slim) minmax(0, 1fr);
+  }
+  .app-nav {
+    display: block;
+  }
+  .app-topbar {
+    padding: var(--space-2) var(--space-4);
+  }
+}
+@media (min-width: 1280px) {
+  .app-topbar {
+    grid-template-columns: minmax(12rem, 1fr) auto;
+    align-items: center;
+  }
+  .app-topbar > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+[data-lens="requester"] :is(button, input, select, textarea, a[href], summary) {
+  min-height: var(--control-min);
+  min-width: var(--control-min);
+}
+@media (min-width: 768px) {
+  .app-shell.nav-collapsed {
+    grid-template-columns: var(--nav-slim) minmax(0, 1fr);
+  }
+}
 
-@media (min-width: 768px) { .app-topbar button[aria-label="Toggle navigation"] { display: none; } }
+@media (min-width: 768px) {
+  .app-topbar button[aria-label="Toggle navigation"] {
+    display: none;
+  }
+}
+
+.record-view-width {
+  width: min(var(--record-max), calc(100vw - 5rem));
+}
+@media (min-width: 768px) {
+  .app-shell {
+    --nav-size: var(--nav-full);
+  }
+  .app-shell.nav-collapsed {
+    --nav-size: var(--nav-slim);
+  }
+  .record-view-width {
+    width: min(var(--record-max), calc(100vw - var(--nav-size, 0rem) - 7rem));
+  }
+}
+
+/* Long words and the existing technical flow reflow within their own regions. */
+main {
+  overflow-wrap: anywhere;
+}
+.app-topbar form > button {
+  flex-shrink: 0;
+}
+.table-region {
+  max-height: var(--table-max-height);
+  overflow: auto;
+}

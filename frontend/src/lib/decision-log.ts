@@ -23,7 +23,13 @@ export const toEntry = (r: LogRecord): LogEntry => ({
   time: r.time,
   text: r.text ?? r.record?.request_text ?? r.request_id,
   action: r.action ?? r.record?.recommendation.action ?? null,
-  target: r.target ?? (typeof r.record?.recommendation.target === "string" ? r.record.recommendation.target : r.record?.recommendation.target?.id) ?? r.record?.recommendation.build_on ?? "-",
+  target:
+    r.target ??
+    (typeof r.record?.recommendation.target === "string"
+      ? r.record.recommendation.target
+      : r.record?.recommendation.target?.id) ??
+    r.record?.recommendation.build_on ??
+    "-",
   decision: r.decision,
   approver: r.approver,
   owner: r.owner,
@@ -54,4 +60,10 @@ export function useDecisionLog() {
 
 // Unknown actions are not counted: only a recorded reuse-style decision avoids a build.
 export const newBuildsAvoided = (log: LogEntry[]) =>
-  log.filter((e) => e.decision === "approve" && e.action && e.action !== "new_build").length;
+  log.filter(
+    (e) =>
+      e.decision === "approve" &&
+      e.action &&
+      e.action !== "new_build" &&
+      e.action !== "human_review",
+  ).length;

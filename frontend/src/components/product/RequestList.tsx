@@ -2,4 +2,82 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import type { WorkItemRow } from "@/lib/api";
 import { ACTIONS } from "@/components/gate/shared";
 import { localDate, SampleTag, StatusBadge } from "./shared";
-export function RequestList({ rows, review = false }: { rows: WorkItemRow[]; review?: boolean }) { const navigate = useNavigate(); return <div className="table-region" tabIndex={0} role="region" aria-label="Requests table"><table className="product-table"><thead><tr><th>Request</th><th>Status</th><th>Recommendation</th><th>Owner</th><th>Updated</th></tr></thead><tbody>{rows.map((row) => <tr key={row.request_id} className="cursor-pointer" onClick={(event) => { if ((event.target as HTMLElement).closest("a,button,input")) return; if (review) void navigate({ to: "/approvals", search: { id: row.request_id } }); else void navigate({ to: "/requests/$requestId", params: { requestId: row.request_id } }); }}><td>{review ? <Link to="/approvals" search={{ id: row.request_id }} className="request-link">{row.text}</Link> : <Link to="/requests/$requestId" params={{ requestId: row.request_id }} className="request-link">{row.text}</Link>}<div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{row.request_id}</span>{row.origin === "sample" && <SampleTag />}{row.local_only && <span>Local only</span>}</div></td><td><StatusBadge status={row.status} /><p className="mt-2 text-xs text-muted-foreground">{row.open_questions ? `${row.open_questions} open question${row.open_questions === 1 ? "" : "s"}` : row.gates_passed === true ? "Gates passed" : row.gates_passed === false ? "Gates blocked" : "Gates not applicable"}</p></td><td>{ACTIONS[row.action]?.label ?? row.action}<p className="mt-1 text-xs text-muted-foreground">{row.target_name}</p></td><td>{row.owner ?? "Owner required"}</td><td className="text-xs text-muted-foreground">{localDate(row.updated)}</td></tr>)}</tbody></table></div>; }
+export function RequestList({ rows, review = false }: { rows: WorkItemRow[]; review?: boolean }) {
+  const navigate = useNavigate();
+  return (
+    <div className="table-region" tabIndex={0} role="region" aria-label="Requests table">
+      <table className="product-table">
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>Status</th>
+            <th>Recommendation</th>
+            <th>Owner</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr
+              key={row.request_id}
+              aria-label={`Open request: ${row.text}`}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && event.target === event.currentTarget)
+                  event.currentTarget.click();
+              }}
+              className="cursor-pointer"
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest("a,button,input")) return;
+                if (review) void navigate({ to: "/approvals", search: { id: row.request_id } });
+                else
+                  void navigate({
+                    to: "/requests/$requestId",
+                    params: { requestId: row.request_id },
+                  });
+              }}
+            >
+              <td>
+                {review ? (
+                  <Link to="/approvals" search={{ id: row.request_id }} className="request-link">
+                    {row.text}
+                  </Link>
+                ) : (
+                  <Link
+                    to="/requests/$requestId"
+                    params={{ requestId: row.request_id }}
+                    className="request-link"
+                  >
+                    {row.text}
+                  </Link>
+                )}
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>{row.request_id}</span>
+                  {row.origin === "sample" && <SampleTag />}
+                  {row.local_only && <span>Local only</span>}
+                </div>
+              </td>
+              <td>
+                <StatusBadge status={row.status} />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {row.open_questions
+                    ? `${row.open_questions} open question${row.open_questions === 1 ? "" : "s"}`
+                    : row.gates_passed === true
+                      ? "Gates passed"
+                      : row.gates_passed === false
+                        ? "Gates blocked"
+                        : "Gates not applicable"}
+                </p>
+              </td>
+              <td>
+                {ACTIONS[row.action]?.label ?? row.action}
+                <p className="mt-1 text-xs text-muted-foreground">{row.target_name}</p>
+              </td>
+              <td>{row.owner ?? "Owner required"}</td>
+              <td className="text-xs text-muted-foreground">{localDate(row.updated)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

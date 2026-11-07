@@ -15,7 +15,7 @@ function Harness() {
 }
 
 const roleButtons = () =>
-  within(screen.getByRole("group", { name: "Role" })).getAllByRole("button");
+  within(screen.getByRole("group", { name: "Lens" })).getAllByRole("button");
 
 describe("role switcher", () => {
   beforeEach(() => localStorage.clear());
@@ -37,7 +37,7 @@ describe("role switcher", () => {
       "aria-pressed",
       "true",
     );
-    expect(screen.getByText(/real deployment takes the role from SSO groups/)).toBeInTheDocument();
+    expect(screen.getByText(/Lenses change the view/)).toBeInTheDocument();
   });
 
   it("switches role and keeps it in localStorage", () => {
@@ -81,12 +81,14 @@ describe("role switcher", () => {
 
   it("shows each lens home in the routed product shell", async () => {
     await renderProduct("/");
-    expect(await screen.findByRole("heading", { name: "Your request workspace" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Your request workspace" }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Approver" }));
     expect(screen.getByRole("heading", { name: "Decisions that need you" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Executive" }));
-    expect(screen.getByRole("heading", { name: "Build less. Reuse more." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Executive overview" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Admin" }));
-    expect(screen.getByRole("heading", { name: "System health and ownership" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Admin settings" })).toBeInTheDocument();
   });
 });
