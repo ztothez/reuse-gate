@@ -12,6 +12,23 @@ For the finals (4 minutes plus 6 minutes of questions) and the submission form. 
    executive, operator, admin. Give judges the Judge (business) or Judge Analyst code; approver and admin codes stay with you.
 4. Open the tabs below in advance. If a model provider is down, say so: decisions never depend on a model.
 
+## 2-minute demo video
+
+Narration: `docs/demo_voiceover.txt` (ElevenLabs, about 1:56). English subtitles: `docs/demo_subtitles.srt`, timed for the default
+voice pace; nudge them in CapCut if the voice runs faster or slower. Record with OBS while signed in with the judge code.
+
+| Time | Section | Show |
+| --- | --- | --- |
+| 0:00 to 0:13 | Problem | Analyst view, Radar: conflicting KPIs, ownerless and unused reports (or one slide with "360 reports, 206 unused, 86 without an owner") |
+| 0:13 to 0:28 | Solution | Business view, Ask page, the five-stage strip on a request |
+| 0:28 to 0:42 | Demo: ask | Business: type the Nubeqa request, answer the question, the answer card "Extend Nubeqa Gross-to-Net Monthly" |
+| 0:42 to 0:50 | Demo: analyst | Viewing as Analyst: Evidence tab, then Dashboards, "Start from a request's spec" |
+| 0:50 to 1:03 | Demo: governance | Viewing as Approver: `SAMPLE-07`, Gates tab, Simulate owner, 7 of 7, Approve |
+| 1:03 to 1:10 | Demo: developer | Viewing as Developer: Configuration, a measured change, 57 to 51 |
+| 1:10 to 1:17 | Demo: roles | Flick through Executive report, Operator wall, Admin outbox showing "sent" |
+| 1:17 to 1:38 | Impact | Overview page: 57 of 150, 13 to 93 of 124 (labelled modelled) |
+| 1:38 to 1:56 | Close | Top bar "decisions on KServe", then the OpenShift AI Deployments page |
+
 ## 4-minute pitch
 
 | Time | Say | Show |

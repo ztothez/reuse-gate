@@ -1,0 +1,124 @@
+1
+00:00:00,500 --> 00:00:05,398
+At Bayer, every new business question tends to become a new dashboard.
+
+2
+00:00:05,398 --> 00:00:10,296
+The result is hundreds of reports, conflicting KPI definitions, reports nobody owns,
+
+3
+00:00:10,296 --> 00:00:12,337
+and a growing maintenance bill.
+
+4
+00:00:12,737 --> 00:00:15,186
+Reuse Gate sits before the build.
+
+5
+00:00:15,186 --> 00:00:20,084
+It checks the existing reports first, and recommends reuse, repair, extension, migration,
+
+6
+00:00:20,084 --> 00:00:24,573
+or a new build, with every decision backed by cited data.
+
+7
+00:00:24,573 --> 00:00:26,206
+A person always approves.
+
+8
+00:00:26,606 --> 00:00:31,504
+Here, a business user asks for a Nubeqa sales dashboard in plain
+
+9
+00:00:31,504 --> 00:00:32,704
+words.
+
+10
+00:00:32,704 --> 00:00:37,602
+Reuse Gate asks what is unclear, then answers on one card: don't
+
+11
+00:00:37,602 --> 00:00:38,802
+build.
+
+12
+00:00:38,802 --> 00:00:43,700
+Extend an existing report that already covers two of the three KPIs.
+
+13
+00:00:44,100 --> 00:00:48,998
+The analyst sees every row behind that answer, and can turn it
+
+14
+00:00:48,998 --> 00:00:53,488
+into a dashboard preview filled with real rows from the data.
+
+15
+00:00:53,888 --> 00:00:58,786
+For a new oncology build, the gates block release because the data
+
+16
+00:00:58,786 --> 00:01:00,418
+model's owner is inactive.
+
+17
+00:01:00,418 --> 00:01:05,316
+The approver simulates one active owner, all seven gates pass, and the
+
+18
+00:01:05,316 --> 00:01:09,398
+decision is recorded with an owner and a review date.
+
+19
+00:01:09,798 --> 00:01:14,696
+A developer proposes a rule change, and it is measured on all
+
+20
+00:01:14,696 --> 00:01:18,778
+one hundred and fifty requests before anyone may approve it.
+
+21
+00:01:19,178 --> 00:01:24,076
+Every role has its own view and sees only its own data,
+
+22
+00:01:24,076 --> 00:01:26,524
+and approvers are notified by email.
+
+23
+00:01:26,924 --> 00:01:31,822
+On Bayer's synthetic data pack, fifty-seven of one hundred and fifty requests
+
+24
+00:01:31,822 --> 00:01:33,455
+avoid a new build.
+
+25
+00:01:33,455 --> 00:01:37,537
+That is thirty-eight percent fewer dashboards to build and maintain.
+
+26
+00:01:37,537 --> 00:01:40,802
+One owner fix would unblock eighty more specs.
+
+27
+00:01:40,802 --> 00:01:44,884
+These figures are modelled from the data, not measured savings.
+
+28
+00:01:45,284 --> 00:01:50,182
+It runs on Red Hat OpenShift AI, and the decisions are rules,
+
+29
+00:01:50,182 --> 00:01:53,447
+not guesses, so they are repeatable and auditable.
+
+30
+00:01:53,447 --> 00:01:54,647
+Build less.
+
+31
+00:01:54,647 --> 00:01:55,847
+Build better.
+
