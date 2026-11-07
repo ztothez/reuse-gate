@@ -22,16 +22,18 @@ Intent -> Evidence -> Decision -> Spec -> Gates -> human approval -> registered 
 
 ### Who sees what
 
-One request is one work item with five tabs: Answer, Evidence, Spec, Gates and Activity. "Viewing as" in the sidebar changes
-what each person sees first; write access still comes from the API (the access code on `/approve` and `/remediate`).
+Each role gets its own app: its own home, sidebar and request tabs, and the API returns only that role's data (see Access below).
+One request is one work item with five tabs: Answer, Evidence, Spec, Gates and Activity.
 
-| Viewing as | Home page | A request opens on |
-| --- | --- | --- |
-| Business | Ask: one request box, example requests, the modelled 57/150 | Answer: the plain-language explanation with Listen, large targets for gloved hands |
-| Analyst | Evidence workspace: canonical KPI share, conflicting definitions, citation validity, every request with its target and gate result | Evidence: Source, Finding, Supports for every cited row, KPI coverage, retire lists, the flow from first prompt to decision |
-| Developer | Build queue: specs and report changes, approved first | Spec: semantic model, measures, owner, review date, governance, and the JSON handoff |
-| Approver | Decisions that need you | Gates: each gate, the simulated owner fix, the link into the approval queue |
-| Admin | Settings: API health, access code | Activity: decision record, activity trail, clarification rounds |
+| Role | Home page | Own workspace | A request opens on |
+| --- | --- | --- | --- |
+| Business | Ask: one request box, example requests, the modelled 57/150 | Their own requests only | Answer: the plain-language explanation with Listen, large targets for gloved hands |
+| Analyst | Evidence workspace: canonical KPI share, conflicting definitions, citation validity | **Dashboard studio**: drag measures and fields from the data pack onto a grid, group, split, resize, reorder, start from a request's spec, save, share, export JSON or CSV | Evidence: Source, Finding, Supports for every cited row, KPI coverage, retire lists |
+| Developer | Build queue: specs and report changes, approved first | **Decision configuration**: propose thresholds, KPI synonyms and market aliases; each proposal is measured on all 150 requests | Spec: semantic model, measures, owner, review date, and the JSON handoff |
+| Approver | Decisions that need you | Approval queue, config change review (never their own), executive report, operations wall | Gates: each gate, the simulated owner fix |
+| Executive | **Executive report**: plain words, figures from live records, each section with its source; print or save as PDF, email, listen | Shared dashboards | Answer |
+| Operator | **Operations wall**: large type for a wall screen or gloves, refreshes every minute: failed refreshes and their owners, query errors, lowest on-time in-full, open high-severity signals, queue counts | Nothing else; no request text | (no access to requests) |
+| Admin | Settings: API health, access code | **Workflows and email**: what is wired to n8n, a test email per role, the outbox of every message sent or not sent | Activity: decision record, activity trail, clarification rounds |
 
 A link can open a view directly: `/requests/<id>?as=analyst`. The top bar shows where decisions run ("decisions on KServe") and
 each answer card says which component decided and which model tier read the intent. The look follows the Reuse Gate design system
@@ -48,7 +50,7 @@ Bayer's legend on every stage: user input orange, agentic skill yellow, determin
 | Intent-to-Evidence | `/explore` | Evidence | green | Deterministic: scored from the data pack tables, with citations, no agent |
 | (none) | | **Decision, our addition** | green | Reuse, repair, extend, migrate, retire, new build or human review, by deterministic rules. It sits between Evidence and Spec, so a spec exists only when something needs building |
 | Evidence-to-Spec | `/to-spec`, Spec | Spec | blue | Built by deterministic Python from the decision, not by an agent |
-| Spec-to-Report | `render_preview`, Report | Gates, human approval, spec preview, registration | green | Seven gates run before the preview. The report is a spec handoff registered with an owner and review date, not a published dashboard |
+| Spec-to-Report | `render_preview`, Report | Gates, human approval, registration, then the dashboard studio | green, then orange | Seven gates run before release. "Start from a request's spec" turns the spec's KPIs into tiles filled with the data pack's real rows (the preview); the analyst edits and exports it. Export is JSON and CSV, not a .pbip file |
 
 ### The clarification loop
 
@@ -428,10 +430,12 @@ and name; "Viewing as" offers only the roles that tab is signed in to.
 | Role | Can read | Can do |
 | --- | --- | --- |
 | Business | Only the requests they filed, evaluation | File and answer their own requests, listen, speak a request |
-| Analyst | Every request with evidence, radar, evaluation | Nothing that writes |
-| Developer | Every request with specs, evaluation | Build specs (`/spec`) |
-| Approver | Everything above, decision log, owners | Simulate an owner fix, approve or reject |
-| Admin | Everything | Everything |
+| Analyst | Every request with evidence, radar, evaluation, the data pack through `/explore`, own and shared dashboards | Build, save and share dashboards |
+| Developer | Every request with specs, evaluation, configuration, shared dashboards | Build specs (`/spec`), propose configuration changes |
+| Approver | Everything above, decision log, owners, executive report, operations wall | Simulate an owner fix, approve or reject requests and configuration changes (not their own) |
+| Executive | Every request (names hidden), the executive report, shared dashboards | Email the report |
+| Operator | The operations wall only: counts, model and report names, owners | Nothing that writes |
+| Admin | Everything, including the notification outbox | Everything, including test emails |
 
 - Another person's request answers 404, so its existence is not revealed.
 - Approver names are hidden from business, analyst and developer.
@@ -439,9 +443,12 @@ and name; "Viewing as" offers only the roles that tab is signed in to.
 - Codes are compared in constant time, kept in the browser tab's sessionStorage only, and never logged.
 - With a live API configured, the UI never falls back to bundled data or local drafts: an unreachable API is shown as an error.
 
+- Separation of duties for configuration: nobody approves a change they proposed (403), and an approved change is a release patch,
+  never applied to the running service.
+
 **Not implemented, and needed for production:** single sign-on instead of codes (the role and name would come from an OIDC token
 or the OpenShift OAuth proxy; only `access.principal()` changes), approval rights by scope (only the domain's approver), separation
-of duties (a requester cannot approve their own request), filtering confidential assets by `classification`, and a tamper-evident,
+of duties on request approvals (a requester cannot approve their own request), filtering confidential assets by `classification`, and a tamper-evident,
 centrally stored decision log. Without role codes the API runs open, as for local development, and `REUSE_GATE_WRITE_TOKEN` alone
 guards approve and remediate.
 
@@ -544,9 +551,27 @@ A test gives the identical decision in both modes on the 21 messy prompts (throu
 request texts. How to turn it on: [deploy/openshift/enable-kserve-path.md](deploy/openshift/enable-kserve-path.md). Details, data flows and
 what was measured are in [docs/openshift.md](docs/openshift.md).
 
-### n8n: approval webhook and radar digest
+### Email and workflows (n8n)
 
-Importable workflows are in [deploy/n8n/](deploy/n8n/). Both start inactive.
+**Live on n8n Cloud** (`ztothez.app.n8n.cloud`). The API posts each event to the **Reuse Gate notifications** workflow
+(webhook checked with the `Reuse Gate webhook secret` header credential), and n8n sends the email with its **Proton SMTP**
+credential. The SMTP password lives in n8n only. `backend/reuse_gate/notify.py` writes every event to an outbox with its outcome
+(sent, failed, not configured, no recipient), shown on the admin's Workflows page. Sending runs in a thread and never fails the
+request that caused it.
+
+| Event | Emails |
+| --- | --- |
+| A request is ready for a decision, or needs a person | approver |
+| A request is approved or rejected | business |
+| A configuration change is proposed / decided | approver / developer |
+| An executive emails the report | executive |
+| Admin sends a test | any role |
+
+Settings: `REUSE_GATE_NOTIFY_URL` (the webhook), `N8N_WEBHOOK_SECRET`, `REUSE_GATE_NOTIFY_EMAILS` (`role:address,address;...`) and
+`REUSE_GATE_UI_URL` for links. On the cluster the secret and recipients come from `reuse-gate-n8n`.
+
+The approval webhook and the weekday radar digest (which also emails through Proton SMTP) run on the same instance. Importable
+copies of the first two workflows are in [deploy/n8n/](deploy/n8n/). They start inactive.
 
 ```bash
 n8n import:workflow --input=deploy/n8n/approval_workflow.json
