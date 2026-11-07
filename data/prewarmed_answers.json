@@ -1,7 +1,9 @@
 {
  "0e24f1b792d4208c416df53c9b4b375a1f708173669e52b90dfe5d0b0d6bf257": {
   "action": "extend",
-  "explanation": null,
+  "explanation": [
+   "We\u2019ll extend the existing All Pharma Executive Legacy dashboard to include Market Access Coverage as a primary KPI, since it already serves Reimbursement Status Coverage and is heavily used, rather than building a new report. The two low\u2011usage duplicate apps will be retired, and we\u2019ll promote the missing KPI to primary while fixing owner and semantic model issues."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
@@ -38,7 +40,9 @@
  },
  "32cb0722c46b572d99c900ac11a2f68c0e39a12bbb44ae8e1d73f27efd5d7a0b": {
   "action": "extend",
-  "explanation": null,
+  "explanation": [
+   "We\u2019ll extend the existing All Pharma Budget Legacy Power\u202fBI report (AST\u20110088) to add Net\u202fSales as a primary KPI, because it already provides the requested Demand Forecast Accuracy and Inventory Coverage and is an active, widely used asset. Reusing this report follows the governance rule to reuse before building new assets and ensures all KPIs are sourced from canonical definitions."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
@@ -74,7 +78,11 @@
  },
  "572ed9b8177c6afe6795bf73f2af31c4a59910a3fcc3811501dc6d67b9b23e7f": {
   "action": "repair_and_reuse",
-  "explanation": null,
+  "explanation": [
+   "We recommend fixing the governance issues (switch to the canonical KPI, resolve the refresh warning and improve AI\u2011readiness) and then reusing the existing Beyonttra Demand \u2013 EMEA report instead of building a new one.",
+   "The report already covers the requested Launch Adoption Index and Reimbursement Status Coverage KPIs, is certified, active, and has high user adoption, making repair cheaper and avoiding duplication.",
+   "After repair, it can serve the country\u2011level launch\u2011readiness and reimbursement progress needs."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
@@ -93,7 +101,11 @@
  },
  "6047a97645a95f747ff8074dfce6a6aaa92490cd99224099af89ecd3d68170a4": {
   "action": "extend",
-  "explanation": null,
+  "explanation": [
+   "The system recommends extending the existing All Pharma Inventory v2 report instead of creating a new one because it is already active, widely used, and already provides the Gross\u2011to\u2011Net Rate and Budget Variance KPIs.",
+   "By adding Net Sales as a primary KPI (and correcting the Budget Variance definition), the request is fulfilled while following the governance rule to reuse assets before building new ones.",
+   "This approach avoids duplicate work and keeps the semantic model consistent."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
@@ -113,7 +125,10 @@
  },
  "d0f079833108692cf4beacae9dc684e7f0ba3eaf93ad948f533fa119de7f590f": {
   "action": "extend",
-  "explanation": null,
+  "explanation": [
+   "The active, certified Nubeqa Gross-to\u2011Net Monthly report already provides Net Sales Growth and Market Access Coverage, so we should extend it to add Forecast Variance as a primary KPI and replace the non\u2011canonical KPI variants.",
+   "This follows governance rules to reuse existing assets and prioritize canonical KPIs, while also fixing the failed refresh of its underlying semantic model."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
@@ -133,7 +148,9 @@
  },
  "e0fc5d1a22e7a8762b54376d3993426ed672ab0fb6fd760e610313c0929fe390": {
   "action": "extend",
-  "explanation": null,
+  "explanation": [
+   "The recommendation is to extend the existing All Pharma Executive \u2013 US Power\u202fBI dashboard because it already includes the Market Access Coverage and Launch Adoption Index KPIs. You should add the missing Net Sales KPI as a primary, canonical metric and replace the non\u2011canonical Launch Adoption Index variant with its canonical definition."
+  ],
   "intent": {
    "clarifications": [],
    "kind": "new_report",
