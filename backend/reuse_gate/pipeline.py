@@ -8,7 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
-from reuse_gate import clarify
+from reuse_gate import clarify, faithfulness
 from reuse_gate.llm import LLM
 from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, _rule, scoped_assessments, target_coverage
 from reuse_gate.spec import build_spec
@@ -189,7 +189,7 @@ def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
     result["answers"] = read.applied
     result["ai"] = {"source": source, "intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
                     "model": parsed.model, "cached": parsed.cached, "reason": parsed.reason,
-                    "notice": RULES_NOTICES.get(parsed.reason)}
+                    "notice": RULES_NOTICES.get(parsed.reason), "guard": None}
     if source == "llm":
         decision = result["recommendation"]
         store = getattr(client, "answers", None)
@@ -200,12 +200,17 @@ def run_request(est, req, client=None, as_of=None, answers=None, rounds=None):
         else:
             try:
                 lines = _within(deadline - time.monotonic(), lambda: client.explain(intent.text, result["intent"], explain_brief(decision)))
-                if store and not answers:
-                    store.put_explanation(intent.text, decision["action"], target, lines)
             except Exception:  # the rule rationale stands in, so a failed explanation is never an error
                 lines = None
         if lines:
-            result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
+            guard = faithfulness.check(est, result, lines)
+            result["ai"]["guard"] = "passed" if guard["passed"] else "replaced"
+            if guard["passed"]:
+                result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
+                if store and not answers and not parsed.cached:
+                    store.put_explanation(intent.text, decision["action"], target, lines)
+            else:  # an explanation that states something the decision and its rows do not support is not shown
+                result["ai"]["guard_unsupported"] = guard["unsupported"]
     if loop["status"] == "asking" and client.configured and (parsed.reason == "loop" or (source == "llm" and (not parsed.cached or answers))):
         try:
             wording, model = _within(deadline - time.monotonic(), lambda: clarify.phrase(est, client, intent.text, result["intent"]["questions"]))
