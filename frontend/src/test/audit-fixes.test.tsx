@@ -64,7 +64,7 @@ describe("audit regressions", () => {
 
   it.each(['{"role":"admin"}', '[]', 'null', 'superuser'])("ignores invalid stored role %s", (value) => {
     localStorage.setItem(ROLE_KEY, value);
-    expect(readRole()).toBe("requester");
+    expect(readRole()).toBe("business");
     expect(hasInvalidStoredRole()).toBe(true);
   });
 });

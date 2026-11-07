@@ -1,8 +1,9 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RoleSwitcher } from "@/components/gate/RoleSwitcher";
 import { renderProduct } from "./render-product";
-import { DEFAULT_ROLE, readRole, ROLE_KEY, saveRole, useRole } from "@/lib/role";
+import { DEFAULT_ROLE, readRole, ROLE_KEY, roleTab, saveRole, useRole } from "@/lib/role";
+import mock from "@/data/mock_api.json";
 
 function Harness() {
   const [role, setRole] = useRole();
@@ -14,10 +15,9 @@ function Harness() {
   );
 }
 
-const roleButtons = () =>
-  within(screen.getByRole("group", { name: "Lens" })).getAllByRole("button");
+const select = () => screen.getByLabelText("Viewing as");
 
-describe("role switcher", () => {
+describe("viewing as", () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => {
     cleanup();
@@ -25,39 +25,38 @@ describe("role switcher", () => {
     vi.unstubAllGlobals();
   });
 
-  it("offers the four roles and starts as Requester", () => {
+  it("offers five roles and starts as Business", () => {
     render(<Harness />);
-    expect(roleButtons().map((b) => b.textContent)).toEqual([
-      "Requester",
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "Business",
+      "Analyst",
+      "Developer",
       "Approver",
-      "Executive",
       "Admin",
     ]);
-    expect(screen.getByRole("button", { name: "Requester" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    expect(screen.getByText(/Lenses change the view/)).toBeInTheDocument();
+    expect(select()).toHaveValue("business");
+    expect(screen.getByText(/the API controls who can approve/)).toBeInTheDocument();
   });
 
   it("switches role and keeps it in localStorage", () => {
     render(<Harness />);
-    fireEvent.click(screen.getByRole("button", { name: "Approver" }));
-    expect(screen.getByRole("button", { name: "Approver" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
-    expect(screen.getByRole("button", { name: "Requester" })).toHaveAttribute(
-      "aria-pressed",
-      "false",
-    );
+    fireEvent.change(select(), { target: { value: "approver" } });
+    expect(select()).toHaveValue("approver");
     expect(localStorage.getItem(ROLE_KEY)).toBe("approver");
   });
 
-  it("restores the stored role on the next visit", () => {
-    localStorage.setItem(ROLE_KEY, "executive");
+  it("restores the stored role, and maps roles saved by earlier versions", () => {
+    localStorage.setItem(ROLE_KEY, "developer");
     render(<Harness />);
-    expect(screen.getByTestId("current")).toHaveTextContent("executive");
+    expect(screen.getByTestId("current")).toHaveTextContent("developer");
+    for (const [old, now] of [
+      ["requester", "business"],
+      ["executive", "business"],
+      ["steward", "admin"],
+    ]) {
+      localStorage.setItem(ROLE_KEY, old!);
+      expect(readRole()).toBe(now);
+    }
   });
 
   it("ignores an unknown stored value", () => {
@@ -75,22 +74,39 @@ describe("role switcher", () => {
     expect(readRole()).toBe(DEFAULT_ROLE);
     expect(() => saveRole("admin")).not.toThrow();
     render(<Harness />);
-    fireEvent.click(screen.getByRole("button", { name: "Admin" }));
+    fireEvent.change(select(), { target: { value: "admin" } });
     expect(screen.getByTestId("current")).toHaveTextContent("admin");
   });
 
-  it("shows each lens home in the routed product shell", async () => {
+  it("changes the home page with the role", async () => {
     await renderProduct("/");
     expect(
       await screen.findByRole("heading", {
         name: "Before you build a dashboard, check what already exists",
       }),
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Approver" }));
+    fireEvent.change(select(), { target: { value: "approver" } });
     expect(screen.getByRole("heading", { name: "Decisions that need you" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Executive" }));
-    expect(screen.getByRole("heading", { name: "Executive overview" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Admin" }));
+    fireEvent.change(select(), { target: { value: "admin" } });
     expect(screen.getByRole("heading", { name: "Admin settings" })).toBeInTheDocument();
+  });
+
+  it("opens the request on the tab for the role", async () => {
+    expect(
+      ["business", "analyst", "developer", "approver", "admin"].map((r) => roleTab(r as never)),
+    ).toEqual(["answer", "evidence", "spec", "gates", "activity"]);
+    localStorage.setItem(ROLE_KEY, "developer");
+    await renderProduct("/requests/SAMPLE-07");
+    expect(await screen.findByRole("tab", { name: "Spec" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByText("All Pharma dashboard")).toBeInTheDocument();
+    fireEvent.change(select(), { target: { value: "analyst" } });
+    expect(screen.getByRole("tab", { name: "Evidence" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("columnheader", { name: "Supports" })).toBeInTheDocument();
+    expect(
+      mock.work_items.detail["SAMPLE-07"].result.recommendation.evidence.length,
+    ).toBeGreaterThan(0);
   });
 });

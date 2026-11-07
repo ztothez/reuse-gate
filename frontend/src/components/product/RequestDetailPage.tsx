@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import { getLog, getRequest, saveRequest, type Answer, type WorkItem } from "@/lib/api";
 import { displayText } from "@/lib/display-text";
 import { requestGates } from "@/lib/governance";
+import { roleTab, type RequestTab } from "@/lib/role";
 import { itemsChanged, useResource } from "@/lib/use-resource";
 import { openQuestions, type RequestState } from "@/lib/use-request";
-import { itemRow } from "@/lib/work-item-cache";
 import { ACTIONS } from "@/components/gate/shared";
 import { RequesterView } from "@/components/gate/RequesterView";
-import { FlowView } from "@/components/gate/FlowView";
 import { GateComparison, GateList } from "@/components/gate/GateComparison";
 import { DecisionRecordView } from "@/components/gate/DecisionRecordView";
 import { ListenButton } from "@/components/gate/ListenButton";
+import { useLens } from "./AppShell";
 import { DecisionSource, DecisionSteps } from "./DecisionTrail";
+import { EvidenceTab, SpecTab } from "./RequestTabs";
 import { ListState, PageHeading, SampleTag, StatusBadge, localDate } from "./shared";
 export function RequestDetailPage({ id }: { id: string }) {
   const resource = useResource(() => getRequest(id), id);
@@ -39,9 +41,23 @@ export function RequestDetailPage({ id }: { id: string }) {
     />
   );
 }
+// One sentence under the answer: KPI coverage when there is a target, otherwise the first rule line.
+function summary(item: WorkItem) {
+  const rec = item.result.recommendation;
+  const coverage = rec.target?.coverage;
+  if (coverage?.requested.length) {
+    const missing = coverage.missing.length ? ` ${coverage.missing.join(", ")} needs adding.` : "";
+    return `Covers ${coverage.covered.length} of ${coverage.requested.length} requested KPIs as primary.${missing}`;
+  }
+  if (rec.build_on)
+    return `Build on the governed semantic model ${rec.build_on}, using canonical KPI definitions.`;
+  return rec.rationale[0] ? displayText(rec.rationale[0]) : "";
+}
 function DetailContent({ item, reload }: { item: WorkItem; reload: () => void }) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("overview");
+  const [role] = useLens();
+  const [tab, setTab] = useState<RequestTab>(roleTab(role));
+  useEffect(() => setTab(roleTab(role)), [role]);
   const [text, setText] = useState(item.text);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +68,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
   const meta = ACTIONS[rec.action];
   const Icon = meta.icon;
   const gates = requestGates(item.result);
+  const failing = gates?.gates.filter((gate) => !gate.passed).length ?? 0;
   const closed = item.status === "approved" || item.status === "rejected";
   const outdated = text !== item.text;
   async function check(fresh?: Answer[]) {
@@ -98,20 +115,64 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
     },
     outdated,
   };
-  const tabs = [
-    { id: "overview", label: "Overview" },
-    { id: "clarification", label: `Clarification (${item.rounds.length})` },
-    { id: "gates", label: "Gates" },
+  const tabs: { id: RequestTab; label: string; badge?: number }[] = [
+    { id: "answer", label: "Answer" },
+    { id: "evidence", label: "Evidence" },
+    { id: "spec", label: "Spec" },
+    { id: "gates", label: "Gates", badge: failing },
     { id: "activity", label: "Activity" },
-    ...(item.decision ? [{ id: "record", label: "Decision record" }] : []),
   ];
+  const title =
+    rec.target?.name ?? (rec.build_on ? `New dashboard on ${rec.build_on}` : meta.label);
   return (
     <>
-      <PageHeading
-        title={item.text}
-        titleClassName="request-headline"
-        description="A saved request with a status, evidence and a decision trail."
-        action={
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <Link to="/requests" className="underline">
+          Requests
+        </Link>
+        <ChevronRight aria-hidden className="h-4 w-4" />
+        <span className="text-foreground">{item.request_id}</span>
+        {item.origin === "sample" && <SampleTag />}
+        <span className="ml-auto">
+          <StatusBadge status={item.status} />
+        </span>
+      </div>
+      <h1 className="request-headline text-xl font-semibold sm:text-2xl">{item.text}</h1>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {item.requester ?? "Requester not provided"} · updated {localDate(item.updated)}
+      </p>
+      <section
+        aria-label="Recommendation"
+        className={`${meta.tone} panel mt-6 flex flex-wrap items-center gap-4`}
+      >
+        <Icon aria-hidden className="h-10 w-10 shrink-0" />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wider">{meta.label}</p>
+          <h2 className="mt-1 text-xl font-semibold">{title}</h2>
+          <p className="mt-1 text-sm">{summary(item)}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(outdated && !closed) || item.local_only ? (
+            <button
+              className="primary-action"
+              disabled={busy || !text.trim()}
+              onClick={() => void check()}
+            >
+              {busy ? "Rechecking..." : "Recheck request"}
+            </button>
+          ) : item.status === "clarifying" ? (
+            <button className="primary-action" onClick={() => setTab("answer")}>
+              Answer questions
+            </button>
+          ) : closed ? (
+            <button className="primary-action" onClick={() => setTab("activity")}>
+              View decision record
+            </button>
+          ) : (
+            <Link className="primary-action" to="/approvals" search={{ id: item.request_id }}>
+              Review for approval
+            </Link>
+          )}
           <button
             className="control"
             onClick={() => {
@@ -123,49 +184,34 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
           >
             Copy link
           </button>
-        }
-      />
+        </div>
+      </section>
       {copy && (
-        <p role="status" className="mb-4 text-sm">
+        <p role="status" className="mt-2 text-sm">
           {copy}
         </p>
       )}
-      <div className="mb-8 flex flex-wrap items-center gap-3">
-        <StatusBadge status={item.status} />
-        {item.origin === "sample" && <SampleTag />}
-        <span className="text-xs text-muted-foreground">{item.request_id}</span>
-      </div>
-      <DecisionSteps item={item} />
-      <dl className="mb-8 grid gap-4 rounded-lg bg-card p-6 text-sm sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["Requester", item.requester ?? "Not provided"],
-          ["Owner", itemRow(item).owner ?? "Required"],
-          ["Created", localDate(item.created)],
-          ["Updated", localDate(item.updated)],
-        ].map(([label, value]) => (
-          <div key={label} className="min-w-0">
-            <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="mt-1 break-words font-medium">{value}</dd>
-          </div>
-        ))}
-      </dl>
       {item.local_only && (
-        <p className="panel tone-amber mb-6">
-          Local draft only. This item and any sample recommendation have not been checked or saved
-          by the live API. Recheck to create a server request when connected.
+        <p className="panel tone-amber mt-4">
+          Local draft only. Not checked or saved by the live API. Recheck to create a server request
+          when connected.
         </p>
       )}
       {outdated && (
-        <p role="alert" className="panel tone-amber mb-6">
+        <p role="alert" className="panel tone-amber mt-4">
           Outdated result. Recheck the edited request before approval.
         </p>
       )}
       {error && (
-        <p role="alert" className="panel tone-red mb-6">
+        <p role="alert" className="panel tone-red mt-4">
           {error}
         </p>
       )}
-      <div role="tablist" aria-label="Request sections" className="mb-6 flex flex-wrap gap-2">
+      <div
+        role="tablist"
+        aria-label="Request sections"
+        className="mb-6 mt-6 flex gap-1 overflow-x-auto border-b"
+      >
         {tabs.map((entry, index) => (
           <button
             key={entry.id}
@@ -174,7 +220,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
             aria-selected={tab === entry.id}
             aria-controls={`item-panel-${entry.id}`}
             tabIndex={tab === entry.id ? 0 : -1}
-            className={tab === entry.id ? "primary-action" : "control"}
+            className={`-mb-px inline-flex min-h-12 items-center gap-2 whitespace-nowrap border-b-2 px-4 text-sm ${tab === entry.id ? "border-primary font-semibold text-foreground" : "border-transparent text-muted-foreground"}`}
             onClick={() => setTab(entry.id)}
             onKeyDown={(event) => {
               if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) {
@@ -192,6 +238,14 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
             }}
           >
             {entry.label}
+            {entry.badge ? (
+              <span
+                className="tone-red rounded-full border px-2 text-xs"
+                aria-label={`${entry.badge} failing`}
+              >
+                {entry.badge}
+              </span>
+            ) : null}
           </button>
         ))}
       </div>
@@ -201,43 +255,9 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
         aria-labelledby={`item-tab-${tab}`}
         className="min-w-0 space-y-6"
       >
-        {tab === "overview" && (
+        {tab === "answer" && (
           <>
-            <div className={`${meta.tone} panel`}>
-              <div className="flex items-start gap-4">
-                <Icon aria-hidden className="h-12 w-12 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider">Recommendation</p>
-                  <h2 className="mt-2 text-2xl font-semibold">{meta.label}</h2>
-                  {rec.target && <p className="mt-3 text-xl font-semibold">{rec.target.name}</p>}
-                  {rec.build_on && (
-                    <p className="mt-2 text-sm">
-                      Build on a governed semantic model{" "}
-                      <span className="font-mono">{rec.build_on}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-              <ul className="mt-5 space-y-2 text-sm">
-                {rec.rationale.map((line) => (
-                  <li key={line}>{displayText(line)}</li>
-                ))}
-              </ul>
-              {item.result.ai?.explanation?.length ? (
-                <div className="mt-5 border-t pt-4">
-                  <h3 className="text-sm font-semibold">In plain language</h3>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
-                    {item.result.ai.explanation.map((line) => (
-                      <li key={line}>{displayText(line)}</li>
-                    ))}
-                  </ul>
-                  {item.result.ai.speech && (
-                    <ListenButton key={item.result.ai.speech} text={item.result.ai.speech} />
-                  )}
-                </div>
-              ) : null}
-              <DecisionSource result={item.result} />
-            </div>
+            <DecisionSteps item={item} />
             {item.status === "human_review" && (
               <p className="panel tone-amber">
                 Human review required.{" "}
@@ -246,65 +266,28 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   : "A person must resolve this request. No automatic approval was made."}
               </p>
             )}
-            <details className="panel">
-              <summary className="min-h-16 cursor-pointer font-semibold">
-                View evidence ({rec.evidence.length} cited {rec.evidence.length === 1 ? "row" : "rows"})
-              </summary>
-              {rec.evidence.length === 0 && <p className="text-sm text-muted-foreground">No cited evidence is available for this interpretation. Recheck with the API before making a decision.</p>}
-              <ul className="divide-y text-sm">
-                {rec.evidence.map((entry) => (
-                  <li key={entry.table + entry.id} className="py-3">
-                    <p>{displayText(entry.note)}</p>
-                    <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
-                      {entry.table} / {entry.id}
-                    </p>
-                  </li>
+            {questions.length > 0 && !closed && <RequesterView key={item.updated} state={state} />}
+            <section className="panel">
+              <h2 className="section-title">In plain language</h2>
+              <ul className="list-disc space-y-2 pl-5 text-base">
+                {(item.result.ai?.explanation?.length
+                  ? item.result.ai.explanation
+                  : rec.rationale
+                ).map((line) => (
+                  <li key={line}>{displayText(line)}</li>
                 ))}
               </ul>
-            </details>
-            {rec.repair.length > 0 && (
-              <section className="panel">
-                <h2 className="section-title">Proposed repair</h2>
-                <ul className="space-y-2 text-sm">
-                  {rec.repair.map((repair, index) => (
-                    <li key={index}>
-                      {displayText(
-                        typeof repair === "string"
-                          ? repair
-                          : `${repair.name}: ${repair.reason ?? "Review required"}`,
-                      )}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  These are proposed actions, not changes applied to a BI tool.
-                </p>
-              </section>
-            )}
-            {item.result.pipeline && (
+              {item.result.ai?.speech && (
+                <ListenButton key={item.result.ai.speech} text={item.result.ai.speech} large />
+              )}
+              <DecisionSource result={item.result} />
+            </section>
+            {!closed && (
               <details className="panel">
                 <summary className="min-h-16 cursor-pointer font-semibold">
-                  How this request was processed
+                  Change the request
                 </summary>
-                <div
-                  className="overflow-x-auto max-h-[70vh] max-w-full"
-                  tabIndex={0}
-                  role="region"
-                  aria-label="Request processing flow"
-                >
-                  <FlowView
-                    stages={item.result.pipeline}
-                    loop={item.result.loop}
-                    prompt={item.text}
-                    agentic={item.result.ai?.intent_source === "llm"}
-                  />
-                </div>
-              </details>
-            )}
-            {!closed && (
-              <section className="panel">
-                <h2 className="section-title">Edit request</h2>
-                <label htmlFor="edit-request" className="text-sm">
+                <label htmlFor="edit-request" className="mt-3 block text-sm">
                   Changing the text makes the current recommendation outdated until rechecked.
                 </label>
                 <textarea
@@ -314,27 +297,71 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   disabled={busy}
                   onChange={(event) => setText(event.target.value)}
                 />
-              </section>
+              </details>
             )}
           </>
         )}
-        {tab === "clarification" && (
+        {tab === "evidence" && (
+          <EvidenceTab result={item.result} prompt={item.text} open={role === "analyst"} />
+        )}
+        {tab === "spec" && <SpecTab result={item.result} />}
+        {tab === "gates" && (
           <>
-            {questions.length > 0 && !closed ? (
-              <RequesterView key={item.updated} state={state} />
-            ) : (
-              <p className="panel">
-                {item.status === "human_review"
-                  ? "The clarification loop needs a person to decide. No more questions are being asked automatically."
-                  : "No open clarification questions."}
-              </p>
-            )}
             <section className="panel">
-              <h2 className="section-title">Clarification history</h2>
+              <h2 className="section-title">Spec gates</h2>
+              {gates?.gates.length ? (
+                <GateList gates={gates} />
+              ) : (
+                <p>No spec gates apply to this decision.</p>
+              )}
+            </section>
+            {item.remediation ? (
+              <div className="panel">
+                <p className="mb-4 font-semibold">Owner fix, simulated, not applied</p>
+                <GateComparison simulation={item.remediation} />
+              </div>
+            ) : (
+              failing > 0 && (
+                <p className="panel">
+                  No fix simulated yet. An owner gate can be cleared by simulating an owner in the
+                  approval queue; a failed refresh or a missing certification has to be fixed on the
+                  model first.
+                </p>
+              )
+            )}
+            {!closed && item.status !== "clarifying" && (
+              <Link className="primary-action" to="/approvals" search={{ id: item.request_id }}>
+                Open in approval queue
+              </Link>
+            )}
+          </>
+        )}
+        {tab === "activity" && (
+          <>
+            {item.decision && <ItemRecord item={item} />}
+            <section className="panel">
+              <h2 className="section-title">Activity trail</h2>
+              {!item.activity.length && <p>No activity recorded.</p>}
+              <ol className="divide-y">
+                {[...item.activity]
+                  .sort((a, b) => b.time.localeCompare(a.time))
+                  .map((entry, index) => (
+                    <li key={entry.time + index} className="py-4">
+                      <p className="text-sm font-semibold">
+                        {entry.event.replace(/_/g, " ")} · {entry.actor}
+                      </p>
+                      <p className="mt-1 text-sm">{displayText(entry.detail)}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{localDate(entry.time)}</p>
+                    </li>
+                  ))}
+              </ol>
+            </section>
+            <section className="panel">
+              <h2 className="section-title">Clarification rounds ({item.rounds.length})</h2>
               {!item.rounds.length && (
                 <p className="text-sm text-muted-foreground">No clarification rounds recorded.</p>
               )}
-              <ol className="space-y-5">
+              <ol className="space-y-4">
                 {item.rounds.map((round) => (
                   <li key={round.round}>
                     <h3 className="font-semibold">Round {round.round}</h3>
@@ -356,81 +383,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
             </section>
           </>
         )}
-        {tab === "gates" && (
-          <>
-            <section className="panel">
-              <h2 className="section-title">Original spec gates</h2>
-              {gates ? <GateList gates={gates} /> : <p>No spec gates apply to this decision.</p>}
-            </section>
-            {item.remediation ? (
-              <div className="panel">
-                <p className="mb-4 font-semibold">Simulated, not applied</p>
-                <GateComparison simulation={item.remediation} />
-              </div>
-            ) : (
-              <p className="panel">No remediation simulation has been recorded.</p>
-            )}
-          </>
-        )}
-        {tab === "activity" && (
-          <section className="panel">
-            <h2 className="section-title">Activity trail</h2>
-            {!item.activity.length && <p>No activity recorded.</p>}
-            <ol className="divide-y">
-              {[...item.activity]
-                .sort((a, b) => b.time.localeCompare(a.time))
-                .map((entry, index) => (
-                  <li key={entry.time + index} className="py-4">
-                    <p className="text-sm font-semibold">
-                      {entry.event.replace(/_/g, " ")} · {entry.actor}
-                    </p>
-                    <p className="mt-1 text-sm">{displayText(entry.detail)}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{localDate(entry.time)}</p>
-                  </li>
-                ))}
-            </ol>
-          </section>
-        )}
-        {tab === "record" && item.decision && <ItemRecord item={item} />}
       </section>
-      <div className="sticky bottom-0 z-10 mt-8 flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-4 shadow-panel">
-        <p className="text-sm text-muted-foreground">
-          {closed
-            ? "A decision is registered for this request."
-            : outdated
-              ? "Recheck before approving."
-              : item.status === "clarifying"
-                ? "Your answers are needed."
-                : "The next decision is yours."}
-        </p>
-        {(outdated && !closed) || item.local_only ? (
-          <button
-            className="primary-action"
-            disabled={busy || !text.trim()}
-            onClick={() => void check()}
-          >
-            {busy ? "Rechecking..." : "Recheck request"}
-          </button>
-        ) : item.status === "clarifying" ? (
-          <button
-            className="primary-action"
-            onClick={() => {
-              setTab("clarification");
-              document.getElementById("item-tab-clarification")?.focus();
-            }}
-          >
-            Answer questions
-          </button>
-        ) : closed ? (
-          <button className="primary-action" onClick={() => setTab("record")}>
-            View decision record
-          </button>
-        ) : (
-          <Link className="primary-action" to="/approvals" search={{ id: item.request_id }}>
-            Review for approval
-          </Link>
-        )}
-      </div>
     </>
   );
 }

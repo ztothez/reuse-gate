@@ -412,7 +412,7 @@ button:disabled {
     grid-column: 1 / -1;
   }
 }
-[data-lens="requester"] :is(button, input, select, textarea, a[href], summary) {
+[data-lens="business"] :is(button, input, select, textarea, a[href], summary) {
   min-height: var(--control-min);
   min-width: var(--control-min);
 }

@@ -114,7 +114,7 @@ export function DecisionSource({ result }: { result: RecommendResult }) {
   ) =>
     source !== "llm"
       ? "the rules"
-      : `${tier && tier !== "rules" ? `the ${tier} tier` : "a model"}${model ? ` (${model})` : ""}`;
+      : `${tier === "saved" ? "a saved model answer" : tier && tier !== "rules" ? `the ${tier} tier` : "a model"}${model ? ` (${model})` : ""}`;
   const failed = [...new Set((ai?.tiers_failed ?? []).map((entry) => entry.tier).filter(Boolean))];
   return (
     <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t pt-4 text-xs">

@@ -5,14 +5,12 @@ import { useLens } from "./AppShell";
 import { RequestList } from "./RequestList";
 import { ListState, PageHeading, STATUS } from "./shared";
 import { AdminSettings } from "./AdminSettings";
-import { ExecutiveOverview } from "./ExecutiveOverview";
 import { ImpactLine } from "./Impact";
 import { NewRequestForm } from "./RequestPages";
 export function HomePage() {
   const [role] = useLens();
-  if (role === "executive") return <ExecutiveOverview />;
   if (role === "admin") return <AdminSettings />;
-  return <WorkHome role={role} />;
+  return <WorkHome role={role === "approver" ? "approver" : "requester"} />;
 }
 function WorkHome({ role }: { role: "requester" | "approver" }) {
   const resource = useResource(() => getRequests(), role);
