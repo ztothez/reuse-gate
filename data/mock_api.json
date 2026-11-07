@@ -5759,6 +5759,616 @@
         "status": "legacy",
         "reason": "lifecycle: legacy"
       }
+    ],
+    "ownership_bottlenecks": [
+      {
+        "owner_id": "OWN-037",
+        "owner_name": "Oliver Schmidt",
+        "role": "Reporting Lead",
+        "scope": "EMEA",
+        "status": "inactive",
+        "specs_blocked": 80,
+        "requests_blocked": [
+          "REQ-0001",
+          "REQ-0003",
+          "REQ-0007",
+          "REQ-0008",
+          "REQ-0009",
+          "REQ-0010",
+          "REQ-0011",
+          "REQ-0016",
+          "REQ-0017",
+          "REQ-0019"
+        ],
+        "semantic_models": [
+          "SM-065"
+        ],
+        "assets_owned": 3,
+        "fix": "assign an active owner to SM-065; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-037",
+          "Semantic_Models:SM-065",
+          "Analytics_Assets:AST-0115",
+          "Analytics_Assets:AST-0187",
+          "Analytics_Assets:AST-0348"
+        ],
+        "citations_total": 5
+      },
+      {
+        "owner_id": "OWN-059",
+        "owner_name": "Mika Virtanen",
+        "role": "Semantic Model Owner",
+        "scope": "Global",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [],
+        "assets_owned": 10,
+        "fix": "assign an active owner to AST-0021, AST-0045, AST-0062; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-059",
+          "Analytics_Assets:AST-0021",
+          "Analytics_Assets:AST-0045",
+          "Analytics_Assets:AST-0062",
+          "Analytics_Assets:AST-0117",
+          "Analytics_Assets:AST-0123",
+          "Analytics_Assets:AST-0126",
+          "Analytics_Assets:AST-0148",
+          "Analytics_Assets:AST-0201",
+          "Analytics_Assets:AST-0209"
+        ],
+        "citations_total": 11
+      },
+      {
+        "owner_id": "OWN-029",
+        "owner_name": "Emma Garcia",
+        "role": "Reporting Lead",
+        "scope": "North America",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-034",
+          "SM-061"
+        ],
+        "assets_owned": 9,
+        "fix": "assign an active owner to SM-034, SM-061; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-029",
+          "Semantic_Models:SM-034",
+          "Semantic_Models:SM-061",
+          "Analytics_Assets:AST-0081",
+          "Analytics_Assets:AST-0137",
+          "Analytics_Assets:AST-0167",
+          "Analytics_Assets:AST-0178",
+          "Analytics_Assets:AST-0181",
+          "Analytics_Assets:AST-0246",
+          "Analytics_Assets:AST-0263"
+        ],
+        "citations_total": 12
+      },
+      {
+        "owner_id": "OWN-044",
+        "owner_name": "Felix Andersson",
+        "role": "Reporting Lead",
+        "scope": "Asia Pacific",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-011",
+          "SM-047"
+        ],
+        "assets_owned": 9,
+        "fix": "assign an active owner to SM-011, SM-047; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-044",
+          "Semantic_Models:SM-011",
+          "Semantic_Models:SM-047",
+          "Analytics_Assets:AST-0009",
+          "Analytics_Assets:AST-0018",
+          "Analytics_Assets:AST-0031",
+          "Analytics_Assets:AST-0061",
+          "Analytics_Assets:AST-0100",
+          "Analytics_Assets:AST-0119",
+          "Analytics_Assets:AST-0291"
+        ],
+        "citations_total": 12
+      },
+      {
+        "owner_id": "OWN-038",
+        "owner_name": "Daniel Fischer",
+        "role": "Supply Analytics Lead",
+        "scope": "EMEA",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [],
+        "assets_owned": 7,
+        "fix": "assign an active owner to AST-0013, AST-0034, AST-0043; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-038",
+          "Analytics_Assets:AST-0013",
+          "Analytics_Assets:AST-0034",
+          "Analytics_Assets:AST-0043",
+          "Analytics_Assets:AST-0092",
+          "Analytics_Assets:AST-0212",
+          "Analytics_Assets:AST-0217",
+          "Analytics_Assets:AST-0235"
+        ],
+        "citations_total": 8
+      },
+      {
+        "owner_id": "OWN-027",
+        "owner_name": "Leo Andersson",
+        "role": "Market Access Analytics Lead",
+        "scope": "North America",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-017",
+          "SM-027",
+          "SM-067"
+        ],
+        "assets_owned": 5,
+        "fix": "assign an active owner to SM-017, SM-027, SM-067; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-027",
+          "Semantic_Models:SM-017",
+          "Semantic_Models:SM-027",
+          "Semantic_Models:SM-067",
+          "Analytics_Assets:AST-0073",
+          "Analytics_Assets:AST-0132",
+          "Analytics_Assets:AST-0188",
+          "Analytics_Assets:AST-0288",
+          "Analytics_Assets:AST-0325"
+        ],
+        "citations_total": 9
+      },
+      {
+        "owner_id": "OWN-030",
+        "owner_name": "Felix Fischer",
+        "role": "Commercial Analytics Lead",
+        "scope": "Asia Pacific",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [],
+        "assets_owned": 4,
+        "fix": "assign an active owner to AST-0011, AST-0091, AST-0094; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-030",
+          "Analytics_Assets:AST-0011",
+          "Analytics_Assets:AST-0091",
+          "Analytics_Assets:AST-0094",
+          "Analytics_Assets:AST-0175"
+        ],
+        "citations_total": 5
+      },
+      {
+        "owner_id": "OWN-031",
+        "owner_name": "Anna Andersson",
+        "role": "Semantic Model Owner",
+        "scope": "Latin America",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-020",
+          "SM-051",
+          "SM-071",
+          "SM-074"
+        ],
+        "assets_owned": 4,
+        "fix": "assign an active owner to SM-020, SM-051, SM-071, SM-074; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-031",
+          "Semantic_Models:SM-020",
+          "Semantic_Models:SM-051",
+          "Semantic_Models:SM-071",
+          "Semantic_Models:SM-074",
+          "Analytics_Assets:AST-0025",
+          "Analytics_Assets:AST-0211",
+          "Analytics_Assets:AST-0278",
+          "Analytics_Assets:AST-0317"
+        ],
+        "citations_total": 9
+      },
+      {
+        "owner_id": "OWN-043",
+        "owner_name": "Felix Virtanen",
+        "role": "Data Product Owner",
+        "scope": "North America",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-072"
+        ],
+        "assets_owned": 4,
+        "fix": "assign an active owner to SM-072; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-043",
+          "Semantic_Models:SM-072",
+          "Analytics_Assets:AST-0112",
+          "Analytics_Assets:AST-0190",
+          "Analytics_Assets:AST-0193",
+          "Analytics_Assets:AST-0335"
+        ],
+        "citations_total": 6
+      },
+      {
+        "owner_id": "OWN-052",
+        "owner_name": "Mika Weber",
+        "role": "Finance BI Product Owner",
+        "scope": "Latin America",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-003",
+          "SM-021"
+        ],
+        "assets_owned": 4,
+        "fix": "assign an active owner to SM-003, SM-021; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-052",
+          "Semantic_Models:SM-003",
+          "Semantic_Models:SM-021",
+          "Analytics_Assets:AST-0068",
+          "Analytics_Assets:AST-0097",
+          "Analytics_Assets:AST-0109",
+          "Analytics_Assets:AST-0169"
+        ],
+        "citations_total": 7
+      },
+      {
+        "owner_id": "OWN-018",
+        "owner_name": "Anna Brown",
+        "role": "Finance BI Product Owner",
+        "scope": "Global",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-037"
+        ],
+        "assets_owned": 2,
+        "fix": "assign an active owner to SM-037; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-018",
+          "Semantic_Models:SM-037",
+          "Analytics_Assets:AST-0083",
+          "Analytics_Assets:AST-0141"
+        ],
+        "citations_total": 4
+      },
+      {
+        "owner_id": "OWN-040",
+        "owner_name": "Laura Martin",
+        "role": "Semantic Model Owner",
+        "scope": "Asia Pacific",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [
+          "SM-002",
+          "SM-010"
+        ],
+        "assets_owned": 2,
+        "fix": "assign an active owner to SM-002, SM-010; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-040",
+          "Semantic_Models:SM-002",
+          "Semantic_Models:SM-010",
+          "Analytics_Assets:AST-0050",
+          "Analytics_Assets:AST-0077"
+        ],
+        "citations_total": 5
+      },
+      {
+        "owner_id": "OWN-058",
+        "owner_name": "Felix Virtanen",
+        "role": "Commercial Analytics Lead",
+        "scope": "EMEA",
+        "status": "inactive",
+        "specs_blocked": 0,
+        "requests_blocked": [],
+        "semantic_models": [],
+        "assets_owned": 2,
+        "fix": "assign an active owner to AST-0229, AST-0266; check it with POST /remediate",
+        "citations": [
+          "Owners:OWN-058",
+          "Analytics_Assets:AST-0229",
+          "Analytics_Assets:AST-0266"
+        ],
+        "citations_total": 3
+      }
     ]
-  }
+  },
+  "owners": [
+    {
+      "owner_id": "OWN-021",
+      "owner_name": "Mika Martin",
+      "role": "Semantic Model Owner",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-039",
+      "owner_name": "Laura Fischer",
+      "role": "Semantic Model Owner",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-045",
+      "owner_name": "Julia Brown",
+      "role": "Semantic Model Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-049",
+      "owner_name": "Emma Meyer",
+      "role": "Semantic Model Owner",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-056",
+      "owner_name": "Anna Novak",
+      "role": "Semantic Model Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-001",
+      "owner_name": "Nina Garcia",
+      "role": "BI Platform Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-002",
+      "owner_name": "Anna Brown",
+      "role": "Finance BI Product Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-003",
+      "owner_name": "Maya Andersson",
+      "role": "Data Steward",
+      "scope": "Latin America"
+    },
+    {
+      "owner_id": "OWN-004",
+      "owner_name": "Maya Meyer",
+      "role": "Data Product Owner",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-005",
+      "owner_name": "Felix Schmidt",
+      "role": "Supply Analytics Lead",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-006",
+      "owner_name": "Mika Novak",
+      "role": "Market Access Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-007",
+      "owner_name": "Mika Weber",
+      "role": "Launch Excellence Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-008",
+      "owner_name": "Oliver Martin",
+      "role": "Commercial Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-009",
+      "owner_name": "Nina Schmidt",
+      "role": "Commercial Analytics Lead",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-010",
+      "owner_name": "Felix Meyer",
+      "role": "Data Product Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-011",
+      "owner_name": "Sofia Fischer",
+      "role": "Data Product Owner",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-012",
+      "owner_name": "Anna Keller",
+      "role": "Launch Excellence Lead",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-013",
+      "owner_name": "Sofia Novak",
+      "role": "Market Access Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-014",
+      "owner_name": "Max Virtanen",
+      "role": "Finance BI Product Owner",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-015",
+      "owner_name": "Daniel Fischer",
+      "role": "Data Steward",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-016",
+      "owner_name": "Elias Schmidt",
+      "role": "Data Steward",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-017",
+      "owner_name": "Leo Weber",
+      "role": "Supply Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-019",
+      "owner_name": "Julia Martin",
+      "role": "BI Platform Owner",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-020",
+      "owner_name": "Felix Meyer",
+      "role": "Supply Analytics Lead",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-022",
+      "owner_name": "Sofia Rossi",
+      "role": "Data Steward",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-023",
+      "owner_name": "Max Keller",
+      "role": "Market Access Analytics Lead",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-024",
+      "owner_name": "Emma Fischer",
+      "role": "Market Access Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-025",
+      "owner_name": "Elias Rossi",
+      "role": "Supply Analytics Lead",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-026",
+      "owner_name": "Julia Virtanen",
+      "role": "BI Platform Owner",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-028",
+      "owner_name": "Daniel Schmidt",
+      "role": "Launch Excellence Lead",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-032",
+      "owner_name": "Leo Keller",
+      "role": "BI Platform Owner",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-033",
+      "owner_name": "Maya Fischer",
+      "role": "Market Access Analytics Lead",
+      "scope": "Latin America"
+    },
+    {
+      "owner_id": "OWN-034",
+      "owner_name": "Jonas Meyer",
+      "role": "Market Access Analytics Lead",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-035",
+      "owner_name": "Mika Fischer",
+      "role": "Market Access Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-036",
+      "owner_name": "Daniel Schmidt",
+      "role": "Launch Excellence Lead",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-041",
+      "owner_name": "Mika Rossi",
+      "role": "Data Product Owner",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-042",
+      "owner_name": "Sofia Martin",
+      "role": "Data Product Owner",
+      "scope": "Latin America"
+    },
+    {
+      "owner_id": "OWN-046",
+      "owner_name": "Nina Virtanen",
+      "role": "Commercial Analytics Lead",
+      "scope": "Latin America"
+    },
+    {
+      "owner_id": "OWN-047",
+      "owner_name": "Emma Novak",
+      "role": "Supply Analytics Lead",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-048",
+      "owner_name": "Sofia Rossi",
+      "role": "Launch Excellence Lead",
+      "scope": "Latin America"
+    },
+    {
+      "owner_id": "OWN-050",
+      "owner_name": "Daniel Meyer",
+      "role": "Launch Excellence Lead",
+      "scope": "EMEA"
+    },
+    {
+      "owner_id": "OWN-051",
+      "owner_name": "Nina Andersson",
+      "role": "BI Platform Owner",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-053",
+      "owner_name": "Nina Garcia",
+      "role": "Commercial Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-054",
+      "owner_name": "Anna Meyer",
+      "role": "Market Access Analytics Lead",
+      "scope": "Global"
+    },
+    {
+      "owner_id": "OWN-055",
+      "owner_name": "Nina Garcia",
+      "role": "Commercial Analytics Lead",
+      "scope": "Asia Pacific"
+    },
+    {
+      "owner_id": "OWN-057",
+      "owner_name": "Sofia Brown",
+      "role": "Finance BI Product Owner",
+      "scope": "North America"
+    },
+    {
+      "owner_id": "OWN-060",
+      "owner_name": "Leo Rossi",
+      "role": "Supply Analytics Lead",
+      "scope": "Global"
+    }
+  ]
 }

@@ -5,7 +5,8 @@ Usage: PYTHONPATH=backend python3 -m reuse_gate.server data/estate.db [port]    
 POST /recommend  {"text": "...", "answers": [...]}      -> recommendation item (same shape as mock_api.json)
 POST /speak      {"text": "..."}                       -> audio/mpeg from ElevenLabs, capped and cached
 POST /spec       {intent, recommendation, owner, review_by} -> {spec, gates}
-GET  /radar                                            -> radar summary
+GET  /radar                                            -> radar summary, with ownership_bottlenecks
+GET  /owners                                           -> active owners who can be assigned, Semantic Model Owners first
 POST /remediate  {request_id | intent, remediations: [{type: assign_owner, target, owner_id}], owner?, review_by?, as_of?}
                                                        -> simulated before and after gates. Never changes the estate
 POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
@@ -28,7 +29,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
-from reuse_gate.remediate import RemediationError, decision_record, simulate
+from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import SpeechError, speak
@@ -116,6 +117,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, {"ok": True, "assets": len(EST.assets)})
         elif self.path == "/radar":
             self._send(200, radar(EST))
+        elif self.path == "/owners":
+            self._send(200, active_owners(EST))
         elif self.path == "/log":
             self._send(200, LOG)
         elif self.path == "/n8n/radar-digest":

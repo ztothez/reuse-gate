@@ -159,7 +159,7 @@ class BottleneckTest(unittest.TestCase):
         out = radar(self.est)
         self.assertEqual(out["ownership_bottlenecks"], self.rows)
         mock = json.loads((ROOT / "data/mock_api.json").read_text(encoding="utf-8"))["radar"]
-        self.assertEqual({k: v for k, v in out.items() if k != "ownership_bottlenecks"}, mock)
+        self.assertEqual(json.loads(json.dumps(out)), mock)
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")

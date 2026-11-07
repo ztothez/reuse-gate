@@ -10,7 +10,7 @@ from collections import Counter, defaultdict
 from reuse_gate.estate import Estate
 from reuse_gate.llm import NoLLM
 from reuse_gate.pipeline import run_request
-from reuse_gate.remediate import ownership_bottlenecks
+from reuse_gate.remediate import active_owners, ownership_bottlenecks
 
 
 def radar(est):
@@ -53,7 +53,7 @@ def main(db, out):
             continue
         seen.add(req["request_text"])
         items.append(run_request(est, req, NoLLM(), as_of=req["request_date"]))  # rules only, reproducible
-    json.dump({"requests": items, "radar": radar(est)}, open(out, "w"), indent=2, default=str)
+    json.dump({"requests": items, "radar": radar(est), "owners": active_owners(est)}, open(out, "w"), indent=2, default=str)
     print(f"{len(items)} requests exported to {out}")
 
 

@@ -31,6 +31,13 @@ def snapshot_id(est):
     return est._snapshot_id
 
 
+def active_owners(est):
+    """Owners who can be assigned: active only, Semantic Model Owners first, then by id."""
+    rows = [o for o in est.owners.values() if o["status"] == "active"]
+    rows.sort(key=lambda o: (o["role"] != "Semantic Model Owner", o["owner_id"]))
+    return [{"owner_id": o["owner_id"], "owner_name": o["owner_name"], "role": o["role"], "scope": o["scope"]} for o in rows]
+
+
 def validate(est, remediations):
     """The allow list: assign_owner on an existing asset or semantic model, to an existing active owner. Anything else is refused."""
     if not isinstance(remediations, list) or not remediations:
