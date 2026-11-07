@@ -1,49 +1,53 @@
-import { useEffect, useState } from "react";
-import type { Action } from "./api";
+import { useCallback, useEffect, useState } from "react";
+import { getLog, type Action, type LogRecord } from "./api";
 
+// A decision as the Admin view shows it. Older API rows carry no text, action or target.
 export interface LogEntry {
   id: string;
   time: string;
   text: string;
-  action: Action;
+  action: Action | null;
   target: string;
   decision: "approve" | "reject";
   approver: string;
   owner: string;
   review_by: string;
 }
-const KEY = "reuse-gate-log";
-let memory: LogEntry[] = [];
-const subs = new Set<(l: LogEntry[]) => void>();
 
-function read(): LogEntry[] {
-  try {
-    const v = localStorage.getItem(KEY);
-    return v ? JSON.parse(v) : memory;
-  } catch {
-    return memory;
-  }
-}
-export function addEntry(e: LogEntry) {
-  const next = [e, ...read()];
-  memory = next;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    /* memory fallback */
-  }
-  subs.forEach((s) => s(next));
-}
+export const toEntry = (r: LogRecord): LogEntry => ({
+  id: r.registered_id,
+  time: r.time,
+  text: r.text ?? r.request_id,
+  action: r.action ?? null,
+  target: r.target ?? "-",
+  decision: r.decision,
+  approver: r.approver,
+  owner: r.owner,
+  review_by: r.review_by,
+});
+
+// Newest first, as read from GET /log (or the in-memory demo log when the API is unavailable).
 export function useDecisionLog() {
   const [log, setLog] = useState<LogEntry[]>([]);
-  useEffect(() => {
-    setLog(read());
-    subs.add(setLog);
-    return () => {
-      subs.delete(setLog);
-    };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setLog((await getLog()).map(toEntry).reverse());
+    } catch {
+      setError("Could not load the decision log.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
-  return log;
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+  return { log, loading, error, refresh };
 }
+
+// Unknown actions are not counted: only a recorded reuse-style decision avoids a build.
 export const newBuildsAvoided = (log: LogEntry[]) =>
-  log.filter((e) => e.decision === "approve" && e.action !== "new_build").length;
+  log.filter((e) => e.decision === "approve" && e.action && e.action !== "new_build").length;

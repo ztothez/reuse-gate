@@ -144,6 +144,19 @@ export interface ApprovePayload {
   owner: string;
   review_by: string;
   answers?: Answer[];
+  // Optional context so GET /log can show what was decided. The API stores the body as sent.
+  text?: string;
+  action?: Action;
+  target?: string;
+}
+// One row of GET /log: the approve body plus what the API adds.
+export interface LogRecord extends ApprovePayload {
+  registered_id: string;
+  time: string;
+}
+export interface Health {
+  status: "live" | "down" | "demo";
+  assets?: number | undefined;
 }
 
 const data = mock as unknown as { requests: RecommendResult[]; radar: Radar };
@@ -218,15 +231,34 @@ export async function speak(text: string): Promise<Blob> {
 
 export const getRadar = () => call<Radar>("/radar", undefined, () => data.radar);
 
+// Demo decisions live in memory for this page view, the same way the API keeps its own log.
+const demoLog: LogRecord[] = [];
+
 export const approve = (p: ApprovePayload) =>
   call<{ ok: boolean; registered_id: string }>(
     "/approve",
     { method: "POST", body: JSON.stringify(p) },
-    () => ({
-      ok: true,
-      registered_id: `DEC-${Date.now().toString(36).toUpperCase()}`,
-    }),
+    () => {
+      const registered_id = `DEC-${Date.now().toString(36).toUpperCase()}`;
+      demoLog.push({ ...p, registered_id, time: new Date().toISOString() });
+      return { ok: true, registered_id };
+    },
   );
+
+export const getLog = () => call<LogRecord[]>("/log", undefined, () => [...demoLog]);
+
+// Health is reported as it is: a failed check never switches the app to demo data.
+export async function getHealth(): Promise<Health> {
+  if (!API) return { status: "demo" };
+  try {
+    const res = await fetch(`${API}/health`, { signal: AbortSignal.timeout(10_000) });
+    if (!res.ok) return { status: "down" };
+    const body = (await res.json()) as { ok?: boolean; assets?: number };
+    return body.ok ? { status: "live", assets: body.assets } : { status: "down" };
+  } catch {
+    return { status: "down" };
+  }
+}
 
 export const generateSpec = (result: RecommendResult, owner: string, reviewBy: string) =>
   call<{ spec: DashboardSpec; gates?: GateResult }>(
