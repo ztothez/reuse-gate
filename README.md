@@ -357,8 +357,9 @@ open as before. This is a shared code, not user accounts: it stops casual change
   semantic model, to an owner who exists and is active. It works on an in-memory copy, never writes to `estate.db`, and answers
   `"applied": "simulated"`. Gates an owner cannot fix, such as an uncertified model, stay failing.
 - `POST /approve` keeps the body as sent and adds a `record` built on the server: the decision and citation count recomputed
-  from the confirmed intent, the gates at approval time, any remediation before and after, the loop rounds, and an estate snapshot
-  id (sha256 of `estate.db`). The client's own action and target are compared with the recomputed ones, not trusted.
+  from the confirmed intent, the gates at approval time (`record.gates.at_approval`, with the approver's owner) and, when a
+  remediation was sent, the original blocker (`record.gates.before_remediation`, with the owner the system proposed), the full
+  `/remediate` response, the loop rounds, and an estate snapshot id (sha256 of `estate.db`). The client's own action and target are compared with the recomputed ones, not trusted.
 
 ### Roles
 
