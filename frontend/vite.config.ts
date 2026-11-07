@@ -6,8 +6,17 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// STATIC_SPA=1 builds static files into dist/client, with no server, for frontend/Containerfile.
+const staticSpa = process.env["STATIC_SPA"] === "1";
+
 export default defineConfig({
+  ...(staticSpa && { nitro: false as const }),
   tanstackStart: {
+    // Prerender the real page, not Start's empty SPA shell, which fails React hydration on load.
+    ...(staticSpa && {
+      prerender: { enabled: true, crawlLinks: false, autoStaticPathsDiscovery: false },
+      pages: [{ path: "/" }],
+    }),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },

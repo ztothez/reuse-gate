@@ -1,0 +1,14 @@
+# Static SPA build. The API URL is compiled into the bundle, so a new URL needs a new build.
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS build
+ARG VITE_API_URL
+WORKDIR /opt/app-root/src
+COPY --chown=1001:0 . .
+# An empty URL would build a working app that silently shows demo data.
+RUN test -n "$VITE_API_URL" && npm ci --no-audit --no-fund && STATIC_SPA=1 npm run build
+
+FROM registry.access.redhat.com/ubi9/nginx-124:latest
+COPY --from=build /opt/app-root/src/dist/client/ /opt/app-root/src/
+COPY nginx-spa.conf /opt/app-root/etc/nginx.default.d/spa.conf
+USER 1001
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]

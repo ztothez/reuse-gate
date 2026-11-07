@@ -1,0 +1,69 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: reuse-gate-ui
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: reuse-gate-ui
+spec:
+  source:
+    type: Binary
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Containerfile
+      buildArgs:
+        - name: VITE_API_URL  # the live API route, compiled into the bundle
+          value: https://reuse-gate-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
+  output:
+    to: {kind: ImageStreamTag, name: "reuse-gate-ui:latest"}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reuse-gate-ui
+  labels: {app: reuse-gate-ui}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: reuse-gate-ui}
+  template:
+    metadata:
+      labels: {app: reuse-gate-ui}
+    spec:
+      containers:
+        - name: web
+          image: image-registry.openshift-image-registry.svc:5000/ztothez-dev/reuse-gate-ui:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: {path: /, port: 8080}
+          livenessProbe:
+            httpGet: {path: /, port: 8080}
+            initialDelaySeconds: 5
+          resources:
+            requests: {cpu: 10m, memory: 32Mi}
+            limits: {cpu: 100m, memory: 128Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reuse-gate-ui
+spec:
+  selector: {app: reuse-gate-ui}
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: reuse-gate-ui
+spec:
+  to: {kind: Service, name: reuse-gate-ui}
+  port: {targetPort: 8080}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
