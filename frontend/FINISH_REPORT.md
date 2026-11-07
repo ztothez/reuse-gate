@@ -18,6 +18,12 @@ Added /evaluation and links from Overview and Admin. Metrics retain their API me
 
 Validation: 141 tests in 25 files, type check, and real Enter-key expansion/collapse with an offline banner at 320, 375, 768 and 1280px. No horizontal document overflow. Browser evidence: /tmp/reuse-gate-visual/finish/evaluation/evidence.json. A latency-dependent optional spec request in audit-fixes.test.tsx was reproduced and isolated with a mock; the ten-run stability check follows in Part 4.
 
+## Part 3: voice input
+
+Added optional push-to-talk next to new-request text. It is hidden without MediaRecorder or microphone capture support. Recording uses the recorder MIME type, stops at 30 seconds, limits audio to a conservative 1,000,000 bytes, releases tracks, and sends raw audio to POST /transcribe. A 45-second client timeout prevents an indefinite wait. Transcripts remain in component memory for editable confirmation and Discard; Use this text changes only the request field. Creation remains a separate explicit action. No audio or unconfirmed transcript is written to storage, URLs or logs. Navigating away aborts transcription and releases the microphone.
+
+All specified transcription codes and microphone denial end with please type instead. Optional controls use native buttons, visible focus and live recording/transcribing announcements. Validation: 160 tests in 26 files, including 19 fake-recorder/fake-fetch checks for raw transport, timer, permission denial, size limits, confirmation, discard, unavailable APIs, cleanup and error mapping. Type check passes. Browser voice-state screenshots follow in Part 4; no physical microphone or external transcription provider is used for these tests.
+
 ## Remaining parts
 
 1. Audit findings and concrete per-finding resolution evidence.

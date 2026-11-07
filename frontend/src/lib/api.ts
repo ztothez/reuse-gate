@@ -341,6 +341,51 @@ export interface RequestFilters {
   q?: string | undefined;
 }
 export const getApiBaseUrl = () => API ?? "";
+export const MAX_AUDIO_BYTES = 1_000_000;
+export function voiceErrorMessage(code: string) {
+  const messages: Record<string, string> = {
+    empty_audio: "No audio was recorded",
+    too_large: "The recording is too large",
+    unsupported_type: "This recording format is not supported",
+    no_speech: "No speech was detected",
+    rate_limited: "Voice input is busy",
+    not_configured: "Voice input is not available right now",
+    permission_missing: "Voice input is not available right now",
+    provider_failed: "Voice input could not be processed",
+    provider_timeout: "Voice input took too long",
+    microphone_denied: "Microphone permission was denied",
+    microphone_failed: "The microphone could not start",
+  };
+  return `${messages[code] ?? messages["provider_failed"]}, please type instead`;
+}
+export interface Transcript { text: string; language: string }
+export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise<Transcript> {
+  if (!API || demo) throw new Error(voiceErrorMessage("not_configured"));
+  if (!blob.size) throw new Error(voiceErrorMessage("empty_audio"));
+  if (blob.size > MAX_AUDIO_BYTES) throw new Error(voiceErrorMessage("too_large"));
+  if (!/^audio\/(webm|ogg|mp4)(;|$)/i.test(blob.type)) throw new Error(voiceErrorMessage("unsupported_type"));
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (signal?.aborted) controller.abort();
+  signal?.addEventListener("abort", abort, { once: true });
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 45_000);
+  try {
+    const response = await fetch(`${API}/transcribe`, { method: "POST", headers: { "Content-Type": blob.type }, body: blob, signal: controller.signal });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(voiceErrorMessage(typeof body?.code === "string" ? body.code : "provider_failed"));
+    if (typeof body?.text !== "string" || !body.text.trim() || typeof body?.language !== "string") throw new Error(voiceErrorMessage("no_speech"));
+    return { text: body.text, language: body.language };
+  } catch (error) {
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    if (timedOut) throw new Error(voiceErrorMessage("provider_timeout"));
+    if (error instanceof Error && error.message.endsWith("please type instead")) throw error;
+    throw new Error(voiceErrorMessage("provider_failed"));
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
+  }
+}
 export const ACCESS_CODE_KEY = "reuse-gate-access-code";
 export function getAccessCode(): string {
   try {

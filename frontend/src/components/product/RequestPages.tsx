@@ -6,6 +6,7 @@ import { filterRequests } from "@/lib/request-filters";
 import { RequestList } from "./RequestList";
 import { ListState, PageHeading, STATUS } from "./shared";
 import { ReviewPane } from "./ReviewPane";
+import { VoiceInput } from "./VoiceInput";
 export { RequestDetailPage } from "./RequestDetailPage";
 export function NewRequestForm() {
   const navigate = useNavigate();
@@ -39,16 +40,19 @@ export function NewRequestForm() {
       <label className="block text-sm font-semibold" htmlFor="new-request-text">
         What report do you need?
       </label>
-      <textarea
-        id="new-request-text"
-        className="control min-h-32 w-full text-base"
-        rows={4}
-        value={text}
-        disabled={busy}
-        onChange={(event) => setText(event.target.value)}
-        required
-        placeholder="Describe the products, market and measures you need"
-      />
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)]">
+        <textarea
+          id="new-request-text"
+          className="control min-h-32 w-full text-base"
+          rows={4}
+          value={text}
+          disabled={busy}
+          onChange={(event) => setText(event.target.value)}
+          required
+          placeholder="Describe the products, market and measures you need"
+        />
+        <VoiceInput onUse={setText} disabled={busy} />
+      </div>
       <label className="block text-sm font-semibold" htmlFor="new-requester">
         Your name (optional)
       </label>
