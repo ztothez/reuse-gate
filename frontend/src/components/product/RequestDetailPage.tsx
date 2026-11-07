@@ -11,6 +11,7 @@ import { RequesterView } from "@/components/gate/RequesterView";
 import { FlowView } from "@/components/gate/FlowView";
 import { GateComparison, GateList } from "@/components/gate/GateComparison";
 import { DecisionRecordView } from "@/components/gate/DecisionRecordView";
+import { ListenButton } from "@/components/gate/ListenButton";
 import { DecisionSource, DecisionSteps } from "./DecisionTrail";
 import { ListState, PageHeading, SampleTag, StatusBadge, localDate } from "./shared";
 export function RequestDetailPage({ id }: { id: string }) {
@@ -222,6 +223,19 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                   <li key={line}>{displayText(line)}</li>
                 ))}
               </ul>
+              {item.result.ai?.explanation?.length ? (
+                <div className="mt-5 border-t pt-4">
+                  <h3 className="text-sm font-semibold">In plain language</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                    {item.result.ai.explanation.map((line) => (
+                      <li key={line}>{displayText(line)}</li>
+                    ))}
+                  </ul>
+                  {item.result.ai.speech && (
+                    <ListenButton key={item.result.ai.speech} text={item.result.ai.speech} />
+                  )}
+                </div>
+              ) : null}
               <DecisionSource result={item.result} />
             </div>
             {item.status === "human_review" && (

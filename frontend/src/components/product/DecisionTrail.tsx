@@ -17,7 +17,8 @@ export function decisionSteps(
   item: WorkItem,
 ): { name: string; state: StepState; detail: string }[] {
   const rec = item.result.recommendation;
-  const gates = requestGates(item.result);
+  const found = requestGates(item.result);
+  const gates = found?.gates.length ? found : null; // reuse and repair decisions have no spec, so no gates
   const failing = gates?.gates.filter((gate) => !gate.passed).length ?? 0;
   const clarifying = item.status === "clarifying";
   const stopped = item.status === "human_review" && item.result.loop?.status === "human_review";

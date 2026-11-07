@@ -27,6 +27,11 @@ describe("decision trail", () => {
       "done",
     ]);
   });
+  it("says no gates apply when a decision has no spec", () => {
+    const repair = mock.work_items.detail["SAMPLE-09"] as unknown as WorkItem;
+    const govern = decisionSteps(repair).find((step) => step.name === "Govern")!;
+    expect([govern.state, govern.detail]).toEqual(["done", "No spec gates apply"]);
+  });
   it("names the decision backend and the tiers that answered", () => {
     const kserve = {
       ...sample.result,
