@@ -20,6 +20,34 @@ Intent -> Evidence -> Decision -> Spec -> Gates -> human approval -> registered 
 | Spec | DashboardSpec for new_build and extend: canonical KPIs, semantic model, owner, review date, citations | Deterministic Python |
 | Gates | Seven validators that block release and name the reason | Deterministic Python |
 
+### How this maps to Bayer's reference flow
+
+Bayer's flow is Prompt, `/grill-me` loop, Intent, `/explore`, `/to-spec`, Spec, `render_preview`, Report. The flow view uses
+Bayer's legend on every stage: user input orange, agentic skill yellow, deterministic Python green, process state blue.
+
+| Bayer's step | Bayer's parts | Our stages | Colour here | What differs |
+| --- | --- | --- | --- | --- |
+| Prompt-to-Intent | Prompt, `/grill-me` loop, Intent | Prompt, clarification loop, Intent | orange, yellow when a model read or reworded (green when rules only), blue | Rules choose every question. A model reads the first prompt when available and may reword questions |
+| Intent-to-Evidence | `/explore` | Evidence | green | Deterministic: scored from the data pack tables, with citations, no agent |
+| (none) | | **Decision, our addition** | green | Reuse, repair, extend, migrate, retire, new build or human review, by deterministic rules. It sits between Evidence and Spec, so a spec exists only when something needs building |
+| Evidence-to-Spec | `/to-spec`, Spec | Spec | blue | Built by deterministic Python from the decision, not by an agent |
+| Spec-to-Report | `render_preview`, Report | Gates, human approval, spec preview, registration | green | Seven gates run before the preview. The report is a spec handoff registered with an owner and review date, not a published dashboard |
+
+### The clarification loop
+
+Each field (product, market, KPI, kind) gets a confidence from how it was read, and anything below 0.8 has an open question.
+There are at most 3 rounds of questions. Each round is recorded in `loop.rounds` and in the Intent stage output: round, questions,
+answers, intent snapshot, and what changed. The loop stops when the intent is clear, or goes to `human_review` after 3 rounds.
+
+- **Rules first.** Misspelled and non-English readings are held as proposals, and are not used until the requester confirms them.
+- **The model only words questions.** The rule text stays the question's identity, and wording that drops a named value is refused.
+  Inside the loop, changed text is read by the rules. The first reading of a prompt may still come from a model, and a model's own
+  question still gets one round, as before.
+- **Stateless.** The client sends the recorded rounds back. Dropping them only starts a new loop, which a new request could do anyway, and an answer never approves anything.
+
+`python3 -I scripts/eval_messy.py data/estate.db` runs 21 messy prompts (`data/messy_requests.jsonl`) with simulated answers: see
+`docs/messy_to_clean.md`, including how far to trust it. `docs/quality_report.md` has the estate before-and-after figure, which is a projection.
+
 ## Data
 
 The data pack (`data/*.xlsx`) and its SQLite copy (`data/estate.db`) are synthetic, created by SinceAI.
