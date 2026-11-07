@@ -242,6 +242,35 @@ Measured live on the 10 distinct request texts, with the final prompts. **Agreem
 Run `python3 -I scripts/eval_intent.py data/estate.db`. Details per request: [docs/eval_results.md](docs/eval_results.md). Results from the
 earlier prompt: [docs/eval_results_prompt_v1.md](docs/eval_results_prompt_v1.md).
 
+## Reliability
+
+CSC Aitta has a per-user, per-minute rate limit (HTTP 429), small shared capacity, offline models that take minutes to load while requests wait, and
+no availability guarantee. The demo is built so that none of this reaches the person using it. Models never make the decision, so losing them changes
+only who read the request and who wrote the explanation.
+
+| Situation | What happens |
+| --- | --- |
+| Aitta returns 429 or 5xx, times out, drops the connection, truncates a response, or returns an empty or invalid reply | That call moves to GLM-5.2 on Featherless. Aitta is skipped for the next 120 seconds |
+| A model call takes too long | Each call is limited to 20 seconds (`LLM_TIMEOUT`) with no retries. Embeddings have the same limit |
+| Calls add up | One request gets at most 45 seconds of model time in total (`LLM_REQUEST_DEADLINE`), then the rules answer |
+| Both providers fail | The rule baseline answers with the same citations. The API returns 200 and the UI shows "Source: rules" and the reason, never an error page |
+| A crowd arrives | At most 4 model calls run at once across the server (`LLM_MAX_CONCURRENT`). Others get the rules at once, without queueing or touching the fallback |
+| The same request comes again | Answers are saved by the sha256 of the normalized text (spacing and case ignored), so it makes no model call |
+| Someone clicks an example chip | `data/prewarmed_answers.json` is committed and in the image, so all 10 chips answer with no model call, even with every provider down |
+| The call budget is spent | `LLM_MAX_CALLS` stops further calls, and the rules answer |
+
+Every saved answer still passes the allow list when it is read, and a saved explanation is used only for the same decision it was written for. Text
+flagged as prompt injection is never answered from a saved answer. Run `python3 -I scripts/warmup.py` before a demo to load the models.
+
+Rebuild the chip file with `python3 -I scripts/prewarm.py data/estate.db`, which calls the live models. `--from-cache` builds it from saved responses with
+no call. The committed file was built that way, from real `openai/gpt-oss-120b` responses, so it holds the intents but no AI explanations: a chip's
+explanation comes from the rules until the file is rebuilt live. For 4 of the 10 chips the model gave no usable product or KPI, so they show "Source: rules".
+
+**Limits of this design:** the capacity limit is global, not per IP, because a client address behind the OpenShift router can be spoofed, so one person
+can use all 4 slots. It limits calls at the same moment, not calls per minute. A 20-second limit also makes the fallback less likely to help: in the
+evaluation only 2 of 9 GLM-5.2 parses finished within 20 seconds, so during an Aitta outage many requests will end in the rules. That is safe, and raising
+`LLM_TIMEOUT` trades waiting time for more AI answers. These paths are tested with simulated failures and a real slow local server, not against a real Aitta 429.
+
 ## Deployment and governance
 
 ### Where assets live

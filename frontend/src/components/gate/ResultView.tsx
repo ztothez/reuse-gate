@@ -51,6 +51,12 @@ export function ResultView({ result, onAnswers, rechecking }: { result: Recommen
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {result.ai?.source && (
+        <p role="note" className={`${result.ai.source === "rules" ? "tone-amber" : "tone-blue"} rounded-md border px-4 py-2 text-sm`}>
+          <span className="font-semibold">Source: {result.ai.source === "rules" ? "rules" : `AI${result.ai.model ? ` (${result.ai.model})` : ""}${result.ai.cached ? ", saved answer" : ""}`}.</span>{" "}
+          {result.ai.notice} The decision itself always comes from the same deterministic rules.
+        </p>
+      )}
       {result.pipeline && <FlowView stages={result.pipeline} />}
 
       <Panel title="Understood request">

@@ -1,12 +1,17 @@
 """OpenAI-compatible chat client with bounded disk caching."""
+import contextlib
 import hashlib
+import http.client
 import json
 import os
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
+
+from reuse_gate.answers import AnswerStore
 
 
 def load_env(path=".env"):
@@ -32,6 +37,14 @@ class LLMGatedError(LLMError):
     """HTTP 403: this key may not use this model. Retrying cannot help."""
 
 
+class LLMBusyError(LLMError):
+    """Every model slot is in use. The request gets the rules now, with no call and no use of the fallback."""
+
+
+class LLMUnusableError(LLMError):
+    """The model answered, but gave no usable product or KPI."""
+
+
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
@@ -44,15 +57,21 @@ AITTA_URL = "https://aitta-api.csc.fi/openai/v1"
 FEATHERLESS_URL = "https://api.featherless.ai/v1"
 PRIMARY_MODEL = "openai/gpt-oss-120b"
 FALLBACK_MODEL = "zai-org/GLM-5.2"
+MAX_CONCURRENT = 4  # model calls at once across the whole server. Aitta is small, shared and limited per user per minute
 PRIMARY_COOLDOWN = 120  # seconds to skip a failed primary, so a person is not kept waiting on every call
+
+
+def call_timeout():
+    """Seconds one live model call may take, so a person is never left waiting on one provider."""
+    return float(os.environ.get("LLM_TIMEOUT", "20"))
 
 
 def live_backends(timeout=None, retries=None):
     """(primary, fallback) for the live demo, each None if its key is missing."""
     aitta = os.environ.get("AITTA_API_KEY", "")
     featherless = os.environ.get("FEATHERLESS_API_KEY") or os.environ.get("Featherless_AP_KEY", "")
-    primary = LLM(AITTA_URL, aitta, PRIMARY_MODEL, timeout=timeout or 30, retries=0 if retries is None else retries) if aitta else None
-    fallback = LLM(FEATHERLESS_URL, featherless, FALLBACK_MODEL, timeout=timeout or 90, retries=1 if retries is None else retries) if featherless else None
+    primary = LLM(AITTA_URL, aitta, PRIMARY_MODEL, timeout=timeout or call_timeout(), retries=retries or 0) if aitta else None
+    fallback = LLM(FEATHERLESS_URL, featherless, FALLBACK_MODEL, timeout=timeout or call_timeout(), retries=retries or 0) if featherless else None
     return primary, fallback
 
 
@@ -61,13 +80,26 @@ def live_client():
     if os.environ.get("LLM_MODE") == "rules":
         return NoLLM()
     primary, fallback = live_backends()
+    client = primary or fallback
+    if client is None:
+        return NoLLM()
     if primary:
         primary.fallback = fallback
-        return primary
-    return fallback or NoLLM()
+    client.limiter = threading.BoundedSemaphore(int(os.environ.get("LLM_MAX_CONCURRENT", MAX_CONCURRENT)))
+    client.answers = AnswerStore()
+    return client
+
+
+def _per_thread(name, default=None):
+    """Last-call details belong to the thread that made the call, because requests run side by side."""
+    return property(lambda self: getattr(self._state, name, default), lambda self, value: setattr(self._state, name, value))
 
 
 class LLM:
+    last_cached = _per_thread("last_cached", False)
+    last_usage = _per_thread("last_usage")
+    last_model = _per_thread("last_model")
+
     def __init__(self, base_url=None, api_key=None, model=None, timeout=60, cache_dir=None, retries=2, retry_wait=5, fallback=None):
         self.base_url = (base_url or os.environ.get("LLM_BASE_URL", "")).rstrip("/")
         self.api_key = api_key if api_key is not None else os.environ.get("LLM_API_KEY", "")
@@ -78,6 +110,9 @@ class LLM:
         self.calls = 0
         self.retries = retries  # extra attempts on 429, 5xx and timeouts, each counted against the budget
         self.retry_wait = retry_wait
+        self._state = threading.local()
+        self.limiter = None
+        self.answers = None
         self.intent_max_tokens = 1500  # reasoning models spend tokens before the answer
         self.last_cached = False
         self.last_usage = None
@@ -119,21 +154,33 @@ class LLM:
         if cached is not None:
             self.last_model = self.model
             return cached
-        if self.fallback and time.monotonic() < self._skip_until:
-            return self._from_fallback(messages, params)
-        try:
-            content = self._fetch(messages, params)
-        except LLMBudgetError:
-            raise  # a spent budget must stop the run, not move the spending elsewhere
-        except LLMError:
-            if not self.fallback:
-                raise
-            self._skip_until = time.monotonic() + PRIMARY_COOLDOWN
-            return self._from_fallback(messages, params)
+        with self._slot():
+            if self.fallback and time.monotonic() < self._skip_until:
+                return self._from_fallback(messages, params)
+            try:
+                content = self._fetch(messages, params)
+            except LLMBudgetError:
+                raise  # a spent budget must stop the run, not move the spending elsewhere
+            except LLMError:
+                if not self.fallback:
+                    raise
+                self._skip_until = time.monotonic() + PRIMARY_COOLDOWN
+                return self._from_fallback(messages, params)
         self.last_model = self.model
         if self.use_cache:
             self._write_cache(key, content)
         return content
+
+    @contextlib.contextmanager
+    def _slot(self):
+        """Never wait for a slot: a crowd gets the rules at once and cannot queue up calls against the quota."""
+        if self.limiter and not self.limiter.acquire(blocking=False):
+            raise LLMBusyError("all model slots are in use")
+        try:
+            yield
+        finally:
+            if self.limiter:
+                self.limiter.release()
 
     def _from_fallback(self, messages, params):
         content = self.fallback.chat(messages, **params)
@@ -163,7 +210,7 @@ class LLM:
                     raise LLMGatedError(f"HTTP 403: model {self.model} is gated for this key") from exc
                 if exc.code not in RETRY_STATUS or attempt == self.retries:
                     raise LLMError(f"LLM request failed: HTTP {exc.code}") from exc
-            except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
                 if attempt == self.retries:
                     raise LLMError(f"LLM request failed: {exc}") from exc
             except (KeyError, IndexError, TypeError, ValueError) as exc:
@@ -183,7 +230,8 @@ class LLM:
             value = json.loads(raw)
         except json.JSONDecodeError as exc:
             if self.fallback and answered_by == self.model:
-                value = self.fallback.json_chat(messages, **params)
+                with self._slot():
+                    value = self.fallback.json_chat(messages, **params)
                 self.last_model = self.fallback.last_model
                 return value
             raise LLMError(f"LLM returned invalid JSON: {exc}") from exc

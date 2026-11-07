@@ -25,7 +25,7 @@ export interface RecommendResult {
     action: Action; target: Asset | null; build_on: string | null;
     retire: Asset[]; retire_note?: string | null; consolidate_later?: Asset[]; consolidate_note?: string | null; repair: (string | Asset)[]; rationale: string[]; evidence: Evidence[];
   };
-  ai?: { intent_source: "llm" | "rules"; explanation_source: "llm" | "rules"; explanation: string[]; model?: string | null; speech?: string };
+  ai?: { intent_source: "llm" | "rules"; explanation_source: "llm" | "rules"; explanation: string[]; model?: string | null; speech?: string; source?: "llm" | "rules"; cached?: boolean; reason?: string | null; notice?: string | null };
   answers?: Answer[];
   pipeline?: PipelineStage[];
 }

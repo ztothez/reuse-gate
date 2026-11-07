@@ -5,8 +5,8 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 ## Results
 | Check | Result |
 | --- | --- |
-| All Python tests (`python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'`) | 138 pass |
-| Frontend tests (`npm test`), TypeScript | 25 pass, no type errors |
+| All Python tests (`python3 -m unittest discover -s backend/tests -t backend -p 'test_*.py'`) | 172 pass |
+| Frontend tests (`npm test`), TypeScript | 27 pass, no type errors |
 | Baseline (`scripts/run_batch.py`) | 57/150 avoid a new build, 1098 citations, 0 invalid. New builds 93, extend 31, repair 4, retire 2, consolidate later 2. A test enforces these numbers |
 | Spec gates over 150 requests | 124 specs, 13 pass every gate, 111 blocked with a named reason, 0 crashes |
 | Edge cases | 24 cases, all end in a safe, explained outcome |
@@ -33,12 +33,15 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 - **Primary KPI rule:** a target must cover a requested KPI as primary. Secondary rows are shown and cited but not counted. The canonical-only version (33/150) is measured in `docs/quality_report.md` for information, and the rule does not use it.
 - **Repo layout:** reorganized into `backend/reuse_gate`, `backend/tests`, `scripts`, `data`, `deploy`, `docs` and `frontend` with no behavior change: API responses, batch output and mock data were compared with the previous layout and are identical. `frontend/package-lock.json` replaces `bun.lock`.
 - **OpenShift rollout:** the reorganized image (digest `75913c2e64b0`) is live, built from a clean `git archive` export. `/health` returns ok, KServe `:predict` returns a cited decision, and PipelineRun `reuse-gate-verify-rcspl` succeeded on all three tasks: unit tests (138 run, 2 skipped), governance gate, rollout.
+- **Reliability:** fallback on 429, 5xx, timeouts and truncated responses, 20-second call limit, 45-second request deadline, global concurrency limit, answers saved by normalized text, 10 chips pre-warmed in `data/prewarmed_answers.json`, and a visible "Source: rules" with the reason. Decisions were compared with the previous commit and are identical. Tested in a browser with both providers unreachable. Not tested against a real Aitta 429.
 - **Repo:** private at `ztothez/reuse-gate`, with `main` and `reuse-gate-build` pushed.
 - **Data pack:** committed as `1a0d8ce`, synthetic, created by SinceAI. `.env` is ignored.
 
 ## Not done or not verified
 - The deployed API and KServe predictor have no model or audio keys, so they run rules-only until a secret provides them.
 - `Bayer_SinceAI2026/` PDF and docx files are not committed. The permission covers the data pack only.
+- The live cluster still runs the image built before the Reliability work, so a rebuild is needed to deploy it.
+- The committed chip file holds model intents but no AI explanations, because it was built from saved responses. Run `python3 -I scripts/prewarm.py data/estate.db` with keys available to add them.
 - Demo recording and pitch outline: not started.
 - n8n ran on a throwaway local instance with test keys, not on your own instance. `.env` has a key but no n8n URL. The digest is not connected to email or Teams.
 - `.env` names the key `ElevenLabs_API_KEY`, which is no longer read. Rename it to `ELEVENLABS_API_KEY`, or Listen shows its "not available" message.
@@ -63,4 +66,4 @@ python3 -m reuse_gate.edge_cases data/estate.db docs/edge_cases.md
 python3 -m reuse_gate.server data/estate.db 8000     # reads .env
 cd frontend && npm ci && npm test && VITE_API_URL=http://localhost:8000 npm run dev
 ```
-The system Node on this machine is 18.19, and Vite needs 20.19+ or 22.12+. Tests here ran on Node 24 from a temporary session folder, so upgrade Node before running the frontend.
+Vite needs Node 20.19+ or 22.12+. The frontend tests last ran on Node 22.

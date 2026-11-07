@@ -6,16 +6,15 @@ A match can only ever be a canonical KPI from the catalog.
 import math
 import os
 
-from reuse_gate.llm import LLM, LLMError
+from reuse_gate.llm import LLM, LLMError, call_timeout
 
 EMBED_MODEL = "intfloat/multilingual-e5-large"  # best result in docs/embedding_probe.md
 THRESHOLD = float(os.environ.get("KPI_MATCH_THRESHOLD", "0.8"))
-EMBED_TIMEOUT = 300
 
 
 def embedder_from_env():
     key = os.environ.get("AITTA_API_KEY", "")
-    return LLM("https://aitta-api.csc.fi/openai/v1", key, EMBED_MODEL, timeout=EMBED_TIMEOUT) if key else None
+    return LLM("https://aitta-api.csc.fi/openai/v1", key, EMBED_MODEL, timeout=call_timeout()) if key else None
 
 
 def _cosine(a, b):

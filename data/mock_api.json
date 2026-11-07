@@ -70,6 +70,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "no alive, governed asset covers enough of the request",
@@ -77,6 +78,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -483,12 +487,16 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "the migration backlog marks the remaining legacy workbooks for human review, so a person must decide"
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: human review. the migration backlog marks the remaining legacy workbooks for human review, so a person must decide."
       },
       "pipeline": [
@@ -800,6 +808,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "no alive, governed asset covers enough of the request",
@@ -808,6 +817,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only. 1 low-usage, uncertified duplicates: retire after the new asset is live."
       },
       "pipeline": [
@@ -1259,6 +1271,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "All Pharma Market Access Monthly is alive and covers ['On-Time In-Full'] as primary KPIs; ['Inventory Coverage'] is not covered as primary",
@@ -1268,6 +1281,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: extend. All Pharma Market Access Monthly is alive and covers On-Time In-Full as primary KPIs; Inventory Coverage is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -1739,6 +1755,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "Kerendia Gross-to-Net Monthly is alive and covers ['Net Sales'] as primary KPIs; ['Net Sales Growth'] is not covered as primary",
@@ -1748,6 +1765,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: extend. Kerendia Gross-to-Net Monthly is alive and covers Net Sales as primary KPIs; Net Sales Growth is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -2177,6 +2197,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "no alive, governed asset covers enough of the request",
@@ -2184,6 +2205,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -2579,6 +2603,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "no alive, governed asset covers enough of the request",
@@ -2586,6 +2611,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: new build. no alive, governed asset covers enough of the request. build on a healthy shared semantic model, using canonical KPI definitions only."
       },
       "pipeline": [
@@ -3060,6 +3088,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "All Pharma Executive - US is alive and covers ['Market Access Coverage', 'Launch Adoption Index'] as primary KPIs; ['Net Sales'] is not covered as primary",
@@ -3069,6 +3098,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: extend. All Pharma Executive - US is alive and covers Market Access Coverage, Launch Adoption Index as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [
@@ -3594,6 +3626,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "All Pharma Executive Legacy is alive and covers ['Reimbursement Status Coverage', 'Launch Adoption Index'] as primary KPIs, but has governance gaps",
@@ -3603,6 +3636,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: repair and reuse. All Pharma Executive Legacy is alive and covers Reimbursement Status Coverage, Launch Adoption Index as primary KPIs, but has governance gaps. closing the gaps is cheaper than a new build and avoids another overlapping asset."
       },
       "pipeline": [
@@ -3990,6 +4026,7 @@
       },
       "answers": [],
       "ai": {
+        "source": "rules",
         "intent_source": "rules",
         "explanation": [
           "All Pharma Budget Legacy is alive and covers ['Demand Forecast Accuracy', 'Inventory Coverage'] as primary KPIs; ['Net Sales'] is not covered as primary",
@@ -3999,6 +4036,9 @@
         ],
         "explanation_source": "rules",
         "model": null,
+        "cached": false,
+        "reason": "off",
+        "notice": "AI models are off on this server, so the rule baseline answered.",
         "speech": "Recommendation: extend. All Pharma Budget Legacy is alive and covers Demand Forecast Accuracy, Inventory Coverage as primary KPIs; Net Sales is not covered as primary. extend it on its existing semantic model instead of creating a new asset."
       },
       "pipeline": [

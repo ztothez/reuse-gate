@@ -44,6 +44,26 @@ describe("target card", () => {
   });
 });
 
+describe("source line", () => {
+  const base = mockRecommend("Create a global Nubeqa dashboard");
+  const withAi = (ai: Partial<NonNullable<typeof base.ai>>) => ({ ...base, ai: { ...base.ai!, ...ai } });
+
+  it("says clearly when the rule baseline answered, and shows the result rather than an error", () => {
+    const notice = "AI models did not respond, so the rule baseline answered.";
+    render(<ResultView result={withAi({ source: "rules", reason: "unavailable", notice })} />);
+    const line = screen.getByRole("note");
+    expect(line).toHaveTextContent("Source: rules.");
+    expect(line).toHaveTextContent(notice);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText("Recommendation")).toBeInTheDocument();
+  });
+
+  it("names the model and a saved answer", () => {
+    render(<ResultView result={withAi({ source: "llm", model: "openai/gpt-oss-120b", cached: true, reason: null, notice: null })} />);
+    expect(screen.getByRole("note")).toHaveTextContent("Source: AI (openai/gpt-oss-120b), saved answer.");
+  });
+});
+
 describe("secondary KPI mappings", () => {
   it("shows them on the target card as not counted", () => {
     const result = exampleRequests.map(mockRecommend).find((r) => r.recommendation.target?.coverage)!;

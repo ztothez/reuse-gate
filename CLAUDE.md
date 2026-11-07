@@ -33,6 +33,7 @@ Bayer's evaluation weights: 30% problem fit and business value, 25% governance a
 - `backend/reuse_gate/pipeline.py` `run_request`, the one path: Intent -> Evidence -> Decision -> Spec -> Gates. `backend/reuse_gate/spec_gate.py` quality gates and batch report.
 - `backend/reuse_gate/edge_cases.py`, `backend/tests/test_edge_cases.py`, `backend/tests/test_spec_gate.py`. `scripts/eval_intent.py` live evaluation. `backend/reuse_gate/kpi_match.py`, `scripts/embed_probe.py` embeddings.
 - `backend/reuse_gate/speech.py` ElevenLabs text to speech behind `POST /speak`, for the Listen button.
+- `backend/reuse_gate/answers.py` LLM answers saved by a hash of the normalized text. `data/prewarmed_answers.json` the 10 chips, built by `scripts/prewarm.py`. See "Reliability" in the README.
 - `scripts/warmup.py` wakes the live models. `Containerfile`, `deploy/openshift/` OpenShift packaging.
 - `PROGRESS.md` current status, kept honest. Read it before the TODO list below, which predates it.
 - `backend/reuse_gate/recommend.py` `parse_request` (rule-based baseline), `assess`, `recommend`, `_migration`. Actions: reuse,
@@ -68,7 +69,8 @@ The 150 requests are only 10 distinct texts: cache LLM outputs by request text.
 - Primary: `openai/gpt-oss-120b` on CSC Aitta, `https://aitta-api.csc.fi/openai/v1`, key `AITTA_API_KEY`. Availability is "as-is".
 - Automatic fallback: `zai-org/GLM-5.2` on Featherless, `https://api.featherless.ai/v1`, key `FEATHERLESS_API_KEY` or `Featherless_AP_KEY`.
   $25 credit. 403 = gated model, 503 = retry.
-- If both fail, the rule parser takes over. `LLM_MODE=rules` turns models off. `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY` no longer select the live backend.
+- Each call is limited to 20 seconds with no retries (`LLM_TIMEOUT`), a request to 45 seconds (`LLM_REQUEST_DEADLINE`), and the server to 4 model calls at once (`LLM_MAX_CONCURRENT`).
+- If both fail, the rule parser takes over and the UI shows "Source: rules". `LLM_MODE=rules` turns models off. `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY` no longer select the live backend.
 - `python3 -I scripts/warmup.py` before a demo. Exit 0 primary ready, 1 only fallback, 2 neither.
 - Embeddings: `intfloat/multilingual-e5-large` on Aitta.
 - Text to speech: ElevenLabs, key only from env `ELEVENLABS_API_KEY`. Capped, budgeted and cached in `backend/reuse_gate/speech.py`.

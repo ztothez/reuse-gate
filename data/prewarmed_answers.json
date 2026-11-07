@@ -1,0 +1,190 @@
+{
+ "0e24f1b792d4208c416df53c9b4b375a1f708173669e52b90dfe5d0b0d6bf257": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Market Access Coverage",
+    "Reimbursement Status Coverage"
+   ],
+   "market": "",
+   "products": [
+    "All Pharma"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0287",
+  "text": "please build a new report for market access coverage and reimbursement status by product."
+ },
+ "0fcd3c4a69d5d3ebf9b7e5005d94e5a55fbd087ac411b7e7e80607d1aa58ba8e": {
+  "action": "migrate",
+  "explanation": null,
+  "intent": {
+   "clarifications": [
+    "Which KPI(s) should be included in the report?"
+   ],
+   "kind": "migration",
+   "kpis": [],
+   "market": "",
+   "products": [
+    "Xarelto"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0059",
+  "text": "please create a power bi replacement for our legacy tableau xarelto commercial workbook."
+ },
+ "32cb0722c46b572d99c900ac11a2f68c0e39a12bbb44ae8e1d73f27efd5d7a0b": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Net Sales",
+    "Demand Forecast Accuracy",
+    "Inventory Coverage"
+   ],
+   "market": "",
+   "products": [
+    "All Pharma"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0088",
+  "text": "we need one executive view combining net sales, forecast accuracy and inventory coverage for bayer pharma."
+ },
+ "3c7fb52eeb294d3cd8d722376c2e7e1cfc90efaee58804b1f8b298675f6cab78": {
+  "action": "new_build",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [],
+   "market": "",
+   "products": [
+    "All Pharma"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": null,
+  "text": "i need a dashboard comparing product performance across oncology brands and markets."
+ },
+ "572ed9b8177c6afe6795bf73f2af31c4a59910a3fcc3811501dc6d67b9b23e7f": {
+  "action": "repair_and_reuse",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Launch Adoption Index",
+    "Reimbursement Status Coverage"
+   ],
+   "market": "",
+   "products": [
+    "Beyonttra"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0215",
+  "text": "can you create a country-level beyonttra report for launch readiness and reimbursement progress?"
+ },
+ "6047a97645a95f747ff8074dfce6a6aaa92490cd99224099af89ecd3d68170a4": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Net Sales",
+    "Gross-to-Net Rate",
+    "Budget Variance"
+   ],
+   "market": "",
+   "products": [
+    "All Pharma"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0034",
+  "text": "can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?"
+ },
+ "d0f079833108692cf4beacae9dc684e7f0ba3eaf93ad948f533fa119de7f590f": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Net Sales Growth",
+    "Forecast Variance",
+    "Market Access Coverage"
+   ],
+   "market": "",
+   "products": [
+    "Nubeqa"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0142",
+  "text": "create a global nubeqa dashboard showing sales growth, forecast variance and market access by country."
+ },
+ "e0fc5d1a22e7a8762b54376d3993426ed672ab0fb6fd760e610313c0929fe390": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [],
+   "kind": "new_report",
+   "kpis": [
+    "Market Access Coverage",
+    "Net Sales",
+    "Launch Adoption Index"
+   ],
+   "market": "",
+   "products": [
+    "Lynkuet"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0357",
+  "text": "can we build a launch dashboard for lynkuet with market access, first sales and adoption indicators?"
+ },
+ "e72c9de568e5565d06000c618fe6d41ed918bf574af41e6de09bb86fb5ec258a": {
+  "action": "extend",
+  "explanation": null,
+  "intent": {
+   "clarifications": [
+    "Which KPI should be used for the supply-risk dashboard (e.g., Inventory Coverage or On-Time In-Full)?"
+   ],
+   "kind": "new_report",
+   "kpis": [],
+   "market": "",
+   "products": [
+    "All Pharma"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0008",
+  "text": "we need a monthly supply-risk dashboard by medicine and country."
+ },
+ "e8c4131985e111ec72fea0a044f544ff41ae009b9037eec73e357936294f8010": {
+  "action": "repair_and_reuse",
+  "explanation": null,
+  "intent": {
+   "clarifications": [
+    "Which KPI(s) should be included in the report?"
+   ],
+   "kind": "new_report",
+   "kpis": [],
+   "market": "North America",
+   "products": [
+    "Kerendia"
+   ]
+  },
+  "model": "openai/gpt-oss-120b",
+  "target": "AST-0292",
+  "text": "i need a new kerendia management report for monthly performance in emea and north america."
+ }
+}

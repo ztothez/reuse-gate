@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass, field
 
 from reuse_gate import kpi_match
-from reuse_gate.llm import LLM, LLMError
+from reuse_gate.llm import LLM, LLMBudgetError, LLMBusyError, LLMError, LLMUnusableError
 
 LEGACY = re.compile(r"legacy tableau", re.I)
 KEEP_PATHS = {"MIGRATE", "REBUILD_ON_SHARED_MODEL", "CONSOLIDATE_BEFORE_MIGRATION"}
@@ -330,37 +330,66 @@ def clean_llm_intent(est, req, value):
     return products, market, kpis, kind, clarifications
 
 
-def parse_request_llm(est, req, client=None, embedder=None):
-    """Parse with the LLM, falling back to the auditable rule baseline on failure.
+def intent_lists(est):
+    """The allow lists the model chooses from: products, markets, KPIs."""
+    return (est.products + [est.all_scope], list(est.markets) + [m["region"] for m in est.markets.values()],
+            sorted({k["canonical_metric"] for k in est.kpis.values()}))
+
+
+@dataclass
+class Parsed:
+    intent: Intent
+    source: str  # llm or rules
+    reason: str | None = None  # why the rules answered: off, guard, busy, budget, unusable, unavailable, timeout
+    model: str | None = None
+    cached: bool = False
+
+
+def parse_with_reason(est, req, client=None, embedder=None):
+    """Parse with the LLM, falling back to the auditable rule baseline on any failure, and say why.
 
     The LLM only fills allow-listed fields. It never sees blocked requests and never picks the action.
     """
     client = client or LLM()
-    if not client.configured or precheck(req["request_text"]):
-        return parse_request(est, req), "rules"
+    if not client.configured:
+        return Parsed(parse_request(est, req), "rules", "off")
+    if precheck(req["request_text"]):
+        return Parsed(parse_request(est, req), "rules", "guard")
+    text = req["request_text"][:MAX_TEXT]
+    store = getattr(client, "answers", None)
+    saved = store.intent(text) if store else None
     match_notes = []
     try:
-        value = client.parse_intent(
-            req["request_text"][:MAX_TEXT],
-            est.products + [est.all_scope],
-            list(est.markets) + [m["region"] for m in est.markets.values()],
-            sorted({k["canonical_metric"] for k in est.kpis.values()}),
-        )
+        value = saved if saved is not None else client.parse_intent(text, *intent_lists(est))
+        model = store.model(text) if saved is not None else getattr(client, "last_model", None)
         products, market, kpis, kind, clarifications = clean_llm_intent(est, req, value)
-        if products and not kpis:
-            phrases = [x for x in value.get("kpis", []) if isinstance(x, str)] or [req["request_text"][:MAX_TEXT]]
+        if products and not kpis and saved is None:  # a saved answer must not trigger model calls
+            phrases = [x for x in value.get("kpis", []) if isinstance(x, str)] or [text]
             for phrase, kpi, score in kpi_match.suggest(est, req["request_text"], phrases, client, embedder or kpi_match.embedder_from_env()):
                 kpis.append(kpi)
                 match_notes.append(Question("kpi", f"'{phrase[:80]}' was matched to the canonical KPI {kpi} (similarity {score}): please confirm"))
         if not products or not kpis:
-            raise LLMError("LLM intent omitted required products or KPIs")
-    except (LLMError, TypeError, AttributeError):  # malformed model output is a failure, not a crash
-        return parse_request(est, req), "rules"
+            raise LLMUnusableError("LLM intent omitted required products or KPIs")
+    except LLMBusyError:
+        return Parsed(parse_request(est, req), "rules", "busy")
+    except LLMBudgetError:
+        return Parsed(parse_request(est, req), "rules", "budget")
+    except LLMUnusableError:
+        return Parsed(parse_request(est, req), "rules", "unusable")
+    except Exception:  # whatever a provider or its output does, the person still gets a governed answer
+        return Parsed(parse_request(est, req), "rules", "unavailable")
+    if store and saved is None and not match_notes:
+        store.put_intent(text, value, model)
     variants, named, missing, notes = _guard_notes(est, req["request_text"])
-    market, market_notes = resolve_market(est, req, req["request_text"][:MAX_TEXT], market)
+    market, market_notes = resolve_market(est, req, text, market)
     clarifications = [c[:300] for c in clarifications[:MAX_LLM_CLARIFICATIONS]] + match_notes + notes + market_notes
-    return Intent(req["request_id"], req["request_text"][:MAX_TEXT], products, market, kpis, kind, clarifications,
-                  variants, named, missing), "llm"
+    intent = Intent(req["request_id"], text, products, market, kpis, kind, clarifications, variants, named, missing)
+    return Parsed(intent, "llm", None, model, saved is not None)
+
+
+def parse_request_llm(est, req, client=None, embedder=None):
+    parsed = parse_with_reason(est, req, client, embedder)
+    return parsed.intent, parsed.source
 
 
 def product_ok(est, products, scope):

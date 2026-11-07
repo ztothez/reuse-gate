@@ -44,7 +44,7 @@ def main():
     if embedder is None:
         print("embeddings: no API key in the environment", flush=True)
     else:
-        embedder.use_cache = False
+        embedder.use_cache, embedder.timeout = False, TIMEOUT
         check(f"embeddings {EMBED_MODEL}", lambda: embedder.embed([f"warm-up {nonce}"], EMBED_MODEL))
     return 0 if ready["primary"] else 1 if ready["fallback"] else 2
 

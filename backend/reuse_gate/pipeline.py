@@ -2,16 +2,29 @@
 
 The API, the mock export and the tests all call run_request, so what the front end shows is what actually ran.
 """
+import os
 import re
+import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
-from reuse_gate.llm import LLM, LLMError
-from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, apply_answers, parse_request_llm, read_answers, recommend, scoped_assessments, target_coverage
+from reuse_gate.llm import LLM
+from reuse_gate.recommend import CONSOLIDATE_NOTE, COVERAGE_PREFIX, MAX_TEXT, NAME_NOTE, RETIRE_AFTER_BUILD_NOTE, Parsed, apply_answers, parse_request, parse_with_reason, read_answers, recommend, scoped_assessments, target_coverage
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import MAX_CHARS as MAX_SPEECH
 
 MAX_CANDIDATES = 5
+REQUEST_DEADLINE = float(os.environ.get("LLM_REQUEST_DEADLINE", "45"))  # model time for one request, whatever the calls add up to
+RULES_NOTICES = {
+    "off": "AI models are off on this server, so the rule baseline answered.",
+    "guard": "This request was not sent to a model, so the rule baseline answered.",
+    "busy": "AI models are at capacity right now, so the rule baseline answered. Try again in a minute for an AI reading.",
+    "budget": "The AI call budget for this server is spent, so the rule baseline answered.",
+    "unusable": "The AI model could not read this request, so the rule baseline answered.",
+    "unavailable": "AI models did not respond, so the rule baseline answered.",
+    "timeout": "AI models took too long, so the rule baseline answered.",
+}
 MAX_SHOWN = 5  # the API returns every listed asset; displays show this many and a "+N more" count
 
 
@@ -47,6 +60,21 @@ def rec_json(est, intent, rec):
             "evidence": [{"table": t, "id": i, "note": n} for t, i, n in rec.evidence],
         },
     }
+
+
+def _within(seconds, fn):
+    """Run fn with a hard time limit. An abandoned call finishes in the background and still holds its model slot."""
+    pool = ThreadPoolExecutor(max_workers=1)
+    try:
+        return pool.submit(fn).result(timeout=max(seconds, 0))
+    finally:
+        pool.shutdown(wait=False)
+
+
+def explain_brief(decision):
+    """The decision as the explanation model sees it, kept small."""
+    return {**decision, "evidence": decision["evidence"][:15], "retire": decision["retire"][:MAX_SHOWN],
+            "consolidate_later": decision["consolidate_later"][:MAX_SHOWN]}
 
 
 def speech_script(action, lines):
@@ -129,23 +157,37 @@ def run_request(est, req, client=None, as_of=None, answers=None):
     """
     client = client or LLM()
     read = read_answers(est, req["request_text"], answers or [], client.configured)
-    intent, source = parse_request_llm(est, {**req, "request_text": read.text}, client)
+    effective = {**req, "request_text": read.text}
+    deadline = time.monotonic() + REQUEST_DEADLINE
+    try:
+        parsed = _within(REQUEST_DEADLINE, lambda: parse_with_reason(est, effective, client)) if client.configured else parse_with_reason(est, effective, client)
+    except TimeoutError:
+        parsed = Parsed(parse_request(est, effective), "rules", "timeout")
+    intent, source = parsed.intent, parsed.source
     apply_answers(est, intent, read)
     rec = recommend(est, intent)
     result = rec_json(est, intent, rec)
     result["text"] = read.base_text[:MAX_TEXT]
     result["answers"] = read.applied
-    result["ai"] = {"intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
-                    "model": getattr(client, "last_model", None) if source == "llm" else None}
+    result["ai"] = {"source": source, "intent_source": source, "explanation": list(rec.rationale), "explanation_source": "rules",
+                    "model": parsed.model, "cached": parsed.cached, "reason": parsed.reason,
+                    "notice": RULES_NOTICES.get(parsed.reason)}
     if source == "llm":
-        try:
-            brief = {**result["recommendation"], "evidence": result["recommendation"]["evidence"][:15],
-                     "retire": result["recommendation"]["retire"][:MAX_SHOWN],
-                     "consolidate_later": result["recommendation"]["consolidate_later"][:MAX_SHOWN]}
-            result["ai"]["explanation"] = client.explain(intent.text, result["intent"], brief)
-            result["ai"]["explanation_source"] = "llm"
-        except LLMError:
-            pass
+        decision = result["recommendation"]
+        store = getattr(client, "answers", None)
+        target = (decision["target"] or {}).get("id")
+        lines = None
+        if parsed.cached:  # a saved answer never leads to a model call
+            lines = store.explanation(intent.text, decision["action"], target) if not answers else None
+        else:
+            try:
+                lines = _within(deadline - time.monotonic(), lambda: client.explain(intent.text, result["intent"], explain_brief(decision)))
+                if store and not answers:
+                    store.put_explanation(intent.text, decision["action"], target, lines)
+            except Exception:  # the rule rationale stands in, so a failed explanation is never an error
+                lines = None
+        if lines:
+            result["ai"]["explanation"], result["ai"]["explanation_source"] = lines, "llm"
     result["ai"]["speech"] = speech_script(rec.action, result["ai"]["explanation"])
     result["pipeline"] = stages(est, req, intent, rec, result, source, as_of or date.today().isoformat())
     return result
