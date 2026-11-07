@@ -374,6 +374,12 @@ The role names come from the `Owners` sheet. The pack does not define duties, so
 | Commercial Analytics Lead, Finance BI Product Owner, Launch Excellence Lead, Market Access Analytics Lead, Supply Analytics Lead | Domain approvers; own the reports and review dates in their domain |
 | Reporting Lead | Report owner. All 3 in the pack are inactive, so their assets need reassigning |
 
+### Security
+
+`docs/security.md` has the threat model, the exact data sent to each provider, trust boundaries, what the demo does and does
+not protect, scan results and the production path. `python3 -I scripts/security_check.py URL` runs the black-box checks
+against any running API, and `python3 -I scripts/secret_scan.py` scans the tracked files and git history.
+
 ### Access governance: design only, NOT IMPLEMENTED
 
 **None of this exists in the prototype. The API has no login, `/approve` trusts the name it is given, and CORS is open.**
