@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { getMe, sessions, setActiveRole, SIGN_IN_EVENT } from "./api";
+import { itemsChanged } from "./use-resource";
 
 export type Role = "business" | "analyst" | "developer" | "approver" | "admin";
 export type RequestTab = "answer" | "evidence" | "spec" | "gates" | "activity";
@@ -23,7 +25,7 @@ export const ROLES: RoleView[] = [
     label: "Business",
     hint: "Ask for a report and get one clear answer",
     home: "Ask",
-    nav: ["/", "/requests", "/overview"],
+    nav: ["/", "/requests"],
     tabs: ["answer", "activity"],
     settings: false,
   },
@@ -50,7 +52,7 @@ export const ROLES: RoleView[] = [
     label: "Approver",
     hint: "Gates, owner and review date before approval",
     home: "Decisions",
-    nav: ["/", "/approvals", "/requests", "/radar", "/log"],
+    nav: ["/", "/approvals", "/requests", "/overview", "/radar", "/log"],
     tabs: ["gates", "answer", "evidence", "activity"],
     settings: true,
   },
@@ -105,19 +107,76 @@ function roleFromLink(): Role | null {
   }
 }
 
-// The stored role is read after mount, so server and client render the same first frame.
-export function useRole(): [Role, (r: Role) => void] {
+// Access as the API sees it. enforced: the API checks a role code on every call (least privilege). signedIn: this tab holds a
+// valid code. roles: the roles this tab is signed in to; only those can be chosen in "Viewing as".
+export interface Access {
+  enforced: boolean;
+  signedIn: boolean;
+  name: string | null;
+  roles: Role[];
+}
+const OPEN_ACCESS: Access = {
+  enforced: false,
+  signedIn: true,
+  name: null,
+  roles: ROLES.map((r) => r.id),
+};
+
+// The role is read after mount, so server and client render the same first frame. With enforced codes the API decides the
+// role; without them (local development) the stored choice or a ?as= link does.
+export function useRole(): [Role, (r: Role) => void, Access, () => void] {
   const [role, setRoleState] = useState<Role>(DEFAULT_ROLE);
-  useEffect(() => {
+  const [access, setAccess] = useState<Access>(OPEN_ACCESS);
+  const openRole = () => {
     const linked = roleFromLink();
     if (linked) saveRole(linked);
     setRoleState(linked ?? readRole());
+  };
+  const refresh = useCallback(() => {
+    getMe()
+      .then((me) => {
+        if (me && !me.enforced) {
+          setAccess(OPEN_ACCESS);
+          openRole();
+          return;
+        }
+        const held = sessions()
+          .map((s) => s.role)
+          .filter(isRole);
+        if (!me || !isRole(me.role)) {
+          setAccess({ enforced: true, signedIn: false, name: null, roles: held });
+          return;
+        }
+        setRoleState(me.role);
+        setAccess({
+          enforced: true,
+          signedIn: true,
+          name: me.name,
+          roles: held.length ? held : [me.role],
+        });
+      })
+      .catch(() => openRole()); // API unreachable: data calls show their own error
   }, []);
-  const setRole = useCallback((r: Role) => {
-    saveRole(r);
-    setRoleState(r);
-  }, []);
-  return [role, setRole];
+  useEffect(() => {
+    refresh();
+    const ask = () => setAccess((a) => ({ ...a, enforced: true, signedIn: false }));
+    window.addEventListener(SIGN_IN_EVENT, ask);
+    return () => window.removeEventListener(SIGN_IN_EVENT, ask);
+  }, [refresh]);
+  const setRole = useCallback(
+    (r: Role) => {
+      if (access.enforced) {
+        setActiveRole(r);
+        refresh();
+        itemsChanged();
+        return;
+      }
+      saveRole(r);
+      setRoleState(r);
+    },
+    [access.enforced, refresh],
+  );
+  return [role, setRole, access, refresh];
 }
 
 export function hasInvalidStoredRole(): boolean {

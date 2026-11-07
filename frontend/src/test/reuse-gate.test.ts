@@ -76,8 +76,7 @@ describe("decision log from GET /log", () => {
     );
     const api = await import("@/lib/api");
     await expect(api.approve({ ...row, action: "extend", text: "t", target: "AST-1" })).rejects.toThrow(/Check the API connection/);
-    const log = await api.getLog();
-    expect(log).toHaveLength(0);
+    await expect(api.getLog()).rejects.toThrow(/cannot be reached/);
   });
 
   it("reports health honestly and never switches to demo data", async () => {

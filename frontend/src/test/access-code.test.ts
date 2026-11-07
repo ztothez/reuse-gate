@@ -6,7 +6,7 @@ afterEach(() => {
   vi.resetModules();
 });
 describe("access code transport", () => {
-  it("uses only the write header and gives an actionable 401 error", async () => {
+  it("sends the code only as a header and gives an actionable 401 error", async () => {
     vi.stubEnv("VITE_API_URL", "http://local.test");
     const fetcher = vi
       .fn()
@@ -24,7 +24,7 @@ describe("access code transport", () => {
       }),
     ).rejects.toMatchObject({
       status: 401,
-      message: "Access code required. Enter it in Admin settings.",
+      message: "Sign in as an approver to decide.",
     });
     const call = fetcher.mock.calls[0] as unknown as [string, RequestInit];
     expect(call[0].includes(api.getAccessCode())).toBe(false);

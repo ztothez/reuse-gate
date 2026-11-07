@@ -22,7 +22,9 @@ export function AdminSettings() {
         title="Admin settings"
         description="Connection, session access and the people responsible for governed reporting."
       />
-      <a className="request-link mb-4" href="/evaluation">View evaluation methods and limits</a>
+      <a className="request-link mb-4" href="/evaluation">
+        View evaluation methods and limits
+      </a>
       <div className="grid min-w-0 gap-8 lg:grid-cols-2">
         <form
           className="panel space-y-4"
@@ -55,8 +57,9 @@ export function AdminSettings() {
             aria-describedby="code-help"
           />
           <p id="code-help" className="text-sm text-muted-foreground">
-            Only approval and remediation writes use this code. It stays in sessionStorage, never in
-            a URL or a log. Reads and request creation are open.
+            For an API with one shared write token: approval and remediation send this code. An API
+            with role codes asks you to sign in instead, and then every call carries your code. It
+            stays in sessionStorage, never in a URL or a log.
           </p>
           <button className="primary-action" type="submit">
             Save session access

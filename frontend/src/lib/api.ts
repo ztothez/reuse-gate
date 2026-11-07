@@ -380,7 +380,7 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 45_000);
   try {
-    const response = await fetch(`${API}/transcribe`, { method: "POST", headers: { "Content-Type": blob.type }, body: blob, signal: controller.signal });
+    const response = await fetch(`${API}/transcribe`, { method: "POST", headers: authHeaders({ "Content-Type": blob.type }), body: blob, signal: controller.signal });
     const body = await response.json().catch(() => null);
     if ([404, 405, 501].includes(response.status)) throw new Error(voiceErrorMessage("endpoint_unavailable"));
     if (response.status === 400 && typeof body?.code !== "string") throw new Error(voiceErrorMessage("api_rejected"));
@@ -399,7 +399,68 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   }
 }
 export const ACCESS_CODE_KEY = "reuse-gate-access-code";
+// Sessions: one access code per role you are signed in as, kept for this browser tab only (sessionStorage).
+// The API maps a code to a role and a name and decides what that role may see; the app only shows what it is given.
+export interface Session {
+  code: string;
+  role: string;
+  name: string;
+}
+const SESSIONS_KEY = "reuse-gate-sessions";
+const ACTIVE_KEY = "reuse-gate-active-role";
+export function sessions(): Session[] {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(SESSIONS_KEY) ?? "[]") as unknown;
+    return Array.isArray(value)
+      ? value.filter(
+          (s): s is Session =>
+            typeof s?.code === "string" && typeof s?.role === "string" && typeof s?.name === "string",
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+export function activeSession(): Session | null {
+  const all = sessions();
+  let role: string | null = null;
+  try {
+    role = sessionStorage.getItem(ACTIVE_KEY);
+  } catch {
+    /* storage blocked */
+  }
+  return all.find((s) => s.role === role) ?? all[0] ?? null;
+}
+export function addSession(session: Session) {
+  try {
+    sessionStorage.setItem(
+      SESSIONS_KEY,
+      JSON.stringify([...sessions().filter((s) => s.role !== session.role), session]),
+    );
+    sessionStorage.setItem(ACTIVE_KEY, session.role);
+  } catch {
+    /* storage blocked: the session lasts until reload */
+  }
+}
+export function setActiveRole(role: string) {
+  try {
+    sessionStorage.setItem(ACTIVE_KEY, role);
+  } catch {
+    /* storage blocked */
+  }
+}
+export function signOut() {
+  try {
+    sessionStorage.removeItem(SESSIONS_KEY);
+    sessionStorage.removeItem(ACTIVE_KEY);
+    sessionStorage.removeItem(ACCESS_CODE_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}
 export function getAccessCode(): string {
+  const active = activeSession();
+  if (active) return active.code;
   try {
     return sessionStorage.getItem(ACCESS_CODE_KEY) ?? "";
   } catch {
@@ -408,6 +469,23 @@ export function getAccessCode(): string {
 }
 export function saveAccessCode(code: string) {
   sessionStorage.setItem(ACCESS_CODE_KEY, code);
+}
+export const SIGN_IN_EVENT = "reuse-sign-in";
+const askToSignIn = () => {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(SIGN_IN_EVENT));
+};
+export interface Me {
+  role: string;
+  name: string;
+  enforced: boolean;
+}
+// Who an access code belongs to. null: the code is not valid (or none was given while codes are enforced).
+export async function getMe(code = getAccessCode()): Promise<Me | null> {
+  if (!API) return { role: "admin", name: "Local user", enforced: false };
+  const res = await fetch(`${API}/me`, { headers: code ? { "X-Access-Code": code } : {} });
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error("The API cannot be reached. Check the connection and try again.");
+  return (await res.json()) as Me;
 }
 export class ApiError extends Error {
   constructor(
@@ -418,10 +496,11 @@ export class ApiError extends Error {
     this.name = "ApiError";
   }
 }
-function writeHeaders() {
+function authHeaders(base: Record<string, string> = { "Content-Type": "application/json" }) {
   const code = getAccessCode();
-  return { "Content-Type": "application/json", ...(code ? { "X-Access-Code": code } : {}) };
+  return code ? { ...base, "X-Access-Code": code } : base;
 }
+const writeHeaders = () => authHeaders();
 export const getRequests = (filters: RequestFilters = {}) => {
   const query = new URLSearchParams();
   if (filters.status) query.set("status", filters.status);
@@ -501,26 +580,26 @@ async function call<T>(
   workResource = false,
 ): Promise<T> {
   if (API) {
-    let rejected = "";
+    // With a live API there is no fallback: an error is shown as an error, never replaced by bundled data.
+    let res: Response;
     try {
-      const res = await fetch(`${API}${path}`, {
-        ...init,
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.status >= 400 && res.status < 500)
-        rejected = `The API rejected the request (${res.status}).`;
-      else if (!res.ok) throw new Error(String(res.status));
-      else {
-        const body = (await res.json()) as T;
-        if (workResource) setMode(false);
-        return body;
-      }
+      res = await fetch(`${API}${path}`, { ...init, headers: authHeaders() });
     } catch {
-      setDemo();
+      throw new ApiError("The API cannot be reached. Check the connection and try again.", 0);
     }
-    // A rejected request is an answer from the live API: never replace it with demo data.
-    if (rejected) throw new Error(rejected);
+    if (res.status === 401) {
+      askToSignIn();
+      throw new ApiError("Sign in with your access code to see this.", 401);
+    }
+    if (res.status === 403) throw new ApiError("Your role does not have access to this.", 403);
+    if (res.status === 404 && path.startsWith("/requests/"))
+      throw new ApiError("Request not found, or not one of yours.", 404);
+    if (!res.ok) throw new ApiError(`The API rejected the request (${res.status}).`, res.status);
+    const body = (await res.json()) as T;
+    if (workResource) setMode(false);
+    return body;
   }
+  // No API configured: only the unit tests run this way, on the bundled fixture.
   await new Promise((r) => setTimeout(r, 600));
   return fallback();
 }
@@ -550,7 +629,7 @@ export const canSpeak = () => Boolean(API) && !demo;
 export async function speak(text: string): Promise<Blob> {
   const res = await fetch(`${API}/speak`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders(),
     body: JSON.stringify({ text }),
   });
   if (!res.ok) throw new Error(String(res.status));
@@ -570,8 +649,11 @@ export async function approve(
       headers: writeHeaders(),
       body: JSON.stringify(p),
     });
-    if (res.status === 401)
-      throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+    if (res.status === 401) {
+      askToSignIn();
+      throw new ApiError("Sign in as an approver to decide.", 401);
+    }
+    if (res.status === 403) throw new ApiError("Only an approver or admin can decide.", 403);
     if (res.status === 409)
       throw new ApiError("This request already has a decision. Refresh the item.", 409);
     if (!res.ok) throw new Error("Approval rejected");
@@ -692,8 +774,12 @@ export async function remediate(payload: RemediationPayload): Promise<Remediatio
     throw new Error("Could not recheck gates. Check the API connection and try again.");
   }
   const body = await response.json().catch(() => null);
-  if (response.status === 401)
-    throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+  if (response.status === 401) {
+    askToSignIn();
+    throw new ApiError("Sign in as an approver to simulate a fix.", 401);
+  }
+  if (response.status === 403)
+    throw new ApiError("Only an approver or admin can simulate a fix.", 403);
   if (response.status === 409) throw new ApiError("This request is closed. Refresh the item.", 409);
   if (!response.ok) {
     throw new Error(
@@ -730,16 +816,22 @@ export async function saveRequest(payload: SaveRequestPayload): Promise<SaveRequ
     try {
       response = await fetch(`${API}/requests`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(),
         body: JSON.stringify({
           ...payload,
           ...(payload.request_id?.startsWith("LOCAL-") ? { request_id: undefined } : {}),
         }),
       });
     } catch {
-      setDemo();
+      throw new ApiError("The API cannot be reached. Your request was not saved; try again.", 0);
     }
     if (response) {
+      if (response.status === 401) {
+        askToSignIn();
+        throw new ApiError("Sign in with your access code to file a request.", 401);
+      }
+      if (response.status === 403)
+        throw new ApiError("Your role reads requests; filing them is for business users.", 403);
       if (response.status === 409)
         throw new ApiError("This request already has a decision. Refresh the item.", 409);
       if (!response.ok)

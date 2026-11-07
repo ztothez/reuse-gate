@@ -311,7 +311,7 @@ describe("api client", () => {
     expect(JSON.parse(init.body as string)).toEqual({ text: "some request text", answers });
   });
 
-  it("falls back to demo data only when the API is unreachable", async () => {
+  it("never falls back to bundled data when the live API is unreachable", async () => {
     vi.stubEnv("VITE_API_URL", "http://api.test");
     vi.stubGlobal(
       "fetch",
@@ -320,8 +320,7 @@ describe("api client", () => {
       }),
     );
     const api = await import("@/lib/api");
-    const result = await api.recommend("Create a global Nubeqa dashboard");
-    expect(result.request_id).toBe("REQ-0001");
-    expect(api.isDemo()).toBe(true);
+    await expect(api.recommend("Create a global Nubeqa dashboard")).rejects.toThrow(/cannot be reached/);
+    expect(api.isDemo()).toBe(false);
   });
 });

@@ -66,16 +66,14 @@ describe("saved request API", () => {
     expect(item.result.recommendation.target).toBeNull();
     expect(item.result.recommendation.evidence).toEqual([]);
   });
-  it("keeps the offline banner after reloading a local draft with an API URL configured", async () => {
+  it("never saves a local draft when the live API is unreachable", async () => {
     vi.stubEnv("VITE_API_URL", "http://local.test");
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
     const api = await import("@/lib/api");
-    const saved = await api.saveRequest({ text: "Offline draft for reload" });
-    vi.resetModules();
-    const reloaded = await import("@/lib/api");
-    expect(reloaded.isDemo()).toBe(false);
-    expect((await reloaded.getRequest(saved.request_id)).local_only).toBe(true);
-    expect(reloaded.isDemo()).toBe(true);
+    await expect(api.saveRequest({ text: "Offline draft for reload" })).rejects.toThrow(
+      /was not saved/,
+    );
+    expect(api.isDemo()).toBe(false);
   });
   it("confirms model associations from detail without rewriting the list target", async () => {
     vi.stubEnv("VITE_API_URL", "http://local.test");

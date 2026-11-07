@@ -5,6 +5,12 @@ import { renderProduct } from "./render-product";
 import { DEFAULT_ROLE, readRole, ROLE_KEY, roleTab, saveRole, useRole } from "@/lib/role";
 import mock from "@/data/mock_api.json";
 
+// Open mode (no role codes): the role is the viewer's choice. Enforced mode is covered in access-session.test.tsx.
+vi.mock("@/lib/api", async (original) => ({
+  ...(await original<typeof import("@/lib/api")>()),
+  getMe: async () => ({ role: "admin", name: "Local user", enforced: false }),
+}));
+
 function Harness() {
   const [role, setRole] = useRole();
   return (
@@ -45,10 +51,10 @@ describe("viewing as", () => {
     expect(localStorage.getItem(ROLE_KEY)).toBe("approver");
   });
 
-  it("restores the stored role, and maps roles saved by earlier versions", () => {
+  it("restores the stored role, and maps roles saved by earlier versions", async () => {
     localStorage.setItem(ROLE_KEY, "developer");
     render(<Harness />);
-    expect(screen.getByTestId("current")).toHaveTextContent("developer");
+    expect(await screen.findByText("developer")).toBeInTheDocument();
     for (const [old, now] of [
       ["requester", "business"],
       ["executive", "business"],
