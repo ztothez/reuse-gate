@@ -9,8 +9,9 @@ import { MAX_AUDIO_BYTES, transcribeAudio, voiceErrorMessage } from "@/lib/api";
 class FakeRecorder {
   static instances: FakeRecorder[] = [];
   static chunk = new Blob(["audio"]);
+  static format = "audio/ogg;codecs=opus";
   state = "inactive";
-  mimeType = "audio/ogg;codecs=opus";
+  mimeType = FakeRecorder.format;
   ondataavailable: ((event: { data: Blob }) => void) | null = null;
   onstop: (() => void) | null = null;
   onerror: (() => void) | null = null;
@@ -32,6 +33,7 @@ let media: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   FakeRecorder.instances = [];
   FakeRecorder.chunk = new Blob(["audio"]);
+  FakeRecorder.format = "audio/ogg;codecs=opus";
   stopped = vi.fn();
   media = vi.fn().mockResolvedValue({ getTracks: () => [{ stop: stopped }] });
   Object.defineProperty(navigator, "mediaDevices", {
@@ -91,6 +93,18 @@ describe("voice push-to-talk", () => {
     fireEvent.click(screen.getByRole("button", { name: "Discard" }));
     expect(onUse).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Review transcript")).toBeNull();
+  });
+  it("uploads the chunk type if the recorder's MIME property is empty", async () => {
+    FakeRecorder.format = "";
+    FakeRecorder.chunk = new Blob(["audio"], { type: "audio/mp4" });
+    render(<VoiceInput onUse={vi.fn()} />);
+    await record();
+    await screen.findByLabelText("Review transcript");
+    expect(fetcher.mock.calls[0]![1].headers).toEqual({ "Content-Type": "audio/mp4" });
+  });
+  it("sends WAV with its actual MIME type", async () => {
+    await transcribeAudio(new Blob(["audio"], { type: "audio/wav" }));
+    expect(fetcher.mock.calls[0]![1].headers).toEqual({ "Content-Type": "audio/wav" });
   });
   it("auto-stops at 30 seconds and announces its recording timer", async () => {
     vi.useFakeTimers();

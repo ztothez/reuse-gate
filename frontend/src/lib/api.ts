@@ -1,5 +1,6 @@
 import mock from "@/data/mock_api.json";
 import { itemRow, localItems, saveLocalItem } from "./work-item-cache";
+import { isSupportedAudioType } from "./recording-format";
 
 export type Action =
   | "reuse"
@@ -363,7 +364,7 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   if (!API || demo) throw new Error(voiceErrorMessage("not_configured"));
   if (!blob.size) throw new Error(voiceErrorMessage("empty_audio"));
   if (blob.size > MAX_AUDIO_BYTES) throw new Error(voiceErrorMessage("too_large"));
-  if (!/^audio\/(webm|ogg|mp4)(;|$)/i.test(blob.type)) throw new Error(voiceErrorMessage("unsupported_type"));
+  if (!isSupportedAudioType(blob.type)) throw new Error(voiceErrorMessage("unsupported_type"));
   const controller = new AbortController();
   const abort = () => controller.abort();
   if (signal?.aborted) controller.abort();

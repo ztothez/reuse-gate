@@ -133,3 +133,11 @@ The Part 5 hash is provided in the final handoff; a committed file cannot contai
 - frontend/verification/screenshots.mjs
 - frontend/verification/stability-evidence.json
 - frontend/vitest.config.ts
+
+## Voice format compatibility follow-up
+
+After an unsupported-format report, the recorder now explicitly negotiates a supported audio container using MediaRecorder.isTypeSupported instead of assuming the browser default matches the API. It tries another supported format if recorder construction fails, uses emitted chunk metadata when recorder.mimeType is empty, preserves the recorder's actual MIME type, and accepts the WAV types already supported by the server. It does not relabel video as audio or change the API.
+
+Validation: 168 tests in 27 files, type check and production build pass. Regression cases cover WebM selection, MP4-only support, constructor failure, no supported format, empty recorder MIME metadata, WAV upload and preservation of unsupported type metadata. A real Chromium MediaRecorder with a synthetic microphone produced audio/webm;codecs=opus, 12,581 bytes, with a valid WebM container signature and reached editable transcript review through an intercepted response. Evidence is in verification/voice-format-evidence.json and the reproducible verification/voice-format.mjs. No physical microphone, external provider or user-specific failing browser was verified. The exact format that caused the reported error is unknown.
+
+Additional files: src/lib/recording-format.ts, src/test/recording-format.test.ts, verification/voice-format.mjs and verification/voice-format-evidence.json.

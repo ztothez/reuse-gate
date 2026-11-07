@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MAX_AUDIO_BYTES, transcribeAudio, voiceErrorMessage } from "./api";
+import { createAudioRecorder, recordedAudioType } from "./recording-format";
 
 type Phase = "idle" | "starting" | "recording" | "transcribing" | "review" | "error";
 export function useVoiceInput(disabled: boolean) {
@@ -67,7 +68,7 @@ export function useVoiceInput(disabled: boolean) {
         return;
       }
       stream.current = audio;
-      const current = new MediaRecorder(audio);
+      const current = createAudioRecorder(audio);
       recorder.current = current;
       let chunks: Blob[] = [];
       let bytes = 0;
@@ -106,7 +107,7 @@ export function useVoiceInput(disabled: boolean) {
           setPhase("error");
           return;
         }
-        const blob = new Blob(chunks, { type: current.mimeType });
+        const blob = new Blob(chunks, { type: recordedAudioType(current.mimeType, chunks) });
         chunks = [];
         setPhase("transcribing");
         const controller = new AbortController();
@@ -146,7 +147,9 @@ export function useVoiceInput(disabled: boolean) {
             reason instanceof DOMException &&
               ["NotAllowedError", "SecurityError"].includes(reason.name)
               ? "microphone_denied"
-              : "microphone_failed",
+              : reason instanceof DOMException && reason.name === "NotSupportedError"
+                ? "unsupported_type"
+                : "microphone_failed",
           ),
         );
         setPhase("error");
