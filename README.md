@@ -418,18 +418,32 @@ The role names come from the `Owners` sheet. The pack does not define duties, so
 not protect, scan results and the production path. `python3 -I scripts/security_check.py URL` runs the black-box checks
 against any running API, and `python3 -I scripts/secret_scan.py` scans the tracked files and git history.
 
-### Access governance: design only, NOT IMPLEMENTED
+### Access: least privilege by role
 
-**None of this exists in the prototype. The API has no login, and `/approve` trusts the name it is given.** CORS is limited to
-the deployed UI and localhost, and approvals can require a shared access code, but neither is identity.
-A real deployment would need:
+**Implemented.** With `REUSE_GATE_ROLE_CODES` set (one `role:name:code` entry per person or seat, from the Secret
+`reuse-gate-access`), the API checks a role on every endpoint except health, the PingSource and n8n
+(`backend/reuse_gate/access.py`, tested in `backend/tests/test_access.py`). The UI asks for a code, and `GET /me` tells it the role
+and name; "Viewing as" offers only the roles that tab is signed in to.
 
-- Single sign-on, with the approver taken from the session and not typed in.
-- Approval rights by role and scope: for example, only a domain approver or data product owner can approve in their scope.
-- Separation of duties: the requester cannot approve their own request.
-- Respect for `classification`: confidential asset details are visible only to people with access to them.
-- A tamper-evident, centrally stored decision log.
-- API access limited to the corporate network, with restricted CORS and managed secrets.
+| Role | Can read | Can do |
+| --- | --- | --- |
+| Business | Only the requests they filed, evaluation | File and answer their own requests, listen, speak a request |
+| Analyst | Every request with evidence, radar, evaluation | Nothing that writes |
+| Developer | Every request with specs, evaluation | Build specs (`/spec`) |
+| Approver | Everything above, decision log, owners | Simulate an owner fix, approve or reject |
+| Admin | Everything | Everything |
+
+- Another person's request answers 404, so its existence is not revealed.
+- Approver names are hidden from business, analyst and developer.
+- The requester and the approver in every record are the signed-in names, never names sent in the body.
+- Codes are compared in constant time, kept in the browser tab's sessionStorage only, and never logged.
+- With a live API configured, the UI never falls back to bundled data or local drafts: an unreachable API is shown as an error.
+
+**Not implemented, and needed for production:** single sign-on instead of codes (the role and name would come from an OIDC token
+or the OpenShift OAuth proxy; only `access.principal()` changes), approval rights by scope (only the domain's approver), separation
+of duties (a requester cannot approve their own request), filtering confidential assets by `classification`, and a tamper-evident,
+centrally stored decision log. Without role codes the API runs open, as for local development, and `REUSE_GATE_WRITE_TOKEN` alone
+guards approve and remediate.
 
 ### How a different Bayer division plugs in
 
