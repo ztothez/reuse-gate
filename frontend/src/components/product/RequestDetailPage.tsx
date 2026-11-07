@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { getLog, getRequest, saveRequest, type Answer, type WorkItem } from "@/lib/api";
 import { displayText } from "@/lib/display-text";
 import { requestGates } from "@/lib/governance";
-import { roleTab, type RequestTab } from "@/lib/role";
+import { roleView, type RequestTab } from "@/lib/role";
 import { itemsChanged, useResource } from "@/lib/use-resource";
 import { openQuestions, type RequestState } from "@/lib/use-request";
 import { ACTIONS } from "@/components/gate/shared";
@@ -56,8 +56,10 @@ function summary(item: WorkItem) {
 function DetailContent({ item, reload }: { item: WorkItem; reload: () => void }) {
   const navigate = useNavigate();
   const [role] = useLens();
-  const [tab, setTab] = useState<RequestTab>(roleTab(role));
-  useEffect(() => setTab(roleTab(role)), [role]);
+  const view = roleView(role);
+  const [tab, setTab] = useState<RequestTab>(view.tabs[0]!);
+  useEffect(() => setTab(roleView(role).tabs[0]!), [role]);
+  const approves = role === "approver" || role === "admin";
   const [text, setText] = useState(item.text);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -115,13 +117,15 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
     },
     outdated,
   };
-  const tabs: { id: RequestTab; label: string; badge?: number }[] = [
-    { id: "answer", label: "Answer" },
-    { id: "evidence", label: "Evidence" },
-    { id: "spec", label: "Spec" },
-    { id: "gates", label: "Gates", badge: failing },
-    { id: "activity", label: "Activity" },
-  ];
+  const allTabs: Record<RequestTab, { id: RequestTab; label: string; badge?: number }> = {
+    answer: { id: "answer", label: role === "business" ? "Your answer" : "Answer" },
+    evidence: { id: "evidence", label: "Evidence" },
+    spec: { id: "spec", label: "Spec" },
+    gates: { id: "gates", label: "Gates", badge: failing },
+    activity: { id: "activity", label: role === "business" ? "Status" : "Activity" },
+  };
+  // Each role sees only its own tabs, in its own order.
+  const tabs = view.tabs.map((id) => allTabs[id]);
   const title =
     rec.target?.name ?? (rec.build_on ? `New dashboard on ${rec.build_on}` : meta.label);
   return (
@@ -160,19 +164,27 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
             >
               {busy ? "Rechecking..." : "Recheck request"}
             </button>
-          ) : item.status === "clarifying" ? (
+          ) : item.status === "clarifying" && view.tabs.includes("answer") ? (
             <button className="primary-action" onClick={() => setTab("answer")}>
               Answer questions
             </button>
-          ) : closed ? (
+          ) : closed && view.tabs.includes("activity") ? (
             <button className="primary-action" onClick={() => setTab("activity")}>
-              View decision record
+              {role === "business" ? "See the decision" : "View decision record"}
             </button>
-          ) : (
+          ) : !closed && approves && item.status !== "clarifying" ? (
             <Link className="primary-action" to="/approvals" search={{ id: item.request_id }}>
               Review for approval
             </Link>
-          )}
+          ) : role === "developer" ? (
+            <button className="primary-action" onClick={() => setTab("spec")}>
+              Open spec
+            </button>
+          ) : role === "business" && !closed ? (
+            <span className="text-sm">
+              An approver decides next. You do not need to do anything.
+            </span>
+          ) : null}
           <button
             className="control"
             onClick={() => {
@@ -280,9 +292,9 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
               {item.result.ai?.speech && (
                 <ListenButton key={item.result.ai.speech} text={item.result.ai.speech} large />
               )}
-              <DecisionSource result={item.result} />
+              {role !== "business" && <DecisionSource result={item.result} />}
             </section>
-            {!closed && (
+            {!closed && (role === "business" || role === "admin") && (
               <details className="panel">
                 <summary className="min-h-16 cursor-pointer font-semibold">
                   Change the request
@@ -329,7 +341,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
                 </p>
               )
             )}
-            {!closed && item.status !== "clarifying" && (
+            {!closed && approves && item.status !== "clarifying" && (
               <Link className="primary-action" to="/approvals" search={{ id: item.request_id }}>
                 Open in approval queue
               </Link>

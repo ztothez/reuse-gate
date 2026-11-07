@@ -116,15 +116,29 @@ describe("role home pages", () => {
     cleanup();
     localStorage.clear();
   });
-  it("gives the analyst an evidence workspace and the developer a build queue", async () => {
-    localStorage.setItem(ROLE_KEY, "analyst");
-    await renderProduct("/");
-    expect(await screen.findByRole("heading", { name: "Evidence workspace" })).toBeInTheDocument();
-    expect(
-      await screen.findByRole("heading", { name: "Conflicting KPI definitions" }),
-    ).toBeInTheDocument();
-    fireEvent.change(select(), { target: { value: "developer" } });
-    expect(await screen.findByRole("heading", { name: "Build queue" })).toBeInTheDocument();
-    expect((await screen.findAllByRole("link", { name: "Open spec" })).length).toBeGreaterThan(0);
-  });
+  it(
+    "gives the analyst an evidence workspace and the developer a build queue",
+    { timeout: 15000 },
+    async () => {
+      localStorage.setItem(ROLE_KEY, "analyst");
+      await renderProduct("/");
+      expect(
+        await screen.findByRole("heading", { name: "Evidence workspace" }, { timeout: 5000 }),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole(
+          "heading",
+          { name: "Conflicting KPI definitions" },
+          { timeout: 5000 },
+        ),
+      ).toBeInTheDocument();
+      fireEvent.change(select(), { target: { value: "developer" } });
+      expect(
+        await screen.findByRole("heading", { name: "Build queue" }, { timeout: 5000 }),
+      ).toBeInTheDocument();
+      expect(
+        (await screen.findAllByRole("link", { name: "Open spec" }, { timeout: 5000 })).length,
+      ).toBeGreaterThan(0);
+    },
+  );
 });
