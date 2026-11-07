@@ -16,7 +16,7 @@ This page is exact about what runs where. "Live" means running in project `ztoth
 | UI (`reuse-gate-ui`, static React build on UBI nginx, non-root) | Yes, live | Deployment, Service and edge Route `reuse-gate-ui` |
 | API (`reuse-gate`, Python standard library) | Yes, live | Deployment, Service and edge Route `reuse-gate`. Live image `e7eccf8b5e28`, which predates this page's changes |
 | Decision service `reuse-gate-kserve` | Yes, live | KServe InferenceService (raw deployment) on the ServingRuntime `reuse-gate-decision-runtime`, KServe v1 protocol. The "model" is the deterministic decision logic and the data pack in the image |
-| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | After rollout | Live, the API decides in its own pod and does not call KServe. `api.yaml` turns the KServe path on |
+| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | Only when asked at rollout | Live, the API decides in its own pod and does not call KServe. `api.yaml` keeps `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it and checks `/healthz` reports KServe reachable |
 | BuildConfigs `reuse-gate`, `reuse-gate-ui` | Yes, live | Binary Docker builds from a clean `git archive` export |
 | Tekton pipeline `reuse-gate-verify` | Yes, live with 3 tasks; 5 tasks after rollout | Unit tests, governance gate and rollout are live (2 successful runs). Evaluation and security gates are added by the rollout |
 | Knative PingSource `reuse-gate-radar-ping` | Yes, live | Calls `/radar-ping` at 06:00 on weekdays (Europe/Helsinki). A scheduled run has not been observed yet |
@@ -102,6 +102,14 @@ The KServe call stays inside the project (`allow-same-namespace` NetworkPolicy).
   `Recreate`). The decision log and work items are read back at startup, and the 10 samples are seeded only on an empty volume. A
   missing or read-only directory never stops startup: the API keeps state in memory and logs it. Tested with a real process
   restarted on the same directory and with a read-only directory.
+- **Model tiers:** every tier and the Aitta embeddings have a circuit breaker: after a failure the tier is skipped for 120 seconds
+  (`LLM_TIER_COOLDOWN_S`), so a dead provider costs one call, not one per request. Timeouts: 20 s per Aitta or Together call, 40 s
+  per GLM-5.2 call, 60 s per request, no retries. With Aitta answering 503 or unreachable (chat and embeddings), a test shows every
+  decision on the 150 batch requests, 10 ad hoc texts, 10 saved chips and 24 edge cases equal to the decision with no model, with at
+  most 2 calls to Aitta in the whole run (`backend/tests/test_aitta_down.py`). Featherless was verified end to end on 2026-11-07
+  with Aitta returning 503: through the live API with the Secret's `FEATHERLESS_API_KEY` (GLM-5.2 read the intent and wrote the
+  explanation), and with the new code locally given only the Secret's key names (`ai.tier` `featherless`, guard passed, 27 s, then
+  12 s once the breaker skipped Aitta).
 - **Decision path:** in `kserve` mode a 5 second timeout, then the same decision in the API pod, recorded as `local_fallback`.
   The predictor returns the hash of its `estate.db`; a different hash is refused (`estate_mismatch`). Parity is tested: identical
   decisions in both modes on the 21 messy prompts through every clarification round and on the 10 distinct request texts.
@@ -165,7 +173,8 @@ The evaluation and security gates are in the pipeline after the rollout; until t
 
 ## 8. Console demo shot list (30 to 45 seconds)
 
-Record after `rollout.sh` and `wake.sh`, so the pipeline run with all gates exists and the API is in `kserve` mode.
+Record after `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` and `wake.sh`, so the pipeline run with all gates
+exists and the API is in `kserve` mode.
 
 | # | Shot | Seconds | Narration |
 | --- | --- | --- | --- |

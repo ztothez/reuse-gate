@@ -1,10 +1,18 @@
 #!/bin/sh
 # Final rollout of everything in deploy/openshift, in order. Run from the repo root on the commit to ship:
 #   sh deploy/openshift/rollout.sh
-# Optional: REUSE_GATE_LLM_TIERS=together,featherless sh deploy/openshift/rollout.sh   (while Aitta is down)
+# Optional, combine as needed:
+#   REUSE_GATE_LLM_TIERS=together,featherless          model tiers in order (while Aitta is down)
+#   REUSE_GATE_DECISION_BACKEND=kserve                  decisions on the KServe InferenceService; the default stays local
+#   REUSE_GATE_KSERVE_URL=http://...                    only to override the in-cluster predictor URL below
+# Example: REUSE_GATE_DECISION_BACKEND=kserve REUSE_GATE_LLM_TIERS=together,featherless sh deploy/openshift/rollout.sh
 # Builds come from a clean git archive export, never from the working directory. Prints no key.
 set -eu
 NS=${NS:-ztothez-dev}
+API_URL=${REUSE_GATE_API_URL:-https://reuse-gate-$NS.apps.rm1.0a51.p1.openshiftapps.com}
+BACKEND=${REUSE_GATE_DECISION_BACKEND:-local}
+KSERVE_URL=${REUSE_GATE_KSERVE_URL:-http://reuse-gate-kserve-predictor.$NS.svc.cluster.local}
+case "$BACKEND" in local|kserve) ;; *) echo "REUSE_GATE_DECISION_BACKEND must be local or kserve"; exit 1 ;; esac
 oc whoami >/dev/null
 oc project "$NS" >/dev/null
 git diff --quiet HEAD -- backend scripts data Containerfile deploy frontend || { echo "uncommitted changes: commit first, the build uses HEAD"; exit 1; }
@@ -46,7 +54,34 @@ oc apply -f deploy/openshift/api.yaml
 if [ -n "${REUSE_GATE_LLM_TIERS:-}" ]; then
   oc set env deploy/reuse-gate REUSE_GATE_LLM_TIERS="$REUSE_GATE_LLM_TIERS"
 fi
+if [ "$BACKEND" = kserve ]; then
+  oc set env deploy/reuse-gate REUSE_GATE_DECISION_BACKEND=kserve REUSE_GATE_KSERVE_URL="$KSERVE_URL" REUSE_GATE_KSERVE_MODEL=reuse-gate-kserve
+fi
 oc rollout status deploy/reuse-gate --timeout=300s
+
+echo "== 5b. decision backend check: /healthz (asked for: $BACKEND)"
+HEALTH=""
+for i in $(seq 1 12); do
+  HEALTH=$(curl -s -m 15 "$API_URL/healthz" || true)
+  echo "$HEALTH" | grep -q '"ok": true' && break
+  sleep 5
+done
+echo "  $HEALTH"
+if [ "$BACKEND" = kserve ]; then
+  # /healthz checks KServe at most every 30 seconds; ask again until it reports reachable or a minute passes
+  for i in $(seq 1 7); do
+    echo "$HEALTH" | grep -q '"decision_backend": "kserve"' && echo "$HEALTH" | grep -q '"reachable": true' && break
+    sleep 10
+    HEALTH=$(curl -s -m 15 "$API_URL/healthz" || true)
+  done
+  if echo "$HEALTH" | grep -q '"decision_backend": "kserve"' && echo "$HEALTH" | grep -q '"reachable": true'; then
+    echo "  OK: decisions go to reuse-gate-kserve, and it is reachable from the API"
+  else
+    echo "  FAILED: asked for kserve, but /healthz says: $HEALTH"
+    echo "  Decisions still work (local_fallback). To go back to local: oc set env deploy/reuse-gate REUSE_GATE_DECISION_BACKEND=local"
+    exit 1
+  fi
+fi
 
 echo "== 6. UI image from a clean export of frontend/, then roll out"
 oc apply -f deploy/openshift/frontend.yaml

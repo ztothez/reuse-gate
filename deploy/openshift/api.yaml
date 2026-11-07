@@ -52,8 +52,9 @@ spec:
             # Work items, the decision log and the model and audio caches live on the volume and survive pod recycling.
             - {name: REUSE_GATE_STATE_DIR, value: /var/lib/reuse-gate}
             - {name: LLM_CACHE_DIR, value: /var/lib/reuse-gate/cache}
-            # Decisions run on the KServe InferenceService; any failure decides in this pod and the result says local_fallback.
-            - {name: REUSE_GATE_DECISION_BACKEND, value: kserve}
+            # Decisions run in this pod by default. REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh sends them to the
+            # KServe InferenceService instead; any failure there decides in this pod and the result says local_fallback.
+            - {name: REUSE_GATE_DECISION_BACKEND, value: local}
             - {name: REUSE_GATE_KSERVE_URL, value: "http://reuse-gate-kserve-predictor.ztothez-dev.svc.cluster.local"}
             - {name: REUSE_GATE_KSERVE_MODEL, value: reuse-gate-kserve}
             # Model tiers in order. While Aitta is down: oc set env deploy/reuse-gate REUSE_GATE_LLM_TIERS=together,featherless

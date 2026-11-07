@@ -1,6 +1,12 @@
 # Send decisions through reuse-gate-kserve
 
-Not applied. The API decides in-process until this is set.
+Not applied. The API decides in-process until this is set. The final rollout does it for you, and checks `/healthz` afterwards:
+
+```bash
+REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh
+```
+
+Without that variable `rollout.sh` leaves the default, `local`.
 
 The one-line change on the running API Deployment:
 

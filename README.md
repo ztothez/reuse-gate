@@ -220,7 +220,7 @@ fallback:
 
 The API uses `openai/gpt-oss-120b` on CSC Aitta (`AITTA_API_KEY`), with automatic fallback to `zai-org/GLM-5.2` on Featherless
 (`FEATHERLESS_API_KEY`). A timeout, HTTP error, gated model, empty reply or invalid JSON moves that call to the fallback, and a
-failed primary is skipped for 120 seconds so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
+failed tier (any tier, and the Aitta embeddings) is skipped for 120 seconds (`LLM_TIER_COOLDOWN_S`) so nobody waits on it for every call. If both fail, the rules take over. A spent call budget
 (`LLM_MAX_CALLS`) stops instead of moving the spending to the fallback. The UI names the model that wrote each explanation.
 The two providers are the default tiers of a configurable chain, see "Portability to OpenShift AI".
 
@@ -486,7 +486,8 @@ Setting `REUSE_GATE_LLM_TIERS=incluster` alone keeps every request and decision 
 `reuse-gate-kserve` (`REUSE_GATE_KSERVE_URL`, `REUSE_GATE_KSERVE_MODEL`, `REUSE_GATE_KSERVE_TIMEOUT_S`, default 5 seconds) and use
 the decision it returns. The predictor runs the same deterministic code and also returns the hash of its `estate.db`; if that differs, or
 the call fails, the API decides locally. Every result says `"decision_backend": "kserve"`, `"local"` or `"local_fallback"` (with
-`decision_backend_reason`). The default is `local`. `GET /health` and `GET /healthz` report the backend and whether KServe answers.
+`decision_backend_reason`). The default is `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it on the cluster and checks
+`/healthz` afterwards. `GET /health` and `GET /healthz` report the backend and whether KServe answers.
 A test gives the identical decision in both modes on the 21 messy prompts (through every clarification round) and the 10 distinct
 request texts. How to turn it on: [deploy/openshift/enable-kserve-path.md](deploy/openshift/enable-kserve-path.md). Details, data flows and
 what was measured are in [docs/openshift.md](docs/openshift.md).
