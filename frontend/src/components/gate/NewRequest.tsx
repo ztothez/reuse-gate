@@ -27,6 +27,7 @@ export function NewRequest({ state: shared }: { state?: RequestState }) {
       <RequestForm state={state} />
       {loading && <Checking />}
       {error && <ErrorState>{error}</ErrorState>}
+      {state.outdated && <ErrorState>Outdated result. Resubmit the edited request before approving.</ErrorState>}
       {result && (
         <>
           <div className="flex justify-end">
@@ -42,6 +43,7 @@ export function NewRequest({ state: shared }: { state?: RequestState }) {
             result={result}
             onAnswers={recheck}
             rechecking={rechecking}
+            outdated={state.outdated}
             decided={state.decided}
             onDecided={state.setDecided}
           />

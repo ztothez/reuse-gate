@@ -51,6 +51,7 @@ export function RequesterView({ state }: { state: RequestState }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 text-xl text-foreground">
+      {state.outdated && <p role="alert">Outdated result. Check the edited request again.</p>}
       {/* 1. The answer, in one sentence */}
       <section aria-label="Answer" className="rounded-lg border-2 border-foreground bg-card p-6">
         <p
@@ -84,6 +85,7 @@ export function RequesterView({ state }: { state: RequestState }) {
             <button
               type="button"
               className={`${PRIMARY} mt-5 min-h-20 w-full text-2xl`}
+              disabled={!!state.outdated}
               onClick={() => state.setAccepted(true)}
             >
               Use this

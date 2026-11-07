@@ -61,12 +61,14 @@ export function ResultView({
   result,
   onAnswers,
   rechecking,
+  outdated,
   decided,
   onDecided,
 }: {
   result: RecommendResult;
   onAnswers?: (answers: Answer[]) => void;
   rechecking?: boolean;
+  outdated?: boolean | undefined;
   decided?: Decided | null | undefined;
   onDecided?: ((d: Decided) => void) | undefined;
 }) {
@@ -81,7 +83,7 @@ export function ResultView({
   const gates = localGates ?? decided?.gates ?? null;
   const questions: Question[] =
     intent.questions ?? intent.clarifications.map((text) => ({ text, field: "model" }));
-  const blocked = questions.length > 0;
+  const blocked = questions.length > 0 || !!outdated;
   const filled = questions.flatMap((q, i) => {
     const answer = answers[i]?.trim();
     return answer ? [{ field: q.field, question: q.text, answer }] : [];

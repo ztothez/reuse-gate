@@ -57,6 +57,7 @@ export function ApproverView({ state }: { state: RequestState }) {
               New request
             </Button>
           </div>
+          {state.outdated && <ErrorState>Outdated result. Resubmit the edited request before approving.</ErrorState>}
           <Decision result={result} />
           {state.accepted && result.recommendation.target && (
             <p role="note" className="tone-blue rounded-md border px-4 py-3 text-sm font-medium">
@@ -105,7 +106,7 @@ export function ApproverView({ state }: { state: RequestState }) {
           <ApprovalPanel
             key={result.request_id + result.text}
             result={result}
-            blocked={questions.length > 0}
+            blocked={questions.length > 0 || !!state.outdated}
             decided={state.decided}
             onDecided={state.setDecided}
           />
