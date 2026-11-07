@@ -4,15 +4,9 @@
       "request_id": "REQ-0001",
       "text": "Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country.",
       "intent": {
-        "products": [
-          "Nubeqa"
-        ],
+        "products": ["Nubeqa"],
         "market": "EMEA",
-        "kpis": [
-          "Net Sales Growth",
-          "Forecast Variance",
-          "Market Access Coverage"
-        ],
+        "kpis": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -95,15 +89,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "Nubeqa"
-            ],
+            "products": ["Nubeqa"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales Growth",
-              "Forecast Variance",
-              "Market Access Coverage"
-            ],
+            "kpis": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -120,15 +108,9 @@
           "status": "ok",
           "summary": "63 asset(s) in scope, 18 alive, 7 citation(s)",
           "input": {
-            "products": [
-              "Nubeqa"
-            ],
+            "products": ["Nubeqa"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales Growth",
-              "Forecast Variance",
-              "Market Access Coverage"
-            ]
+            "kpis": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"]
           },
           "output": {
             "assets_in_scope": 63,
@@ -137,13 +119,8 @@
                 "id": "AST-0328",
                 "name": "Nubeqa Gross-to-Net",
                 "alive": true,
-                "covers": [
-                  "Net Sales Growth"
-                ],
-                "missing": [
-                  "Forecast Variance",
-                  "Market Access Coverage"
-                ],
+                "covers": ["Net Sales Growth"],
+                "missing": ["Forecast Variance", "Market Access Coverage"],
                 "blockers": [
                   "not certified or promoted",
                   "semantic model SM-036 has poor AI readiness (clear)"
@@ -154,45 +131,26 @@
                 "id": "AST-0357",
                 "name": "All Pharma Executive - US",
                 "alive": true,
-                "covers": [
-                  "Market Access Coverage"
-                ],
-                "missing": [
-                  "Net Sales Growth",
-                  "Forecast Variance"
-                ],
-                "blockers": [
-                  "not certified or promoted"
-                ],
+                "covers": ["Market Access Coverage"],
+                "missing": ["Net Sales Growth", "Forecast Variance"],
+                "blockers": ["not certified or promoted"],
                 "score": 0.513
               },
               {
                 "id": "AST-0051",
                 "name": "Nubeqa Product Performance Copy",
                 "alive": true,
-                "covers": [
-                  "Market Access Coverage"
-                ],
-                "missing": [
-                  "Net Sales Growth",
-                  "Forecast Variance"
-                ],
-                "blockers": [
-                  "uses non-canonical KPI variants for ['Market Access Coverage']"
-                ],
+                "covers": ["Market Access Coverage"],
+                "missing": ["Net Sales Growth", "Forecast Variance"],
+                "blockers": ["uses non-canonical KPI variants for ['Market Access Coverage']"],
                 "score": 0.452
               },
               {
                 "id": "AST-0018",
                 "name": "All Pharma Market Access - US",
                 "alive": true,
-                "covers": [
-                  "Market Access Coverage"
-                ],
-                "missing": [
-                  "Net Sales Growth",
-                  "Forecast Variance"
-                ],
+                "covers": ["Market Access Coverage"],
+                "missing": ["Net Sales Growth", "Forecast Variance"],
                 "blockers": [
                   "not certified or promoted",
                   "owner OWN-044 is missing or inactive",
@@ -205,11 +163,7 @@
                 "name": "All Pharma Executive Legacy",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales Growth",
-                  "Forecast Variance",
-                  "Market Access Coverage"
-                ],
+                "missing": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"],
                 "blockers": [
                   "owner OWN-029 is missing or inactive",
                   "semantic model SM-036 has poor AI readiness (clear)"
@@ -262,11 +216,7 @@
           "summary": "new build",
           "input": {
             "assets_checked": 63,
-            "kpis": [
-              "Net Sales Growth",
-              "Forecast Variance",
-              "Market Access Coverage"
-            ],
+            "kpis": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -296,15 +246,9 @@
           "output": {
             "title": "Nubeqa dashboard",
             "purpose": "Governed view of Net Sales Growth, Forecast Variance, Market Access Coverage for Nubeqa in EMEA.",
-            "products": [
-              "Nubeqa"
-            ],
+            "products": ["Nubeqa"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales Growth",
-              "Forecast Variance",
-              "Market Access Coverage"
-            ],
+            "kpis": ["Net Sales Growth", "Forecast Variance", "Market Access Coverage"],
             "semantic_model": "SM-065",
             "source_action": "new_build",
             "governance": [
@@ -447,15 +391,9 @@
       "request_id": "REQ-0002",
       "text": "Please create a Power BI replacement for our legacy Tableau Xarelto commercial workbook.",
       "intent": {
-        "products": [
-          "Xarelto"
-        ],
+        "products": ["Xarelto"],
         "market": "JP",
-        "kpis": [
-          "Net Sales",
-          "Net Sales Growth",
-          "Commercial Reach Index"
-        ],
+        "kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
         "kind": "migration",
         "clarifications": [],
         "questions": []
@@ -511,15 +449,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "Xarelto"
-            ],
+            "products": ["Xarelto"],
             "market": "JP",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth",
-              "Commercial Reach Index"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
             "kind": "migration",
             "clarifications": [],
             "questions": [],
@@ -536,15 +468,9 @@
           "status": "ok",
           "summary": "11 asset(s) in scope, 3 alive, 2 citation(s)",
           "input": {
-            "products": [
-              "Xarelto"
-            ],
+            "products": ["Xarelto"],
             "market": "JP",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth",
-              "Commercial Reach Index"
-            ]
+            "kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"]
           },
           "output": {
             "assets_in_scope": 11,
@@ -554,14 +480,8 @@
                 "name": "Xarelto Commercial Reach Mgmt",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth",
-                  "Commercial Reach Index"
-                ],
-                "blockers": [
-                  "semantic model SM-067 has poor AI readiness (clear)"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
+                "blockers": ["semantic model SM-067 has poor AI readiness (clear)"],
                 "score": 0.702
               },
               {
@@ -569,11 +489,7 @@
                 "name": "All Pharma Market Access Monthly",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth",
-                  "Commercial Reach Index"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
                 "blockers": [
                   "semantic model SM-034 refresh status is failed",
                   "semantic model SM-034 has poor AI readiness (clear)"
@@ -585,27 +501,16 @@
                 "name": "Xarelto Forecast New",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth",
-                  "Commercial Reach Index"
-                ],
-                "blockers": [
-                  "not certified or promoted"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
+                "blockers": ["not certified or promoted"],
                 "score": 0.52
               },
               {
                 "id": "AST-0335",
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth",
-                  "Commercial Reach Index"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth", "Commercial Reach Index"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "owner OWN-043 is missing or inactive"
@@ -616,13 +521,8 @@
                 "id": "AST-0015",
                 "name": "All Pharma Net Sales New",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth",
-                  "Commercial Reach Index"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth", "Commercial Reach Index"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted",
@@ -651,11 +551,7 @@
           "summary": "human review",
           "input": {
             "assets_checked": 11,
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth",
-              "Commercial Reach Index"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth", "Commercial Reach Index"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -703,14 +599,9 @@
       "request_id": "REQ-0003",
       "text": "Please build a new report for market access coverage and reimbursement status by product.",
       "intent": {
-        "products": [
-          "All Pharma"
-        ],
+        "products": ["All Pharma"],
         "market": "US",
-        "kpis": [
-          "Market Access Coverage",
-          "Reimbursement Status Coverage"
-        ],
+        "kpis": ["Market Access Coverage", "Reimbursement Status Coverage"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -834,14 +725,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "US",
-            "kpis": [
-              "Market Access Coverage",
-              "Reimbursement Status Coverage"
-            ],
+            "kpis": ["Market Access Coverage", "Reimbursement Status Coverage"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -858,14 +744,9 @@
           "status": "ok",
           "summary": "3 asset(s) in scope, 0 alive, 11 citation(s)",
           "input": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "US",
-            "kpis": [
-              "Market Access Coverage",
-              "Reimbursement Status Coverage"
-            ]
+            "kpis": ["Market Access Coverage", "Reimbursement Status Coverage"]
           },
           "output": {
             "assets_in_scope": 3,
@@ -874,10 +755,7 @@
                 "id": "AST-0335",
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
-                "covers": [
-                  "Market Access Coverage",
-                  "Reimbursement Status Coverage"
-                ],
+                "covers": ["Market Access Coverage", "Reimbursement Status Coverage"],
                 "missing": [],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
@@ -891,10 +769,7 @@
                 "name": "All Pharma Net Sales New",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "Market Access Coverage",
-                  "Reimbursement Status Coverage"
-                ],
+                "missing": ["Market Access Coverage", "Reimbursement Status Coverage"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted"
@@ -906,10 +781,7 @@
                 "name": "All Pharma Commercial Reach - Global",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "Market Access Coverage",
-                  "Reimbursement Status Coverage"
-                ],
+                "missing": ["Market Access Coverage", "Reimbursement Status Coverage"],
                 "blockers": [
                   "lifecycle status is candidate_retire",
                   "legacy Tableau content, not a reuse target",
@@ -983,19 +855,14 @@
           "summary": "new build",
           "input": {
             "assets_checked": 3,
-            "kpis": [
-              "Market Access Coverage",
-              "Reimbursement Status Coverage"
-            ],
+            "kpis": ["Market Access Coverage", "Reimbursement Status Coverage"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
             "action": "new_build",
             "target": null,
             "build_on": "SM-065",
-            "retire": [
-              "AST-0335"
-            ],
+            "retire": ["AST-0335"],
             "retire_more": 0,
             "consolidate_later": [],
             "consolidate_more": 0,
@@ -1019,14 +886,9 @@
           "output": {
             "title": "All Pharma dashboard",
             "purpose": "Governed view of Market Access Coverage, Reimbursement Status Coverage for All Pharma in US.",
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "US",
-            "kpis": [
-              "Market Access Coverage",
-              "Reimbursement Status Coverage"
-            ],
+            "kpis": ["Market Access Coverage", "Reimbursement Status Coverage"],
             "semantic_model": "SM-065",
             "source_action": "new_build",
             "governance": [
@@ -1164,14 +1026,9 @@
       "request_id": "REQ-0004",
       "text": "We need a monthly supply-risk dashboard by medicine and country.",
       "intent": {
-        "products": [
-          "All Pharma"
-        ],
+        "products": ["All Pharma"],
         "market": "JP",
-        "kpis": [
-          "On-Time In-Full",
-          "Inventory Coverage"
-        ],
+        "kpis": ["On-Time In-Full", "Inventory Coverage"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -1189,10 +1046,7 @@
           "users_3m": 194,
           "owner": "Nina Schmidt",
           "coverage": {
-            "requested": [
-              "On-Time In-Full",
-              "Inventory Coverage"
-            ],
+            "requested": ["On-Time In-Full", "Inventory Coverage"],
             "covered": [
               {
                 "kpi": "On-Time In-Full",
@@ -1204,9 +1058,7 @@
               }
             ],
             "secondary_only": [],
-            "missing": [
-              "Inventory Coverage"
-            ],
+            "missing": ["Inventory Coverage"],
             "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
           }
         },
@@ -1298,14 +1150,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "JP",
-            "kpis": [
-              "On-Time In-Full",
-              "Inventory Coverage"
-            ],
+            "kpis": ["On-Time In-Full", "Inventory Coverage"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -1322,14 +1169,9 @@
           "status": "ok",
           "summary": "7 asset(s) in scope, 1 alive, 8 citation(s)",
           "input": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "JP",
-            "kpis": [
-              "On-Time In-Full",
-              "Inventory Coverage"
-            ]
+            "kpis": ["On-Time In-Full", "Inventory Coverage"]
           },
           "output": {
             "assets_in_scope": 7,
@@ -1338,12 +1180,8 @@
                 "id": "AST-0008",
                 "name": "All Pharma Market Access Monthly",
                 "alive": true,
-                "covers": [
-                  "On-Time In-Full"
-                ],
-                "missing": [
-                  "Inventory Coverage"
-                ],
+                "covers": ["On-Time In-Full"],
+                "missing": ["Inventory Coverage"],
                 "blockers": [
                   "semantic model SM-034 refresh status is failed",
                   "semantic model SM-034 has poor AI readiness (clear)"
@@ -1355,10 +1193,7 @@
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "On-Time In-Full",
-                  "Inventory Coverage"
-                ],
+                "missing": ["On-Time In-Full", "Inventory Coverage"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "owner OWN-043 is missing or inactive"
@@ -1370,10 +1205,7 @@
                 "name": "All Pharma Forecast - Global",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "On-Time In-Full",
-                  "Inventory Coverage"
-                ],
+                "missing": ["On-Time In-Full", "Inventory Coverage"],
                 "blockers": [
                   "lifecycle status is legacy",
                   "semantic model SM-068 refresh status is failed"
@@ -1385,10 +1217,7 @@
                 "name": "All Pharma Demand Final",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "On-Time In-Full",
-                  "Inventory Coverage"
-                ],
+                "missing": ["On-Time In-Full", "Inventory Coverage"],
                 "blockers": [
                   "lifecycle status is legacy",
                   "semantic model SM-033 refresh status is warning"
@@ -1400,10 +1229,7 @@
                 "name": "All Pharma Net Sales New",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "On-Time In-Full",
-                  "Inventory Coverage"
-                ],
+                "missing": ["On-Time In-Full", "Inventory Coverage"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted"
@@ -1461,10 +1287,7 @@
           "summary": "extend",
           "input": {
             "assets_checked": 7,
-            "kpis": [
-              "On-Time In-Full",
-              "Inventory Coverage"
-            ],
+            "kpis": ["On-Time In-Full", "Inventory Coverage"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -1500,14 +1323,9 @@
           "output": {
             "title": "Extended All Pharma Market Access Monthly",
             "purpose": "Governed view of On-Time In-Full, Inventory Coverage for All Pharma in JP.",
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "JP",
-            "kpis": [
-              "On-Time In-Full",
-              "Inventory Coverage"
-            ],
+            "kpis": ["On-Time In-Full", "Inventory Coverage"],
             "semantic_model": "SM-034",
             "source_action": "extend",
             "governance": [
@@ -1646,14 +1464,9 @@
       "request_id": "REQ-0005",
       "text": "I need a new Kerendia management report for monthly performance in EMEA and North America.",
       "intent": {
-        "products": [
-          "Kerendia"
-        ],
+        "products": ["Kerendia"],
         "market": "SE",
-        "kpis": [
-          "Net Sales",
-          "Net Sales Growth"
-        ],
+        "kpis": ["Net Sales", "Net Sales Growth"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -1671,10 +1484,7 @@
           "users_3m": 142,
           "owner": "Oliver Schmidt",
           "coverage": {
-            "requested": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "requested": ["Net Sales", "Net Sales Growth"],
             "covered": [
               {
                 "kpi": "Net Sales",
@@ -1686,9 +1496,7 @@
               }
             ],
             "secondary_only": [],
-            "missing": [
-              "Net Sales Growth"
-            ],
+            "missing": ["Net Sales Growth"],
             "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
           }
         },
@@ -1782,14 +1590,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "Kerendia"
-            ],
+            "products": ["Kerendia"],
             "market": "SE",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -1806,14 +1609,9 @@
           "status": "ok",
           "summary": "12 asset(s) in scope, 3 alive, 8 citation(s)",
           "input": {
-            "products": [
-              "Kerendia"
-            ],
+            "products": ["Kerendia"],
             "market": "SE",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ]
+            "kpis": ["Net Sales", "Net Sales Growth"]
           },
           "output": {
             "assets_in_scope": 12,
@@ -1822,12 +1620,8 @@
                 "id": "AST-0187",
                 "name": "Kerendia Gross-to-Net Monthly",
                 "alive": true,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth"],
                 "blockers": [
                   "not certified or promoted",
                   "owner OWN-037 is missing or inactive",
@@ -1841,10 +1635,7 @@
                 "name": "Kerendia Net Sales Final",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth"],
                 "blockers": [],
                 "score": 0.698
               },
@@ -1853,10 +1644,7 @@
                 "name": "Kerendia Gross-to-Net New",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth"],
                 "blockers": [],
                 "score": 0.688
               },
@@ -1864,12 +1652,8 @@
                 "id": "AST-0335",
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "owner OWN-043 is missing or inactive"
@@ -1880,12 +1664,8 @@
                 "id": "AST-0015",
                 "name": "All Pharma Net Sales New",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted",
@@ -1944,10 +1724,7 @@
           "summary": "extend",
           "input": {
             "assets_checked": 12,
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -1985,14 +1762,9 @@
           "output": {
             "title": "Extended Kerendia Gross-to-Net Monthly",
             "purpose": "Governed view of Net Sales, Net Sales Growth for Kerendia in SE.",
-            "products": [
-              "Kerendia"
-            ],
+            "products": ["Kerendia"],
             "market": "SE",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "semantic_model": "SM-057",
             "source_action": "extend",
             "governance": [
@@ -2131,15 +1903,9 @@
       "request_id": "REQ-0008",
       "text": "Can we have a new finance dashboard for net sales, gross-to-net and budget variance by product?",
       "intent": {
-        "products": [
-          "All Pharma"
-        ],
+        "products": ["All Pharma"],
         "market": "MX",
-        "kpis": [
-          "Net Sales",
-          "Budget Variance",
-          "Gross-to-Net Rate"
-        ],
+        "kpis": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -2222,15 +1988,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "MX",
-            "kpis": [
-              "Net Sales",
-              "Budget Variance",
-              "Gross-to-Net Rate"
-            ],
+            "kpis": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -2247,15 +2007,9 @@
           "status": "ok",
           "summary": "3 asset(s) in scope, 0 alive, 7 citation(s)",
           "input": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "MX",
-            "kpis": [
-              "Net Sales",
-              "Budget Variance",
-              "Gross-to-Net Rate"
-            ]
+            "kpis": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"]
           },
           "output": {
             "assets_in_scope": 3,
@@ -2264,13 +2018,8 @@
                 "id": "AST-0335",
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
-                "covers": [
-                  "Net Sales",
-                  "Budget Variance"
-                ],
-                "missing": [
-                  "Gross-to-Net Rate"
-                ],
+                "covers": ["Net Sales", "Budget Variance"],
+                "missing": ["Gross-to-Net Rate"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "owner OWN-043 is missing or inactive",
@@ -2282,13 +2031,8 @@
                 "id": "AST-0015",
                 "name": "All Pharma Net Sales New",
                 "alive": false,
-                "covers": [
-                  "Net Sales",
-                  "Budget Variance"
-                ],
-                "missing": [
-                  "Gross-to-Net Rate"
-                ],
+                "covers": ["Net Sales", "Budget Variance"],
+                "missing": ["Gross-to-Net Rate"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted",
@@ -2301,11 +2045,7 @@
                 "name": "All Pharma Launch Legacy",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Budget Variance",
-                  "Gross-to-Net Rate"
-                ],
+                "missing": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"],
                 "blockers": [
                   "lifecycle status is legacy",
                   "semantic model SM-008 refresh status is warning"
@@ -2358,11 +2098,7 @@
           "summary": "new build",
           "input": {
             "assets_checked": 3,
-            "kpis": [
-              "Net Sales",
-              "Budget Variance",
-              "Gross-to-Net Rate"
-            ],
+            "kpis": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -2392,15 +2128,9 @@
           "output": {
             "title": "All Pharma dashboard",
             "purpose": "Governed view of Net Sales, Budget Variance, Gross-to-Net Rate for All Pharma in MX.",
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "MX",
-            "kpis": [
-              "Net Sales",
-              "Budget Variance",
-              "Gross-to-Net Rate"
-            ],
+            "kpis": ["Net Sales", "Budget Variance", "Gross-to-Net Rate"],
             "semantic_model": "SM-065",
             "source_action": "new_build",
             "governance": [
@@ -2543,14 +2273,9 @@
       "request_id": "REQ-0009",
       "text": "I need a dashboard comparing product performance across oncology brands and markets.",
       "intent": {
-        "products": [
-          "All Pharma"
-        ],
+        "products": ["All Pharma"],
         "market": "ES",
-        "kpis": [
-          "Net Sales",
-          "Net Sales Growth"
-        ],
+        "kpis": ["Net Sales", "Net Sales Growth"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -2628,14 +2353,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "ES",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -2652,14 +2372,9 @@
           "status": "ok",
           "summary": "6 asset(s) in scope, 1 alive, 6 citation(s)",
           "input": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "ES",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ]
+            "kpis": ["Net Sales", "Net Sales Growth"]
           },
           "output": {
             "assets_in_scope": 6,
@@ -2669,10 +2384,7 @@
                 "name": "All Pharma Supply",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth"],
                 "blockers": [
                   "semantic model SM-028 refresh status is failed",
                   "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
@@ -2683,12 +2395,8 @@
                 "id": "AST-0335",
                 "name": "All Pharma Growth Legacy",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "owner OWN-043 is missing or inactive"
@@ -2699,12 +2407,8 @@
                 "id": "AST-0015",
                 "name": "All Pharma Net Sales New",
                 "alive": false,
-                "covers": [
-                  "Net Sales"
-                ],
-                "missing": [
-                  "Net Sales Growth"
-                ],
+                "covers": ["Net Sales"],
+                "missing": ["Net Sales Growth"],
                 "blockers": [
                   "low adoption (14 views in the last 3 months)",
                   "not certified or promoted",
@@ -2717,10 +2421,7 @@
                 "name": "All Pharma Supply New",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth"],
                 "blockers": [
                   "low adoption (13 views in the last 3 months)",
                   "semantic model SM-013 refresh status is warning"
@@ -2732,10 +2433,7 @@
                 "name": "All Pharma Product Performance Legacy",
                 "alive": false,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Net Sales Growth"
-                ],
+                "missing": ["Net Sales", "Net Sales Growth"],
                 "blockers": [
                   "low adoption (15 views in the last 3 months)",
                   "semantic model SM-047 refresh status is failed"
@@ -2783,10 +2481,7 @@
           "summary": "new build",
           "input": {
             "assets_checked": 6,
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -2816,14 +2511,9 @@
           "output": {
             "title": "All Pharma dashboard",
             "purpose": "Governed view of Net Sales, Net Sales Growth for All Pharma in ES.",
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "ES",
-            "kpis": [
-              "Net Sales",
-              "Net Sales Growth"
-            ],
+            "kpis": ["Net Sales", "Net Sales Growth"],
             "semantic_model": "SM-065",
             "source_action": "new_build",
             "governance": [
@@ -2956,15 +2646,9 @@
       "request_id": "REQ-0014",
       "text": "Can we build a launch dashboard for Lynkuet with market access, first sales and adoption indicators?",
       "intent": {
-        "products": [
-          "Lynkuet"
-        ],
+        "products": ["Lynkuet"],
         "market": "Global",
-        "kpis": [
-          "Net Sales",
-          "Market Access Coverage",
-          "Launch Adoption Index"
-        ],
+        "kpis": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -2982,11 +2666,7 @@
           "users_3m": 160,
           "owner": "Nina Virtanen",
           "coverage": {
-            "requested": [
-              "Net Sales",
-              "Market Access Coverage",
-              "Launch Adoption Index"
-            ],
+            "requested": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"],
             "covered": [
               {
                 "kpi": "Market Access Coverage",
@@ -3006,9 +2686,7 @@
               }
             ],
             "secondary_only": [],
-            "missing": [
-              "Net Sales"
-            ],
+            "missing": ["Net Sales"],
             "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
           }
         },
@@ -3115,15 +2793,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "Lynkuet"
-            ],
+            "products": ["Lynkuet"],
             "market": "Global",
-            "kpis": [
-              "Net Sales",
-              "Market Access Coverage",
-              "Launch Adoption Index"
-            ],
+            "kpis": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -3140,15 +2812,9 @@
           "status": "ok",
           "summary": "89 asset(s) in scope, 19 alive, 11 citation(s)",
           "input": {
-            "products": [
-              "Lynkuet"
-            ],
+            "products": ["Lynkuet"],
             "market": "Global",
-            "kpis": [
-              "Net Sales",
-              "Market Access Coverage",
-              "Launch Adoption Index"
-            ]
+            "kpis": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"]
           },
           "output": {
             "assets_in_scope": 89,
@@ -3157,13 +2823,8 @@
                 "id": "AST-0357",
                 "name": "All Pharma Executive - US",
                 "alive": true,
-                "covers": [
-                  "Market Access Coverage",
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Net Sales"
-                ],
+                "covers": ["Market Access Coverage", "Launch Adoption Index"],
+                "missing": ["Net Sales"],
                 "blockers": [
                   "not certified or promoted",
                   "uses non-canonical KPI variants for ['Launch Adoption Index']"
@@ -3174,13 +2835,8 @@
                 "id": "AST-0219",
                 "name": "All Pharma Forecast Final",
                 "alive": true,
-                "covers": [
-                  "Market Access Coverage",
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Net Sales"
-                ],
+                "covers": ["Market Access Coverage", "Launch Adoption Index"],
+                "missing": ["Net Sales"],
                 "blockers": [
                   "not certified or promoted",
                   "uses non-canonical KPI variants for ['Market Access Coverage', 'Launch Adoption Index']",
@@ -3192,13 +2848,8 @@
                 "id": "AST-0287",
                 "name": "All Pharma Executive Legacy",
                 "alive": true,
-                "covers": [
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Net Sales",
-                  "Market Access Coverage"
-                ],
+                "covers": ["Launch Adoption Index"],
+                "missing": ["Net Sales", "Market Access Coverage"],
                 "blockers": [
                   "owner OWN-029 is missing or inactive",
                   "uses non-canonical KPI variants for ['Launch Adoption Index']",
@@ -3210,13 +2861,8 @@
                 "id": "AST-0133",
                 "name": "All Pharma Supply",
                 "alive": true,
-                "covers": [
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Net Sales",
-                  "Market Access Coverage"
-                ],
+                "covers": ["Launch Adoption Index"],
+                "missing": ["Net Sales", "Market Access Coverage"],
                 "blockers": [
                   "not certified or promoted",
                   "uses non-canonical KPI variants for ['Launch Adoption Index']"
@@ -3227,13 +2873,8 @@
                 "id": "AST-0110",
                 "name": "All Pharma Demand - US",
                 "alive": true,
-                "covers": [
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Net Sales",
-                  "Market Access Coverage"
-                ],
+                "covers": ["Launch Adoption Index"],
+                "missing": ["Net Sales", "Market Access Coverage"],
                 "blockers": [
                   "not certified or promoted",
                   "uses non-canonical KPI variants for ['Launch Adoption Index']"
@@ -3306,11 +2947,7 @@
           "summary": "extend",
           "input": {
             "assets_checked": 89,
-            "kpis": [
-              "Net Sales",
-              "Market Access Coverage",
-              "Launch Adoption Index"
-            ],
+            "kpis": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -3346,15 +2983,9 @@
           "output": {
             "title": "Extended All Pharma Executive - US",
             "purpose": "Governed view of Net Sales, Market Access Coverage, Launch Adoption Index for Lynkuet in Global.",
-            "products": [
-              "Lynkuet"
-            ],
+            "products": ["Lynkuet"],
             "market": "Global",
-            "kpis": [
-              "Net Sales",
-              "Market Access Coverage",
-              "Launch Adoption Index"
-            ],
+            "kpis": ["Net Sales", "Market Access Coverage", "Launch Adoption Index"],
             "semantic_model": "SM-002",
             "source_action": "extend",
             "governance": [
@@ -3503,14 +3134,9 @@
       "request_id": "REQ-0023",
       "text": "Can you create a country-level Beyonttra report for launch readiness and reimbursement progress?",
       "intent": {
-        "products": [
-          "Beyonttra"
-        ],
+        "products": ["Beyonttra"],
         "market": "UK",
-        "kpis": [
-          "Reimbursement Status Coverage",
-          "Launch Adoption Index"
-        ],
+        "kpis": ["Reimbursement Status Coverage", "Launch Adoption Index"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -3528,10 +3154,7 @@
           "users_3m": 783,
           "owner": "Emma Garcia",
           "coverage": {
-            "requested": [
-              "Reimbursement Status Coverage",
-              "Launch Adoption Index"
-            ],
+            "requested": ["Reimbursement Status Coverage", "Launch Adoption Index"],
             "covered": [
               {
                 "kpi": "Reimbursement Status Coverage",
@@ -3653,14 +3276,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "Beyonttra"
-            ],
+            "products": ["Beyonttra"],
             "market": "UK",
-            "kpis": [
-              "Reimbursement Status Coverage",
-              "Launch Adoption Index"
-            ],
+            "kpis": ["Reimbursement Status Coverage", "Launch Adoption Index"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -3677,14 +3295,9 @@
           "status": "ok",
           "summary": "10 asset(s) in scope, 6 alive, 10 citation(s)",
           "input": {
-            "products": [
-              "Beyonttra"
-            ],
+            "products": ["Beyonttra"],
             "market": "UK",
-            "kpis": [
-              "Reimbursement Status Coverage",
-              "Launch Adoption Index"
-            ]
+            "kpis": ["Reimbursement Status Coverage", "Launch Adoption Index"]
           },
           "output": {
             "assets_in_scope": 10,
@@ -3693,10 +3306,7 @@
                 "id": "AST-0287",
                 "name": "All Pharma Executive Legacy",
                 "alive": true,
-                "covers": [
-                  "Reimbursement Status Coverage",
-                  "Launch Adoption Index"
-                ],
+                "covers": ["Reimbursement Status Coverage", "Launch Adoption Index"],
                 "missing": [],
                 "blockers": [
                   "owner OWN-029 is missing or inactive",
@@ -3709,12 +3319,8 @@
                 "id": "AST-0357",
                 "name": "All Pharma Executive - US",
                 "alive": true,
-                "covers": [
-                  "Launch Adoption Index"
-                ],
-                "missing": [
-                  "Reimbursement Status Coverage"
-                ],
+                "covers": ["Launch Adoption Index"],
+                "missing": ["Reimbursement Status Coverage"],
                 "blockers": [
                   "not certified or promoted",
                   "uses non-canonical KPI variants for ['Launch Adoption Index']"
@@ -3726,10 +3332,7 @@
                 "name": "Beyonttra Commercial Reach v2",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Reimbursement Status Coverage",
-                  "Launch Adoption Index"
-                ],
+                "missing": ["Reimbursement Status Coverage", "Launch Adoption Index"],
                 "blockers": [
                   "semantic model SM-043 refresh status is failed",
                   "semantic model SM-043 has poor AI readiness (clear)"
@@ -3741,10 +3344,7 @@
                 "name": "Beyonttra Digital Engagement Legacy",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Reimbursement Status Coverage",
-                  "Launch Adoption Index"
-                ],
+                "missing": ["Reimbursement Status Coverage", "Launch Adoption Index"],
                 "blockers": [],
                 "score": 0.695
               },
@@ -3753,13 +3353,8 @@
                 "name": "Beyonttra Forecast Legacy",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Reimbursement Status Coverage",
-                  "Launch Adoption Index"
-                ],
-                "blockers": [
-                  "not certified or promoted"
-                ],
+                "missing": ["Reimbursement Status Coverage", "Launch Adoption Index"],
+                "blockers": ["not certified or promoted"],
                 "score": 0.525
               }
             ],
@@ -3823,10 +3418,7 @@
           "summary": "repair and reuse",
           "input": {
             "assets_checked": 10,
-            "kpis": [
-              "Reimbursement Status Coverage",
-              "Launch Adoption Index"
-            ],
+            "kpis": ["Reimbursement Status Coverage", "Launch Adoption Index"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -3881,15 +3473,9 @@
       "request_id": "REQ-0028",
       "text": "We need one executive view combining net sales, forecast accuracy and inventory coverage for Bayer Pharma.",
       "intent": {
-        "products": [
-          "All Pharma"
-        ],
+        "products": ["All Pharma"],
         "market": "EMEA",
-        "kpis": [
-          "Net Sales",
-          "Demand Forecast Accuracy",
-          "Inventory Coverage"
-        ],
+        "kpis": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
         "kind": "new_report",
         "clarifications": [],
         "questions": []
@@ -3907,11 +3493,7 @@
           "users_3m": 29,
           "owner": "Maya Andersson",
           "coverage": {
-            "requested": [
-              "Net Sales",
-              "Demand Forecast Accuracy",
-              "Inventory Coverage"
-            ],
+            "requested": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
             "covered": [
               {
                 "kpi": "Demand Forecast Accuracy",
@@ -3939,9 +3521,7 @@
               }
             ],
             "secondary_only": [],
-            "missing": [
-              "Net Sales"
-            ],
+            "missing": ["Net Sales"],
             "note": "asset names in the data pack are not used for matching because they do not reflect coverage"
           }
         },
@@ -4053,15 +3633,9 @@
             "answers": []
           },
           "output": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales",
-              "Demand Forecast Accuracy",
-              "Inventory Coverage"
-            ],
+            "kpis": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
             "kind": "new_report",
             "clarifications": [],
             "questions": [],
@@ -4078,15 +3652,9 @@
           "status": "ok",
           "summary": "30 asset(s) in scope, 8 alive, 12 citation(s)",
           "input": {
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales",
-              "Demand Forecast Accuracy",
-              "Inventory Coverage"
-            ]
+            "kpis": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"]
           },
           "output": {
             "assets_in_scope": 30,
@@ -4095,13 +3663,8 @@
                 "id": "AST-0088",
                 "name": "All Pharma Budget Legacy",
                 "alive": true,
-                "covers": [
-                  "Demand Forecast Accuracy",
-                  "Inventory Coverage"
-                ],
-                "missing": [
-                  "Net Sales"
-                ],
+                "covers": ["Demand Forecast Accuracy", "Inventory Coverage"],
+                "missing": ["Net Sales"],
                 "blockers": [
                   "not certified or promoted",
                   "semantic model SM-050 has poor AI readiness (implicit_measures)"
@@ -4112,13 +3675,8 @@
                 "id": "AST-0018",
                 "name": "All Pharma Market Access - US",
                 "alive": true,
-                "covers": [
-                  "Demand Forecast Accuracy"
-                ],
-                "missing": [
-                  "Net Sales",
-                  "Inventory Coverage"
-                ],
+                "covers": ["Demand Forecast Accuracy"],
+                "missing": ["Net Sales", "Inventory Coverage"],
                 "blockers": [
                   "not certified or promoted",
                   "owner OWN-044 is missing or inactive",
@@ -4131,11 +3689,7 @@
                 "name": "All Pharma Executive Legacy",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Demand Forecast Accuracy",
-                  "Inventory Coverage"
-                ],
+                "missing": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
                 "blockers": [
                   "owner OWN-029 is missing or inactive",
                   "semantic model SM-036 has poor AI readiness (clear)"
@@ -4147,11 +3701,7 @@
                 "name": "All Pharma Supply",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Demand Forecast Accuracy",
-                  "Inventory Coverage"
-                ],
+                "missing": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
                 "blockers": [
                   "semantic model SM-028 refresh status is failed",
                   "semantic model SM-028 has poor AI readiness (ambiguous_dates)"
@@ -4163,14 +3713,8 @@
                 "name": "All Pharma Forecast v2",
                 "alive": true,
                 "covers": [],
-                "missing": [
-                  "Net Sales",
-                  "Demand Forecast Accuracy",
-                  "Inventory Coverage"
-                ],
-                "blockers": [
-                  "not certified or promoted"
-                ],
+                "missing": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
+                "blockers": ["not certified or promoted"],
                 "score": 0.524
               }
             ],
@@ -4244,11 +3788,7 @@
           "summary": "extend",
           "input": {
             "assets_checked": 30,
-            "kpis": [
-              "Net Sales",
-              "Demand Forecast Accuracy",
-              "Inventory Coverage"
-            ],
+            "kpis": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
             "decided_by": "deterministic rules, no LLM"
           },
           "output": {
@@ -4284,15 +3824,9 @@
           "output": {
             "title": "Extended All Pharma Budget Legacy",
             "purpose": "Governed view of Net Sales, Demand Forecast Accuracy, Inventory Coverage for All Pharma in EMEA.",
-            "products": [
-              "All Pharma"
-            ],
+            "products": ["All Pharma"],
             "market": "EMEA",
-            "kpis": [
-              "Net Sales",
-              "Demand Forecast Accuracy",
-              "Inventory Coverage"
-            ],
+            "kpis": ["Net Sales", "Demand Forecast Accuracy", "Inventory Coverage"],
             "semantic_model": "SM-050",
             "source_action": "extend",
             "governance": [

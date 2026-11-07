@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ListenButton } from "@/components/gate/ListenButton";
 
 const api = vi.hoisted(() => ({ speak: vi.fn(), canSpeak: vi.fn(() => true) }));
-vi.mock("@/lib/api", async (original) => ({ ...(await original<typeof import("@/lib/api")>()), ...api }));
+vi.mock("@/lib/api", async (original) => ({
+  ...(await original<typeof import("@/lib/api")>()),
+  ...api,
+}));
 
 const play = vi.fn(async () => {});
 const pause = vi.fn();
@@ -15,11 +18,20 @@ describe("Listen button", () => {
     api.canSpeak.mockReturnValue(true);
     play.mockReset().mockResolvedValue(undefined);
     pause.mockReset();
-    vi.stubGlobal("Audio", vi.fn(function Fake() { audio = { play, pause, onended: null }; return audio; }));
+    vi.stubGlobal(
+      "Audio",
+      vi.fn(function Fake() {
+        audio = { play, pause, onended: null };
+        return audio;
+      }),
+    );
     URL.createObjectURL = vi.fn(() => "blob:x");
     URL.revokeObjectURL = vi.fn();
   });
-  afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it("speaks the script, shows Stop, and frees the audio when stopped", async () => {
     render(<ListenButton text="Recommendation: reuse." />);

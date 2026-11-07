@@ -161,11 +161,48 @@
   }
 }
 
-@utility shadow-panel { box-shadow: var(--shadow-panel); }
-@utility tone-green { --t: var(--tone-green); color: var(--t); background: color-mix(in oklab, var(--t) 9%, white); border-color: color-mix(in oklab, var(--t) 35%, white); }
-@utility tone-teal { --t: var(--tone-teal); color: var(--t); background: color-mix(in oklab, var(--t) 9%, white); border-color: color-mix(in oklab, var(--t) 35%, white); }
-@utility tone-blue { --t: var(--tone-blue); color: var(--t); background: color-mix(in oklab, var(--t) 9%, white); border-color: color-mix(in oklab, var(--t) 35%, white); }
-@utility tone-indigo { --t: var(--tone-indigo); color: var(--t); background: color-mix(in oklab, var(--t) 9%, white); border-color: color-mix(in oklab, var(--t) 35%, white); }
-@utility tone-amber { --t: oklch(0.47 0.12 65); color: var(--t); background: color-mix(in oklab, var(--tone-amber) 12%, white); border-color: color-mix(in oklab, var(--tone-amber) 40%, white); }
-@utility tone-gray { --t: var(--tone-gray); color: var(--t); background: color-mix(in oklab, var(--t) 8%, white); border-color: color-mix(in oklab, var(--t) 30%, white); }
-@utility tone-red { --t: var(--tone-red); color: var(--t); background: color-mix(in oklab, var(--t) 8%, white); border-color: color-mix(in oklab, var(--t) 35%, white); }
+@utility shadow-panel {
+  box-shadow: var(--shadow-panel);
+}
+@utility tone-green {
+  --t: var(--tone-green);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 9%, white);
+  border-color: color-mix(in oklab, var(--t) 35%, white);
+}
+@utility tone-teal {
+  --t: var(--tone-teal);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 9%, white);
+  border-color: color-mix(in oklab, var(--t) 35%, white);
+}
+@utility tone-blue {
+  --t: var(--tone-blue);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 9%, white);
+  border-color: color-mix(in oklab, var(--t) 35%, white);
+}
+@utility tone-indigo {
+  --t: var(--tone-indigo);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 9%, white);
+  border-color: color-mix(in oklab, var(--t) 35%, white);
+}
+@utility tone-amber {
+  --t: oklch(0.47 0.12 65);
+  color: var(--t);
+  background: color-mix(in oklab, var(--tone-amber) 12%, white);
+  border-color: color-mix(in oklab, var(--tone-amber) 40%, white);
+}
+@utility tone-gray {
+  --t: var(--tone-gray);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 8%, white);
+  border-color: color-mix(in oklab, var(--t) 30%, white);
+}
+@utility tone-red {
+  --t: var(--tone-red);
+  color: var(--t);
+  background: color-mix(in oklab, var(--t) 8%, white);
+  border-color: color-mix(in oklab, var(--t) 35%, white);
+}

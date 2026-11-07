@@ -20,7 +20,8 @@ export function ListenButton({ text }: { text: string }) {
 
   async function listen() {
     if (state === "playing") return stop();
-    setState("loading"); setFailed(false);
+    setState("loading");
+    setFailed(false);
     try {
       const url = URL.createObjectURL(await speak(text));
       const audio = new Audio(url);
@@ -37,11 +38,27 @@ export function ListenButton({ text }: { text: string }) {
   if (!canSpeak()) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-3">
-      <Button type="button" variant="outline" size="sm" disabled={state === "loading"} onClick={listen}>
-        {state === "loading" ? <Loader2 className="animate-spin" /> : state === "playing" ? <Square /> : <Volume2 />}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={state === "loading"}
+        onClick={listen}
+      >
+        {state === "loading" ? (
+          <Loader2 className="animate-spin" />
+        ) : state === "playing" ? (
+          <Square />
+        ) : (
+          <Volume2 />
+        )}
         {state === "playing" ? "Stop" : "Listen"}
       </Button>
-      {failed && <p role="alert" className="text-sm text-muted-foreground">Audio is not available right now. The text above is complete.</p>}
+      {failed && (
+        <p role="alert" className="text-sm text-muted-foreground">
+          Audio is not available right now. The text above is complete.
+        </p>
+      )}
     </div>
   );
 }
