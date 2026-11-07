@@ -1,16 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isDemo, onDemoChange } from "@/lib/api";
+import { useRole } from "@/lib/role";
+import { useRequestState } from "@/lib/use-request";
+import { cn } from "@/lib/utils";
+import { RoleSwitcher } from "@/components/gate/RoleSwitcher";
+import { RequesterView } from "@/components/gate/RequesterView";
+import { ApproverView } from "@/components/gate/ApproverView";
 import { NewRequest } from "@/components/gate/NewRequest";
-import { RadarView } from "@/components/gate/RadarView";
-import { DecisionLog } from "@/components/gate/DecisionLog";
+import { AdminView } from "@/components/gate/AdminView";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Reuse Gate — Reuse before you build" },
+      { title: "Reuse Gate: Reuse before you build" },
       {
         name: "description",
         content:
@@ -27,42 +31,52 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [demo, setDemo] = useState(false);
+  const [role, setRole] = useRole();
+  // One request is shared by every role, so a requester's question reaches the approver.
+  const request = useRequestState();
   useEffect(() => {
     setDemo(isDemo());
     return onDemoChange(setDemo);
   }, []);
+  const large = role === "requester";
 
   return (
-    <Tabs defaultValue="new" className="min-h-screen">
-      <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
+    <div className="min-h-screen">
+      <header className="top-0 z-10 border-b bg-card/95 backdrop-blur sm:sticky">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-6 w-6 text-primary" aria-hidden />
-            <span className="text-lg font-semibold tracking-tight">Reuse Gate</span>
+            <ShieldCheck
+              className={cn("text-primary", large ? "h-8 w-8" : "h-6 w-6")}
+              aria-hidden
+            />
+            <span className={cn("font-semibold tracking-tight", large ? "text-2xl" : "text-lg")}>
+              Reuse Gate
+            </span>
             {demo && (
-              <span className="tone-amber rounded-full border px-2 py-0.5 text-xs font-medium">
+              <span
+                className={cn(
+                  "tone-amber rounded-full border px-2 py-0.5 font-medium",
+                  large ? "text-xl" : "text-xs",
+                )}
+              >
                 Demo data
               </span>
             )}
           </div>
-          <TabsList className="ml-auto">
-            <TabsTrigger value="new">New request</TabsTrigger>
-            <TabsTrigger value="radar">Radar</TabsTrigger>
-            <TabsTrigger value="log">Decision log</TabsTrigger>
-          </TabsList>
+          <RoleSwitcher
+            role={role}
+            onChange={setRole}
+            large={large}
+            className="w-full sm:ml-auto sm:w-auto"
+          />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <TabsContent value="new">
-          <NewRequest />
-        </TabsContent>
-        <TabsContent value="radar">
-          <RadarView />
-        </TabsContent>
-        <TabsContent value="log">
-          <DecisionLog />
-        </TabsContent>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {role === "requester" && <RequesterView state={request} />}
+        {role === "approver" && <ApproverView state={request} />}
+        {role === "steward" && <NewRequest state={request} />}
+        {role === "admin" && <AdminView />}
       </main>
-    </Tabs>
+    </div>
   );
 }

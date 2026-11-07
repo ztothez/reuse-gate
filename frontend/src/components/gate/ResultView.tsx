@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Answer, Asset, DashboardSpec, GateResult, RecommendResult } from "@/lib/api";
+import type { Decided } from "@/lib/use-request";
 import { ACTIONS, Chip, Endorsement, ErrorState, Panel } from "./shared";
 import { ApprovalPanel } from "./ApprovalPanel";
 import { FlowView } from "./FlowView";
@@ -53,17 +54,24 @@ export function ResultView({
   result,
   onAnswers,
   rechecking,
+  decided,
+  onDecided,
 }: {
   result: RecommendResult;
   onAnswers?: (answers: Answer[]) => void;
   rechecking?: boolean;
+  decided?: Decided | null | undefined;
+  onDecided?: ((d: Decided) => void) | undefined;
 }) {
   const { intent, recommendation: rec } = result;
   const meta = ACTIONS[rec.action] ?? ACTIONS.human_review;
   const Icon = meta.icon;
   const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [spec, setSpec] = useState<DashboardSpec | null>(null);
-  const [gates, setGates] = useState<GateResult | null>(null);
+  const [localSpec, setSpec] = useState<DashboardSpec | null>(null);
+  const [localGates, setGates] = useState<GateResult | null>(null);
+  // A decision made in another role carries its spec and gates with it.
+  const spec = localSpec ?? decided?.spec ?? null;
+  const gates = localGates ?? decided?.gates ?? null;
   const questions =
     intent.questions ?? intent.clarifications.map((text) => ({ text, field: "model" }));
   const blocked = questions.length > 0;
@@ -356,6 +364,8 @@ export function ResultView({
       <ApprovalPanel
         result={result}
         blocked={blocked}
+        decided={decided}
+        onDecided={onDecided}
         onSpec={(s, g) => {
           setSpec(s);
           setGates(g ?? null);

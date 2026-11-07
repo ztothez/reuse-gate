@@ -10,7 +10,7 @@ import {
   type GateResult,
   type RecommendResult,
 } from "@/lib/api";
-import { addEntry } from "@/lib/decision-log";
+import type { Decided } from "@/lib/use-request";
 import { ErrorState, Panel } from "./shared";
 
 const proposedOwner = (result: RecommendResult) => {
@@ -27,17 +27,22 @@ export function ApprovalPanel({
   result,
   blocked,
   onSpec,
+  decided,
+  onDecided,
 }: {
   result: RecommendResult;
   blocked: boolean;
-  onSpec: (spec: DashboardSpec, gates?: GateResult) => void;
+  onSpec?: (spec: DashboardSpec, gates?: GateResult) => void;
+  decided?: Decided | null | undefined;
+  onDecided?: ((d: Decided) => void) | undefined;
 }) {
   const [approver, setApprover] = useState("");
   const [owner, setOwner] = useState(proposedOwner(result));
   const [reviewBy, setReviewBy] = useState(inAYear);
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ id: string; decision: "approve" | "reject" } | null>(null);
+  const [localDone, setLocalDone] = useState<Decided | null>(null);
+  const done = decided ?? localDone;
   const ready = approver.trim() && owner.trim();
 
   async function decide(decision: "approve" | "reject") {
@@ -51,30 +56,26 @@ export function ApprovalPanel({
         owner,
         review_by: reviewBy,
         answers: result.answers ?? [],
+        text: result.text,
+        action: result.recommendation.action,
+        target: result.recommendation.target?.id ?? result.recommendation.build_on ?? "-",
       });
+      const record: Decided = { id: res.registered_id, decision, owner, reviewBy };
       if (
         decision === "approve" &&
         (result.recommendation.action === "new_build" || result.recommendation.action === "extend")
       ) {
         try {
           const generated = await generateSpec(result, owner, reviewBy);
-          onSpec(generated.spec, generated.gates);
+          record.spec = generated.spec;
+          record.gates = generated.gates;
+          onSpec?.(generated.spec, generated.gates);
         } catch {
           setError("Decision registered, but the dashboard spec preview could not be generated.");
         }
       }
-      addEntry({
-        id: res.registered_id,
-        time: new Date().toISOString(),
-        text: result.text,
-        action: result.recommendation.action,
-        target: result.recommendation.target?.id ?? result.recommendation.build_on ?? "-",
-        decision,
-        approver,
-        owner,
-        review_by: reviewBy,
-      });
-      setDone({ id: res.registered_id, decision });
+      setLocalDone(record);
+      onDecided?.(record);
     } catch {
       setError("The decision could not be registered. Please try again.");
     } finally {
@@ -93,8 +94,13 @@ export function ApprovalPanel({
           <span className="font-mono">{done.id}</span>
         </p>
         <p className="mt-1 text-sm">
-          Owner: {owner} · Review by {reviewBy} · Added to the Decision log
+          Owner: {done.owner} · Review by {done.reviewBy} · Added to the Decision log
         </p>
+        {error && (
+          <div className="mt-3">
+            <ErrorState>{error}</ErrorState>
+          </div>
+        )}
       </div>
     );
   }

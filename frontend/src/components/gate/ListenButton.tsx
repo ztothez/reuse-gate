@@ -3,7 +3,8 @@ import { Loader2, Square, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { canSpeak, speak } from "@/lib/api";
 
-export function ListenButton({ text }: { text: string }) {
+// `large` is the glove-friendly size used in the Requester view: at least 64px tall, 20px text.
+export function ListenButton({ text, large = false }: { text: string; large?: boolean }) {
   const [state, setState] = useState<"idle" | "loading" | "playing">("idle");
   const [failed, setFailed] = useState(false);
   const player = useRef<{ audio: HTMLAudioElement; url: string } | null>(null);
@@ -37,13 +38,18 @@ export function ListenButton({ text }: { text: string }) {
 
   if (!canSpeak()) return null;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-3">
+    <div className={`${large ? "mt-5" : "mt-3"} flex flex-wrap items-center gap-3`}>
       <Button
         type="button"
         variant="outline"
         size="sm"
         disabled={state === "loading"}
         onClick={listen}
+        className={
+          large
+            ? "min-h-16 min-w-40 border-2 border-foreground px-8 text-xl font-semibold focus-visible:ring-4 [&_svg]:size-7"
+            : undefined
+        }
       >
         {state === "loading" ? (
           <Loader2 className="animate-spin" />
@@ -55,7 +61,7 @@ export function ListenButton({ text }: { text: string }) {
         {state === "playing" ? "Stop" : "Listen"}
       </Button>
       {failed && (
-        <p role="alert" className="text-sm text-muted-foreground">
+        <p role="alert" className={large ? "text-xl" : "text-sm text-muted-foreground"}>
           Audio is not available right now. The text above is complete.
         </p>
       )}
