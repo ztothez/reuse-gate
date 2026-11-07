@@ -93,7 +93,7 @@ export function DecisionLog() {
                     <td className="whitespace-nowrap">{e.review_by}</td>
                     <td className="pl-3">{e.record ? <Button variant="outline" size="sm" className="min-h-11" aria-expanded={expanded.has(e.id)} aria-controls={`record-${e.id}`} onClick={() => setExpanded((current) => { const next = new Set(current); if (next.has(e.id)) next.delete(e.id); else next.add(e.id); return next; })}>{expanded.has(e.id) ? "Hide" : "View"} record {e.id}</Button> : <span className="text-xs text-muted-foreground">No detailed record</span>}</td>
                   </tr>
-                  {e.record && expanded.has(e.id) && <tr id={`record-${e.id}`}><td colSpan={9} className="py-4"><DecisionRecordView record={e.record} origin={e.mode === "demo" ? "demo" : "live"} /></td></tr>}
+                  {e.record && expanded.has(e.id) && <tr id={`record-${e.id}`}><td colSpan={9} className="py-4"><div className="sticky left-0 w-[calc(100vw-5rem)] max-w-3xl sm:w-[calc(100vw-6rem)]"><DecisionRecordView record={e.record} origin={e.mode === "demo" ? "demo" : "live"} /></div></td></tr>}
                   </Fragment>
                 ))}
               </tbody>
