@@ -10,6 +10,7 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    defaultPendingComponent: () => <p role="status" className="panel">Opening workspace...</p>,
   });
 
   return router;

@@ -12,10 +12,10 @@ const staticSpa = process.env["STATIC_SPA"] === "1";
 export default defineConfig({
   ...(staticSpa && { nitro: false as const }),
   tanstackStart: {
-    // Prerender the real page, not Start's empty SPA shell, which fails React hydration on load.
+    // Every static deep link must hydrate the same router-aware shell.
     ...(staticSpa && {
-      prerender: { enabled: true, crawlLinks: false, autoStaticPathsDiscovery: false },
-      pages: [{ path: "/" }],
+      spa: { enabled: true, prerender: { outputPath: "/index.html" } },
+      prerender: { crawlLinks: false, autoStaticPathsDiscovery: false },
     }),
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
