@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { getLog, type Action, type LogRecord } from "./api";
+import { getLog, type Action, type LogRecord, type DecisionRecord } from "./api";
 
 // A decision as the Admin view shows it. Older API rows carry no text, action or target.
 export interface LogEntry {
+  record?: DecisionRecord;
   mode?: "demo";
   id: string;
   time: string;
@@ -16,12 +17,13 @@ export interface LogEntry {
 }
 
 export const toEntry = (r: LogRecord): LogEntry => ({
+  ...(r.record ? { record: r.record } : {}),
   ...(r.mode === "demo" ? { mode: "demo" as const } : {}),
   id: r.registered_id,
   time: r.time,
-  text: r.text ?? r.request_id,
-  action: r.action ?? null,
-  target: r.target ?? "-",
+  text: r.text ?? r.record?.request_text ?? r.request_id,
+  action: r.action ?? r.record?.recommendation.action ?? null,
+  target: r.target ?? (typeof r.record?.recommendation.target === "string" ? r.record.recommendation.target : r.record?.recommendation.target?.id) ?? r.record?.recommendation.build_on ?? "-",
   decision: r.decision,
   approver: r.approver,
   owner: r.owner,

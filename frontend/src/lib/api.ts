@@ -197,7 +197,15 @@ export interface DecisionRecord {
   decision: string;
   rounds: LoopRound[];
   intent: IntentSnapshot;
-  recommendation: RecommendResult["recommendation"];
+  recommendation: {
+    action: Action;
+    target: string | Asset | null;
+    build_on: string | null;
+    citations?: number;
+    client_action?: Action | null;
+    client_target?: string | null;
+    matches_client?: boolean;
+  };
   gates: GateSnapshot | null;
   remediation: RemediationResult | null;
   note?: string;

@@ -1,10 +1,13 @@
 import { Download, Loader2, RefreshCw } from "lucide-react";
+import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { newBuildsAvoided, useDecisionLog } from "@/lib/decision-log";
 import { ACTIONS, EmptyState, ErrorState, Panel } from "./shared";
+import { DecisionRecordView } from "./DecisionRecordView";
 
 export function DecisionLog() {
   const { log, loading, error, refresh } = useDecisionLog();
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   function exportLog() {
     const url = URL.createObjectURL(
@@ -62,6 +65,7 @@ export function DecisionLog() {
                     "Approver",
                     "Owner",
                     "Review by",
+                    "Record",
                   ].map((h) => (
                     <th key={h} className="py-2 pr-3">
                       {h}
@@ -71,7 +75,8 @@ export function DecisionLog() {
               </thead>
               <tbody>
                 {log.map((e) => (
-                  <tr key={e.id} className="border-t align-top">
+                  <Fragment key={e.id}>
+                  <tr className="border-t align-top">
                     <td className="py-2 pr-3 whitespace-nowrap">
                       {new Date(e.time).toLocaleString()}
                     </td>
@@ -86,7 +91,10 @@ export function DecisionLog() {
                     <td className="pr-3">{e.approver}</td>
                     <td className="pr-3">{e.owner}</td>
                     <td className="whitespace-nowrap">{e.review_by}</td>
+                    <td className="pl-3">{e.record ? <Button variant="outline" size="sm" className="min-h-11" aria-expanded={expanded.has(e.id)} aria-controls={`record-${e.id}`} onClick={() => setExpanded((current) => { const next = new Set(current); if (next.has(e.id)) next.delete(e.id); else next.add(e.id); return next; })}>{expanded.has(e.id) ? "Hide" : "View"} record {e.id}</Button> : <span className="text-xs text-muted-foreground">No detailed record</span>}</td>
                   </tr>
+                  {e.record && expanded.has(e.id) && <tr id={`record-${e.id}`}><td colSpan={9} className="py-4"><DecisionRecordView record={e.record} origin={e.mode === "demo" ? "demo" : "live"} /></td></tr>}
+                  </Fragment>
                 ))}
               </tbody>
             </table>
