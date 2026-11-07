@@ -116,11 +116,32 @@ class RecordTest(unittest.TestCase):
         self.assertEqual(rec["recommendation"]["action"], "new_build")
         self.assertFalse(rec["recommendation"]["matches_client"])
         self.assertGreater(rec["recommendation"]["citations"], 0)
-        self.assertTrue(rec["gates"]["passed"], "the approver named an active owner")
+        self.assertTrue(rec["gates"]["at_approval"]["passed"], "the approver named an active owner")
+        self.assertFalse(rec["gates"]["before_remediation"]["passed"], "the original blocker is kept")
         self.assertEqual(rec["remediation"]["applied"], "simulated")
         self.assertEqual(rec["rounds"], rounds)
         self.assertEqual((rec["approver"], rec["owner"], rec["review_by"]), ("A", "Laura Fischer", "2027-11-01"))
         self.assertEqual(rec["estate_snapshot"], snapshot_id(self.est))
+
+    def test_sm065_record_keeps_the_original_blocker_and_the_approval_result(self):
+        body = {"request_id": finance(self.est), "decision": "approve", "approver": "A", "owner": "Laura Fischer", "review_by": "2027-11-01",
+                "remediations": [FIX]}
+        gates = decision_record(self.est, body)["gates"]
+        self.assertEqual(list(gates), ["before_remediation", "at_approval"])
+        before, after = gates["before_remediation"], gates["at_approval"]
+        self.assertEqual((before["owner"], before["passing"], before["total"], before["passed"]), (None, 5, 7, False))
+        self.assertEqual(sorted(before["failing"]), ["evidence_cited", "owner_and_review_date"])
+        self.assertEqual((after["owner"], after["passing"], after["total"], after["passed"], after["failing"]), ("Laura Fischer", 7, 7, True, []))
+        self.assertEqual(before["as_of"], after["as_of"])
+
+    def test_without_a_remediation_only_the_approval_result_is_stored(self):
+        body = {"request_id": finance(self.est), "decision": "approve", "approver": "A", "owner": "Laura Fischer", "review_by": "2027-11-01"}
+        gates = decision_record(self.est, body)["gates"]
+        self.assertEqual(list(gates), ["at_approval"])
+        self.assertEqual(gates["at_approval"]["passing"], 7)
+        no_spec = decision_record(self.est, {"request_id": "REQ-0002", "decision": "approve", "approver": "A", "owner": "B"})["gates"]["at_approval"]
+        self.assertEqual((no_spec["passed"], no_spec["total"]), (None, 0))
+        self.assertIn("reason", no_spec)
 
     def test_a_bare_old_style_body_still_records(self):
         rec = decision_record(self.est, {"request_id": "ADHOC-1", "decision": "approve", "approver": "a", "owner": "b"})
@@ -198,6 +219,9 @@ class ApiTest(unittest.TestCase):
 
     def test_approve_stores_the_record_and_old_entries_still_read(self):
         server.LOG.append({"request_id": "OLD", "decision": "approve", "approver": "x", "owner": "y", "registered_id": "REG-OLD", "time": "2026-11-06T00:00:00+00:00"})
+        flat = {"request_id": "OLD2", "decision": "approve", "approver": "x", "owner": "y", "registered_id": "REG-OLD2", "time": "2026-11-07T00:00:00+00:00",
+                "record": {"gates": {"as_of": "2026-11-07", "passed": True, "gates": []}}}  # the record shape before before/at_approval
+        server.LOG.append(flat)
         old_style = {"request_id": "ADHOC-1", "decision": "reject", "approver": "a", "owner": "b"}
         self.assertEqual(self.call("/approve", old_style)[0], 200)
         rich = {"request_id": finance(server.EST), "decision": "approve", "approver": "A", "owner": "Laura Fischer", "review_by": "2027-11-01",
@@ -207,12 +231,15 @@ class ApiTest(unittest.TestCase):
         _, log = self.call("/log")
         self.assertEqual(log[0]["registered_id"], "REG-OLD")
         self.assertNotIn("record", log[0])
-        self.assertEqual({k: log[1][k] for k in old_style}, old_style)
+        self.assertEqual(log[1], flat, "an entry in the earlier record shape reads back unchanged")
+        self.assertEqual({k: log[2][k] for k in old_style}, old_style)
         entry = next(e for e in log if e["registered_id"] == ok["registered_id"])
         record = entry["record"]
         self.assertEqual(record["recommendation"]["action"], "new_build")
-        self.assertTrue(record["gates"]["passed"])
+        self.assertTrue(record["gates"]["at_approval"]["passed"])
         self.assertEqual(record["remediation"]["passed_after"], True)
+        self.assertEqual(record["remediation"]["applied"], "simulated", "the full /remediate response is kept")
+        self.assertEqual((record["gates"]["before_remediation"]["passing"], record["gates"]["at_approval"]["passing"]), (5, 7))
         self.assertEqual(record["rounds"], [{"round": 1, "answers": []}])
         stored = [json.loads(line) for line in Path(server.LOG_FILE).read_text(encoding="utf-8").splitlines()]
         self.assertEqual(stored[-1]["record"]["estate_snapshot"], record["estate_snapshot"])

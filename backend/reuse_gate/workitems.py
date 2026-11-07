@@ -172,7 +172,8 @@ class Store:
             record = entry.get("record") or {}
             decision = {"registered_id": entry["registered_id"], "decision": entry["decision"], "approver": entry.get("approver"),
                         "owner": entry.get("owner"), "review_by": entry.get("review_by"), "time": entry["time"],
-                        "gates_passed": (record.get("gates") or {}).get("passed"), "estate_snapshot": record.get("estate_snapshot")}
+                        "gates_passed": ((record.get("gates") or {}).get("at_approval") or {}).get("passed"),
+                        "estate_snapshot": record.get("estate_snapshot")}
             item.update(updated=entry["time"], decision=decision, status="approved" if entry["decision"] == "approve" else "rejected")
             item["activity"] = item["activity"] + [{"time": entry["time"], "actor": entry.get("approver") or "unnamed",
                                                      "event": "approved" if entry["decision"] == "approve" else "rejected",

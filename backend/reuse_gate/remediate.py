@@ -161,7 +161,8 @@ def decision_record(est, body):
     """What /approve keeps next to the body: rebuilt server-side from the data pack, never trusted from the client.
 
     The decision and gates are recomputed from the confirmed intent. The client's own action and target are compared,
-    not copied. Rounds are the client's record of the loop, trimmed to the loop limit.
+    not copied. record.gates holds "at_approval" (the approver's owner) and, when a remediation was sent,
+    "before_remediation" (the owner the system proposed, or none). Rounds are the client's record of the loop, trimmed to the loop limit.
     """
     record = {"estate_snapshot": snapshot_id(est), "request_text": _text(body.get("text"), 2000), "approver": _text(body.get("approver")),
               "owner": _text(body.get("owner")), "review_by": _text(body.get("review_by")), "decision": body.get("decision"),
@@ -172,13 +173,22 @@ def decision_record(est, body):
         record["note"] = f"no intent to check: {exc}"
         return record
     as_of = as_of or date.today().isoformat()
-    rec, _, gates = _gates(est, intent, record["owner"], record["review_by"], as_of)
+
+    def result(owner):
+        """Gates for the spec with this owner, or the owner the system proposes when it is None."""
+        rec, spec, gates = _gates(est, intent, owner, record["review_by"], as_of)
+        failing = [g["gate"] for g in gates["gates"] if not g["passed"]]
+        return rec, {"owner": (spec or {}).get("owner"), "as_of": as_of, "passed": gates["passed"], "passing": len(gates["gates"]) - len(failing),
+                     "total": len(gates["gates"]), "failing": failing, **({"reason": gates["reason"]} if "reason" in gates else {}), "gates": gates["gates"]}
+
+    rec, at_approval = result(record["owner"])
     record["intent"] = {"products": intent.products, "market": intent.market, "kpis": intent.kpis, "kind": intent.kind, "source": source}
     record["recommendation"] = {"action": rec.action, "target": rec.target, "build_on": rec.build_on, "citations": len(rec.evidence),
                                 "client_action": body.get("action"), "client_target": body.get("target"),
                                 "matches_client": body.get("action") in (None, rec.action) and body.get("target") in (None, rec.target)}
-    record["gates"] = {"as_of": as_of, **gates}
-    if body.get("remediations"):
+    record["gates"] = {"at_approval": at_approval}
+    if body.get("remediations"):  # keep the blocker the remediation was meant to clear, next to the result it led to
+        record["gates"] = {"before_remediation": result(None)[1], "at_approval": at_approval}
         try:
             record["remediation"] = simulate(est, {**body, "as_of": as_of})
         except RemediationError as exc:
