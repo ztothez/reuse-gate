@@ -33,8 +33,8 @@ export function Panel({
   caption?: string;
 }) {
   return (
-    <section className="rounded-lg border bg-card p-5 shadow-panel">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    <section className="rounded-lg bg-card p-6">
+      <h3 className="text-lg font-semibold text-foreground">
         {title}
       </h3>
       {caption && <p className="mt-1 text-sm text-muted-foreground">{caption}</p>}

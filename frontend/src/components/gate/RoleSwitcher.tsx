@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 export function RoleSwitcher({
   role,
   onChange,
-  large = false,
   className,
 }: {
   role: Role;
@@ -14,12 +13,12 @@ export function RoleSwitcher({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
       <div
         role="group"
         aria-label="Role"
         aria-describedby="role-note"
-        className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
+        className="grid grid-cols-4 rounded-lg bg-secondary p-1"
       >
         {ROLES.map((r) => {
           const active = r.id === role;
@@ -30,11 +29,10 @@ export function RoleSwitcher({
               aria-pressed={active}
               onClick={() => onChange(r.id)}
               className={cn(
-                "rounded-md border-2 font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2",
-                large ? "min-h-16 px-5 text-xl" : "min-h-10 px-4 text-sm",
+                "min-h-16 min-w-16 break-words rounded-md px-1 text-xs font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 sm:px-4 sm:text-sm",
                 active
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-foreground/70 bg-background text-foreground",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-card",
               )}
             >
               {r.label}
@@ -44,7 +42,7 @@ export function RoleSwitcher({
       </div>
       <p
         id="role-note"
-        className={cn(large ? "text-xl" : "text-xs", "text-foreground/80 sm:text-right")}
+        className="text-xs text-muted-foreground sm:text-right"
       >
         Demo switch. A real deployment takes the role from SSO groups.
       </p>

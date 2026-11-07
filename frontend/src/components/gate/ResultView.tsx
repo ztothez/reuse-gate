@@ -92,6 +92,18 @@ export function ResultView({
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className={`${meta.tone} flex items-start gap-4 rounded-lg border p-6 sm:p-8`} role="status">
+        <Icon className="h-12 w-12 shrink-0" aria-hidden />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Recommendation
+          </p>
+          <p className="text-3xl font-semibold">{meta.label}</p>
+          {rec.target && <p className="mt-3 text-2xl font-semibold">{rec.target.name}</p>}
+          <p className="mt-4 text-base text-foreground">{displayText(rec.rationale.join("; "))}</p>
+        </div>
+      </div>
+
       {result.ai?.source && (
         <p
           role="note"
@@ -180,16 +192,7 @@ export function ResultView({
         )}
       </Panel>
 
-      <div className={`${meta.tone} flex items-start gap-4 rounded-lg border-2 p-6`} role="status">
-        <Icon className="h-10 w-10 shrink-0" aria-hidden />
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
-            Recommendation
-          </p>
-          <p className="text-2xl font-semibold">{meta.label}</p>
-          <p className="mt-1 text-sm opacity-90">{displayText(rec.rationale.join("; "))}</p>
-        </div>
-      </div>
+
 
       {result.ai?.explanation && (
         <Panel
