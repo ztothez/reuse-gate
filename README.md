@@ -20,6 +20,23 @@ Intent -> Evidence -> Decision -> Spec -> Gates -> human approval -> registered 
 | Spec | DashboardSpec for new_build and extend: canonical KPIs, semantic model, owner, review date, citations | Deterministic Python |
 | Gates | Seven validators that block release and name the reason | Deterministic Python |
 
+### Who sees what
+
+One request is one work item with five tabs: Answer, Evidence, Spec, Gates and Activity. "Viewing as" in the sidebar changes
+what each person sees first; write access still comes from the API (the access code on `/approve` and `/remediate`).
+
+| Viewing as | Home page | A request opens on |
+| --- | --- | --- |
+| Business | Ask: one request box, example requests, the modelled 57/150 | Answer: the plain-language explanation with Listen, large targets for gloved hands |
+| Analyst | Evidence workspace: canonical KPI share, conflicting definitions, citation validity, every request with its target and gate result | Evidence: Source, Finding, Supports for every cited row, KPI coverage, retire lists, the flow from first prompt to decision |
+| Developer | Build queue: specs and report changes, approved first | Spec: semantic model, measures, owner, review date, governance, and the JSON handoff |
+| Approver | Decisions that need you | Gates: each gate, the simulated owner fix, the link into the approval queue |
+| Admin | Settings: API health, access code | Activity: decision record, activity trail, clarification rounds |
+
+A link can open a view directly: `/requests/<id>?as=analyst`. The top bar shows where decisions run ("decisions on KServe") and
+each answer card says which component decided and which model tier read the intent. The look follows the Reuse Gate design system
+(one accent colour, status colours only for status, hairlines, no shadows).
+
 ### How this maps to Bayer's reference flow
 
 Bayer's flow is Prompt, `/grill-me` loop, Intent, `/explore`, `/to-spec`, Spec, `render_preview`, Report. The flow view uses

@@ -29,8 +29,20 @@ API build 9 (image `sha256:7f373455`) and the UI build, pipeline run `reuse-gate
 - Write token: `reuse-gate-access` was first created empty; set again and verified: `/approve` and `/remediate` without the code
   or with a wrong code give 401, reads and `/requests` stay open.
 - Three test approvals for request `X` (`REG-8C803B55`, `REG-21EF3F1B`, `REG-ECB4095C`) were written to the live decision log
-  while the token was empty. Not removed yet.
+  while the token was empty. See "UI rework" for their status.
 - Aitta embeddings still answer HTTP 503.
+
+## UI rework (2026-11-07, evening)
+After the judge's feedback ("too much data in one go", role-based views, gloves) the request page became one work item with
+Answer, Evidence, Spec, Gates and Activity tabs, and "Viewing as" (Business, Analyst, Developer, Approver, Admin) picks the home
+page and the first tab. The Analyst home is an evidence workspace, the Developer home a build queue. The evidence table, KPI
+coverage, retire and consolidate lists and the spec preview, lost in the earlier redesign, are back. Colours, borders and type follow
+the Reuse Gate design system; the Business view keeps glove-sized targets. The top bar and each answer card show where the decision
+ran. Checked in headless Chromium against a local API at desktop and phone width; 180 frontend tests pass. The UI deployed live as of
+`4a6c62f` (UI build 8); the role home pages (`d3b35eb`) need one more UI build.
+- Not done: Tabler icons (Lucide stays), a dark theme switch.
+- The live decision log still holds 3 test approvals for request `X` written while the write token was empty, and 2 older
+  "UI deploy check" approvals. Removing log lines needs the owner; a backup was taken first.
 
 ## OpenShift AI recon (2026-11-07, read only)
 - **Quota in `ztothez-dev`:** long-running pods (`compute-deploy`): requests 3 CPU and 30Gi memory, limits 30 CPU and 30Gi,
