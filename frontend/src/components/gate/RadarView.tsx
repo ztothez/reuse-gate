@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getRadar, type Radar, type RadarAsset } from "@/lib/api";
 import { Chip, EmptyState, Endorsement, ErrorState, Panel } from "./shared";
+import { OwnershipBottlenecks } from "./OwnershipBottlenecks";
 
 const STATUS_ORDER = ["canonical", "duplicate_candidate", "definition_conflict", "local_variant"];
 const STATUS_TONE: Record<string, string> = {
@@ -117,6 +118,7 @@ export function RadarView() {
 
   return (
     <div className="space-y-6">
+      <OwnershipBottlenecks rows={radar.ownership_bottlenecks} />
       {queue.size > 0 && (
         <div
           role="status"
