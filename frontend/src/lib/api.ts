@@ -581,6 +581,23 @@ export const generateSpec = (result: RecommendResult, owner: string, reviewBy: s
   );
 
 export const getOwners = () => call<Owner[]>("/owners", undefined, () => data.owners);
+export interface EvaluationMetric {
+  id: string;
+  name: string;
+  value: number | string | null;
+  unit: string;
+  n: number;
+  method: string;
+  basis: string;
+  caveat: string;
+}
+export interface Evaluation {
+  generated_at: string;
+  estate_snapshot: string;
+  groups: { group: string; metrics: EvaluationMetric[] }[];
+}
+export const getEvaluation = () =>
+  call<Evaluation>("/evaluation", undefined, () => mock.evaluation, true);
 export const canRemediate = () => Boolean(API) && !demo;
 
 // A simulation must come from the live API. Never fabricate a remediation fallback.

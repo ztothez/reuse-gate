@@ -50,6 +50,7 @@ export function ExecutiveOverview() {
           </Link>
         }
       />
+      <Link className="request-link mb-4" to="/evaluation">How we measure Reuse Gate</Link>
       <label className="mb-6 flex items-center gap-3 text-sm">
         <input
           type="checkbox"

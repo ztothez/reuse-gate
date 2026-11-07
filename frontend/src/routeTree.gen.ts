@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as EvaluationRouteImport } from './routes/evaluation'
 import { Route as LogRouteImport } from './routes/log'
 import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as RadarRouteImport } from './routes/radar'
@@ -32,6 +33,11 @@ const AdminRoute = AdminRouteImport.update({
 const ApprovalsRoute = ApprovalsRouteImport.update({
   id: '/approvals',
   path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationRoute = EvaluationRouteImport.update({
+  id: '/evaluation',
+  path: '/evaluation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LogRoute = LogRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/approvals': typeof ApprovalsRoute
+  '/evaluation': typeof EvaluationRoute
   '/log': typeof LogRoute
   '/overview': typeof OverviewRoute
   '/radar': typeof RadarRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/approvals'
+    | '/evaluation'
     | '/log'
     | '/overview'
     | '/radar'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ApprovalsRoute: typeof ApprovalsRoute
+  EvaluationRoute: typeof EvaluationRoute
   LogRoute: typeof LogRoute
   OverviewRoute: typeof OverviewRoute
   RadarRoute: typeof RadarRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/approvals'
       fullPath: '/approvals'
       preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluation': {
+      id: '/evaluation'
+      path: '/evaluation'
+      fullPath: '/evaluation'
+      preLoaderRoute: typeof EvaluationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/log': {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ApprovalsRoute: ApprovalsRoute,
+  EvaluationRoute: EvaluationRoute,
   LogRoute: LogRoute,
   OverviewRoute: OverviewRoute,
   RadarRoute: RadarRoute,

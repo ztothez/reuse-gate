@@ -22,6 +22,7 @@ export function AdminSettings() {
         title="Admin settings"
         description="Connection, session access and the people responsible for governed reporting."
       />
+      <a className="request-link mb-4" href="/evaluation">View evaluation methods and limits</a>
       <div className="grid min-w-0 gap-8 lg:grid-cols-2">
         <form
           className="panel space-y-4"

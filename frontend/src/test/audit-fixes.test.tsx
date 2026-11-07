@@ -5,7 +5,7 @@ import { exampleRequests, mockRecommend } from "@/lib/api";
 import { hasInvalidStoredRole, readRole, ROLE_KEY } from "@/lib/role";
 import { useRequestState, type RequestState } from "@/lib/use-request";
 
-const mocked = vi.hoisted(() => ({ approve: vi.fn(), recommend: vi.fn() }));
+const mocked = vi.hoisted(() => ({ approve: vi.fn(), recommend: vi.fn(), generateSpec: vi.fn() }));
 vi.mock("@/lib/api", async (original) => ({ ...(await original<typeof import("@/lib/api")>()), ...mocked }));
 const result = mockRecommend(exampleRequests[0]!);
 afterEach(() => { cleanup(); vi.resetAllMocks(); localStorage.clear(); });
@@ -30,6 +30,8 @@ describe("audit regressions", () => {
   });
 
   it("requires a valid review date and freezes submitted values while pending", async () => {
+    // Keep this input-state test independent of network latency in the optional spec preview.
+    mocked.generateSpec.mockResolvedValue({ spec: {}, gates: { passed: true, gates: [] } });
     let resolve!: (value: unknown) => void;
     mocked.approve.mockImplementation(() => new Promise((r) => { resolve = r; }));
     render(<ApprovalPanel result={result} blocked={false} />);
