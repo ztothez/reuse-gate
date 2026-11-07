@@ -75,9 +75,11 @@ describe("clarification loop", () => {
     fireEvent.click(screen.getByRole("button", { name: /Apply answers and check again/ }));
 
     await screen.findByText("New build on a governed model");
-    expect(recommend).toHaveBeenLastCalledWith(TEXT, [
-      { field: "market", question: QUESTION, answer: "Germany" },
-    ]);
+    expect(recommend).toHaveBeenLastCalledWith(
+      TEXT,
+      [{ field: "market", question: QUESTION, answer: "Germany" }],
+      undefined,
+    );
     expect(screen.queryByText("Repair and reuse")).not.toBeInTheDocument();
     expect(screen.queryByLabelText(QUESTION)).not.toBeInTheDocument();
     expect(screen.getByText("DE")).toBeInTheDocument();
@@ -97,6 +99,50 @@ describe("clarification loop", () => {
     expect(recommend.mock.calls[1]![1]).toEqual([
       earlier,
       { field: "market", question: QUESTION, answer: "Finland" },
+    ]);
+  });
+
+  it("sends the recorded rounds back, shows the round number and the model wording", async () => {
+    const rounds = [
+      {
+        round: 1,
+        questions: [{ text: QUESTION, field: "market" }],
+        answers: [],
+        intent: null,
+        intent_after: null,
+        changed: [],
+      },
+    ];
+    const first = make("A", "Global", "human_review", [
+      { text: QUESTION, field: "market", phrased: "Which market should we look at?" } as never,
+    ]);
+    first.loop = {
+      status: "asking",
+      rounds_used: 0,
+      max_rounds: 3,
+      clear_at: 0.8,
+      confidence: {},
+      open_fields: ["market"],
+      asked_by: "rules",
+      phrased_by: "test-model",
+      stopped_because: null,
+      rounds,
+    };
+    recommend.mockResolvedValueOnce(first);
+    recommend.mockResolvedValueOnce(make("B", "DE", "new_build", []));
+    render(<NewRequest />);
+    fireEvent.change(screen.getByLabelText(/Describe the dashboard/), { target: { value: TEXT } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit" }));
+    const input = await screen.findByLabelText("Which market should we look at?");
+    expect(screen.getByText("(round 1 of 3)")).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: "Germany" } });
+    fireEvent.click(screen.getByRole("button", { name: /Apply answers/ }));
+    await waitFor(() => expect(recommend).toHaveBeenCalledTimes(2));
+    // The rule text stays the question's identity, so the answer still matches after rewording.
+    expect(recommend.mock.calls[1]).toEqual([
+      TEXT,
+      [{ field: "market", question: QUESTION, answer: "Germany" }],
+      rounds,
     ]);
   });
 

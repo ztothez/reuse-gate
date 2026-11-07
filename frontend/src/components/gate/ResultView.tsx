@@ -3,7 +3,14 @@ import { HelpCircle, Layers, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Answer, Asset, DashboardSpec, GateResult, RecommendResult } from "@/lib/api";
+import type {
+  Answer,
+  Asset,
+  DashboardSpec,
+  GateResult,
+  Question,
+  RecommendResult,
+} from "@/lib/api";
 import { ACTIONS, Chip, Endorsement, ErrorState, Panel } from "./shared";
 import { ApprovalPanel } from "./ApprovalPanel";
 import { FlowView } from "./FlowView";
@@ -64,7 +71,7 @@ export function ResultView({
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [spec, setSpec] = useState<DashboardSpec | null>(null);
   const [gates, setGates] = useState<GateResult | null>(null);
-  const questions =
+  const questions: Question[] =
     intent.questions ?? intent.clarifications.map((text) => ({ text, field: "model" }));
   const blocked = questions.length > 0;
   const filled = questions.flatMap((q, i) => {
@@ -89,7 +96,14 @@ export function ResultView({
           {result.ai.notice} The decision itself always comes from the same deterministic rules.
         </p>
       )}
-      {result.pipeline && <FlowView stages={result.pipeline} />}
+      {result.pipeline && (
+        <FlowView
+          stages={result.pipeline}
+          loop={result.loop}
+          prompt={result.text}
+          agentic={result.ai?.intent_source === "llm"}
+        />
+      )}
 
       <Panel title="Understood request">
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
@@ -122,10 +136,15 @@ export function ResultView({
           <div className="mt-5 space-y-3 rounded-md border tone-amber p-4">
             <p className="flex items-center gap-2 font-medium">
               <HelpCircle className="h-4 w-4" /> Please answer before continuing
+              {result.loop?.status === "asking" && (
+                <span className="text-sm font-normal">
+                  (round {result.loop.rounds_used + 1} of {result.loop.max_rounds})
+                </span>
+              )}
             </p>
             {questions.map((q, i) => (
               <div key={i}>
-                <Label htmlFor={`cl-${i}`}>{q.text}</Label>
+                <Label htmlFor={`cl-${i}`}>{q.phrased ?? q.text}</Label>
                 <Input
                   id={`cl-${i}`}
                   className="mt-1 bg-card"

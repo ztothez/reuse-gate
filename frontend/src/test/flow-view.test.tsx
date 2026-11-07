@@ -2,13 +2,99 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { FlowView } from "@/components/gate/FlowView";
 import { ResultView } from "@/components/gate/ResultView";
-import { exampleRequests, mockRecommend } from "@/lib/api";
+import { exampleRequests, mockRecommend, type ClarificationLoop } from "@/lib/api";
 
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   vi.resetModules();
+});
+
+describe("clarification loop in the flow view", () => {
+  const stages = mockRecommend("Create a global Nubeqa dashboard").pipeline!;
+  const loop = (over: Partial<ClarificationLoop>): ClarificationLoop => ({
+    status: "clear",
+    rounds_used: 1,
+    max_rounds: 3,
+    clear_at: 0.8,
+    confidence: {
+      product: { value: ["Nubeqa"], score: 1, basis: "named" },
+      market: { value: "Global", score: 0.4, basis: "assumed" },
+    },
+    open_fields: [],
+    asked_by: "rules",
+    phrased_by: null,
+    stopped_because: null,
+    rounds: [
+      {
+        round: 1,
+        questions: [{ field: "market", text: "no market was named" }],
+        answers: [{ field: "market", question: "no market was named", answer: "Germany" }],
+        intent: null,
+        intent_after: null,
+        changed: [{ field: "market", from: "Global", to: "DE" }],
+      },
+    ],
+    ...over,
+  });
+
+  it("shows rounds, answers, the diff between rounds and the confidence of each field", () => {
+    render(<FlowView stages={stages} loop={loop({})} prompt="messy text" />);
+    const round = within(screen.getByRole("listitem", { name: "Round 1" }));
+    expect(round.getByText("no market was named")).toBeInTheDocument();
+    expect(round.getByText("Answer: Germany")).toBeInTheDocument();
+    expect(round.getByText("Global")).toHaveClass("line-through");
+    expect(round.getByText(/DE/)).toBeInTheDocument();
+    const confidence = within(screen.getByRole("region", { name: "Clarification loop" }));
+    expect(confidence.getByText(/40% \(assumed\)/)).toBeInTheDocument();
+    expect(screen.getByText("Intent clear")).toBeInTheDocument();
+  });
+
+  it("uses Bayer's legend labels and colours", () => {
+    render(<FlowView stages={stages} loop={loop({})} prompt="messy text" agentic />);
+    const legend = within(screen.getByRole("list", { name: "Legend" }));
+    const tones = {
+      "User input": "tone-orange",
+      "Agentic skill": "tone-yellow",
+      "Deterministic Python": "tone-green",
+      "Process state": "tone-blue",
+    };
+    for (const [name, tone] of Object.entries(tones))
+      expect(legend.getByText(name)).toHaveClass(tone);
+    const top = within(screen.getByRole("list", { name: "Prompt to Intent" }));
+    expect(top.getByText("User input")).toBeInTheDocument();
+    expect(top.getByText("Agentic skill")).toBeInTheDocument();
+    const row = within(screen.getByRole("list", { name: "Pipeline stages" }));
+    expect(
+      within(row.getByRole("button", { name: /^Intent/ })).getByText("Process state"),
+    ).toBeInTheDocument();
+    expect(
+      within(row.getByRole("button", { name: /^Spec/ })).getByText("Process state"),
+    ).toBeInTheDocument();
+    const decision = within(row.getByRole("button", { name: /^Decision/ }));
+    expect(decision.getByText("Deterministic Python")).toBeInTheDocument();
+    expect(decision.getByText("Our addition")).toBeInTheDocument();
+  });
+
+  it("says rules only when no model was involved, and says why it stopped", () => {
+    render(
+      <FlowView
+        stages={stages}
+        prompt="messy"
+        loop={loop({
+          status: "human_review",
+          rounds_used: 3,
+          stopped_because: "still unclear after 3 rounds",
+        })}
+      />,
+    );
+    const top = within(screen.getByRole("list", { name: "Prompt to Intent" }));
+    expect(top.getByText("Deterministic Python")).toBeInTheDocument();
+    expect(top.getByText(/Rules only/)).toBeInTheDocument();
+    expect(screen.getByText("Sent to a person")).toBeInTheDocument();
+    expect(screen.getByText(/still unclear after 3 rounds/)).toBeInTheDocument();
+  });
 });
 
 describe("flow view", () => {

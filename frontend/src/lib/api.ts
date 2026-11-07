@@ -79,10 +79,42 @@ export interface RecommendResult {
   };
   answers?: Answer[];
   pipeline?: PipelineStage[];
+  loop?: ClarificationLoop;
 }
 export interface Question {
   text: string;
   field: string;
+  phrased?: string;
+}
+export type IntentSnapshot = {
+  products: string[];
+  market: string;
+  kpis: string[];
+  kind: string;
+  proposed_kpis?: string[];
+  blocked?: string | null;
+};
+export interface LoopRound {
+  round: number;
+  text?: string;
+  questions: Question[];
+  answers: (Answer & { used?: boolean; kept?: boolean })[];
+  intent: IntentSnapshot | null;
+  intent_after: IntentSnapshot | null;
+  confidence?: Record<string, { value: unknown; score: number; basis: string }> | null;
+  changed: { field: string; from: unknown; to: unknown }[];
+}
+export interface ClarificationLoop {
+  status: "clear" | "asking" | "human_review";
+  rounds_used: number;
+  max_rounds: number;
+  clear_at: number;
+  confidence: Record<string, { value: unknown; score: number; basis: string }>;
+  open_fields: string[];
+  asked_by: string;
+  phrased_by: string | null;
+  stopped_because: string | null;
+  rounds: LoopRound[];
 }
 export interface Answer {
   field: string;
@@ -91,6 +123,7 @@ export interface Answer {
 }
 export interface PipelineStage {
   stage: "Intent" | "Evidence" | "Decision" | "Spec" | "Gates";
+  role?: "agentic" | "deterministic" | "state";
   status: "ok" | "needs_input" | "skipped" | "pass" | "fail";
   summary: string;
   input: Record<string, unknown>;
@@ -197,10 +230,10 @@ export function mockRecommend(text: string): RecommendResult {
   return hit ?? data.requests[0]!;
 }
 
-export const recommend = (text: string, answers: Answer[] = []) =>
+export const recommend = (text: string, answers: Answer[] = [], rounds?: LoopRound[]) =>
   call<RecommendResult>(
     "/recommend",
-    { method: "POST", body: JSON.stringify({ text, answers }) },
+    { method: "POST", body: JSON.stringify({ text, answers, ...(rounds ? { rounds } : {}) }) },
     () => mockRecommend(text),
   );
 

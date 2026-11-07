@@ -35,7 +35,11 @@ export function NewRequest() {
     setRechecking(true);
     setError(null);
     try {
-      const next = await recommend(result.text, [...(result.answers ?? []), ...fresh]);
+      const next = await recommend(
+        result.text,
+        [...(result.answers ?? []), ...fresh],
+        result.loop?.rounds,
+      );
       setResult(next);
       setText(next.text);
     } catch {
