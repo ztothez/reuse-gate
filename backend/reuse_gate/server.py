@@ -4,6 +4,7 @@ Usage: PYTHONPATH=backend python3 -m reuse_gate.server data/estate.db [port]    
 
 POST /recommend  {"text": "...", "answers": [...]}      -> recommendation item (same shape as mock_api.json)
 POST /speak      {"text": "..."}                       -> audio/mpeg from ElevenLabs, capped and cached
+POST /transcribe raw audio body, Content-Type audio/webm|ogg|mp4|wav, at most 1 MB -> {text, language}. Not stored or logged
 POST /spec       {intent, recommendation, owner, review_by} -> {spec, gates}
 GET  /radar                                            -> radar summary, with ownership_bottlenecks
 GET  /owners                                           -> active owners who can be assigned, Semantic Model Owners first
@@ -41,6 +42,7 @@ from reuse_gate.remediate import RemediationError, active_owners, decision_recor
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import SpeechError, speak
+from reuse_gate.transcribe import MAX_BYTES as MAX_AUDIO, TranscribeError, transcribe
 
 EST = None
 LOG = []
@@ -185,7 +187,31 @@ class Handler(BaseHTTPRequestHandler):
         if n > 0:
             self.rfile.read(min(n, MAX_BODY))
 
+    def _client(self):
+        """The address the OpenShift router saw: the last X-Forwarded-For entry, which the router appends. A client cannot forge it."""
+        forwarded = [p.strip() for p in self.headers.get("X-Forwarded-For", "").split(",") if p.strip()]
+        return forwarded[-1] if forwarded else self.client_address[0]
+
+    def _transcribe(self):
+        """POST /transcribe. The audio is read, sent on, and dropped; nothing about it is logged."""
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            n = -1
+        if n < 0:
+            return self._send(400, {"error": "Content-Length is required", "code": "empty_audio"})
+        if n > MAX_AUDIO:
+            self._drain()
+            return self._send(413, {"error": f"the recording is larger than {MAX_AUDIO // 1024} KB", "code": "too_large"})
+        audio = self.rfile.read(n) if n else b""
+        try:
+            return self._send(200, transcribe(audio, self.headers.get("Content-Type"), self._client()))
+        except TranscribeError as exc:
+            return self._send(exc.status, exc.body())
+
     def do_POST(self):
+        if self.path == "/transcribe":
+            return self._transcribe()
         if self.path == "/radar-ping":  # a PingSource cannot send the n8n key; this exposes nothing beyond GET /radar
             self._drain()
             return self._send(200, radar_digest())
