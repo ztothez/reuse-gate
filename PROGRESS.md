@@ -1,6 +1,6 @@
 # Reuse Gate progress
 
-Last updated: 2026-11-07. Everything below reflects what was actually run. Anything not verified says so.
+Last updated: 2026-11-08 00:55. Everything below reflects what was actually run. Anything not verified says so.
 
 ## Results
 | Check | Result |
@@ -14,6 +14,20 @@ Last updated: 2026-11-07. Everything below reflects what was actually run. Anyth
 | Live KServe `:predict` | Cited decision (`AST-0209`, 24 citations), `ai.source` = `rules` |
 | PipelineRun `reuse-gate-verify-bsqjv` | Succeeded: unit tests (179 run, 4 skipped because frontend and deploy files are not in the image), governance gate, rollout |
 | Live evaluation | 4 backends, 10 requests each, see `docs/eval_results.md` |
+
+## Role apps, email, chat and judge code (2026-11-08 00:55, verified live)
+Three rollouts from `b9ef0e4`, `57c5835` and `e5e5673`, all green (pipeline `reuse-gate-verify-rlrrd` last). Tests: 380 backend,
+187 frontend, build passes.
+- Seven roles, each with its own app: analyst dashboard studio over the data pack (`/explore`, `/dashboards`), developer config
+  change requests measured on all 150 requests (`low_views` 300 gives 57 to 51, 7 decisions change; nothing applied in process),
+  approver review (never their own), executive report, operator wall, admin workflows and outbox.
+- Live with role codes: every role's own code returns its role from `/me`; the judge code returns all seven views and gets exactly
+  each view's rights (judge as operator: `/requests` 403). Analyst `/explore/query` returns 7 product rows.
+- Email: n8n Cloud workflow "Reuse Gate notifications" (published) sends through Proton SMTP. A test from the live API returned
+  `sent` (n8n 200), n8n execution status success. The radar digest workflow is not published (permission denied to the agent).
+- Request chat: the agent answered a live question through the together tier; the faithfulness guard replaces any answer naming a
+  fact not in the request (tested).
+- Not verified: drag and drop by hand in a browser on the live site (unit tests and local screenshots only). Aitta embeddings 503.
 
 ## Final rollout (2026-11-07, verified live)
 `REUSE_GATE_DECISION_BACKEND=kserve REUSE_GATE_LLM_TIERS=together,featherless sh deploy/openshift/rollout.sh` from `0b45b4e`:
