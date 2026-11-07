@@ -188,6 +188,11 @@ export interface OwnershipBottleneck extends Owner {
   citations: string[];
   citations_total: number;
 }
+export interface RecordedGates extends Partial<GateSnapshot> {
+  before_remediation?: GateSnapshot | null;
+  at_approval?: GateSnapshot | null;
+  as_of?: string;
+}
 export interface DecisionRecord {
   estate_snapshot: string;
   request_text: string;
@@ -206,7 +211,7 @@ export interface DecisionRecord {
     client_target?: string | null;
     matches_client?: boolean;
   };
-  gates: GateSnapshot | null;
+  gates: RecordedGates | null;
   remediation: RemediationResult | null;
   note?: string;
 }
