@@ -1,5 +1,7 @@
 # R1 implementation and verification
 
+Historical R1 record. Evaluation, voice and subsequent audit resolutions are completed in [FINISH_REPORT.md](FINISH_REPORT.md).
+
 Branch: redesign. Frontend changes only. FlowView.tsx and both mock_api.json copies are unchanged from the merged preparation baseline. The two mocks remain byte-identical. Evaluation and voice input are deferred to R2.
 
 ## Phase 1: shell, lenses and routes

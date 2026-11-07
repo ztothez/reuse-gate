@@ -1,0 +1,369 @@
+{
+  "transport": "Browser-intercepted local fixture API; no server writes",
+  "created": true,
+  "clarified": true,
+  "simulated": {
+    "before": 5,
+    "after": 7
+  },
+  "approvedDemoResponse": true,
+  "savedRecordOpened": true,
+  "evaluationOpened": true,
+  "unhandledWrites": 0,
+  "activity": [
+    "created",
+    "rechecked",
+    "remediation_simulated",
+    "approved"
+  ],
+  "calls": [
+    {
+      "path": "/requests",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "POST",
+      "body": {
+        "text": "I need a dashboard comparing product performance across oncology brands and markets."
+      }
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "POST",
+      "body": {
+        "request_id": "WI-FINISH-TEST",
+        "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+        "answers": [
+          {
+            "field": "market",
+            "question": "no market was named: searched all markets (Global), please confirm",
+            "answer": "yes"
+          }
+        ],
+        "rounds": [
+          {
+            "round": 1,
+            "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+            "questions": [
+              {
+                "text": "no market was named: searched all markets (Global), please confirm",
+                "field": "market"
+              }
+            ],
+            "answers": [],
+            "intent": {
+              "products": [
+                "All Pharma"
+              ],
+              "market": "Global",
+              "kpis": [
+                "Net Sales",
+                "Net Sales Growth"
+              ],
+              "kind": "new_report",
+              "proposed_kpis": [],
+              "blocked": null
+            },
+            "confidence": {
+              "product": {
+                "value": [
+                  "All Pharma"
+                ],
+                "score": 0.85,
+                "basis": "parsed"
+              },
+              "market": {
+                "value": "Global",
+                "score": 0.4,
+                "basis": "assumed"
+              },
+              "kpi": {
+                "value": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "score": 0.85,
+                "basis": "parsed"
+              },
+              "kind": {
+                "value": "new_report",
+                "score": 0.85,
+                "basis": "parsed"
+              }
+            },
+            "intent_after": null,
+            "changed": []
+          }
+        ],
+        "requester": "Frontend transport test"
+      }
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "GET"
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "GET"
+    },
+    {
+      "path": "/owners",
+      "method": "GET"
+    },
+    {
+      "path": "/owners",
+      "method": "GET"
+    },
+    {
+      "path": "/remediate",
+      "method": "POST",
+      "body": {
+        "request_id": "WI-FINISH-TEST",
+        "remediations": [
+          {
+            "type": "assign_owner",
+            "target": "SM-065",
+            "owner_id": "OWN-039"
+          }
+        ],
+        "review_by": "2027-11-07",
+        "as_of": "2026-11-07"
+      }
+    },
+    {
+      "path": "/approve",
+      "method": "POST",
+      "body": {
+        "request_id": "WI-FINISH-TEST",
+        "decision": "approve",
+        "approver": "Frontend test approver",
+        "owner": "OWN-039",
+        "review_by": "2027-11-07",
+        "answers": [
+          {
+            "field": "market",
+            "question": "no market was named: searched all markets (Global), please confirm",
+            "answer": "yes"
+          }
+        ],
+        "intent": {
+          "products": [
+            "All Pharma"
+          ],
+          "market": "Global",
+          "kpis": [
+            "Net Sales",
+            "Net Sales Growth"
+          ],
+          "kind": "new_report"
+        },
+        "rounds": [
+          {
+            "round": 1,
+            "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+            "questions": [
+              {
+                "text": "no market was named: searched all markets (Global), please confirm",
+                "field": "market"
+              }
+            ],
+            "answers": [
+              {
+                "field": "market",
+                "question": "no market was named: searched all markets (Global), please confirm",
+                "answer": "yes"
+              }
+            ],
+            "intent": {
+              "products": [
+                "All Pharma"
+              ],
+              "market": "Global",
+              "kpis": [
+                "Net Sales",
+                "Net Sales Growth"
+              ],
+              "kind": "new_report",
+              "proposed_kpis": [],
+              "blocked": null
+            },
+            "confidence": {
+              "product": {
+                "value": [
+                  "All Pharma"
+                ],
+                "score": 0.85,
+                "basis": "parsed"
+              },
+              "market": {
+                "value": "Global",
+                "score": 0.4,
+                "basis": "assumed"
+              },
+              "kpi": {
+                "value": [
+                  "Net Sales",
+                  "Net Sales Growth"
+                ],
+                "score": 0.85,
+                "basis": "parsed"
+              },
+              "kind": {
+                "value": "new_report",
+                "score": 0.85,
+                "basis": "parsed"
+              }
+            },
+            "intent_after": {
+              "products": [
+                "All Pharma"
+              ],
+              "market": "Global",
+              "kpis": [
+                "Net Sales",
+                "Net Sales Growth"
+              ],
+              "kind": "new_report",
+              "proposed_kpis": [],
+              "blocked": null
+            },
+            "changed": []
+          }
+        ],
+        "remediations": [
+          {
+            "type": "assign_owner",
+            "target": "SM-065",
+            "owner_id": "OWN-039"
+          }
+        ],
+        "text": "I need a dashboard comparing product performance across oncology brands and markets.",
+        "action": "new_build"
+      }
+    },
+    {
+      "path": "/spec",
+      "method": "POST",
+      "body": {
+        "intent": {
+          "products": [
+            "All Pharma"
+          ],
+          "market": "Global",
+          "kpis": [
+            "Net Sales",
+            "Net Sales Growth"
+          ],
+          "kind": "new_report",
+          "clarifications": [],
+          "questions": []
+        },
+        "recommendation": {
+          "action": "new_build",
+          "target": null,
+          "build_on": "SM-065",
+          "retire": [],
+          "retire_note": null,
+          "consolidate_later": [],
+          "consolidate_note": null,
+          "repair": [],
+          "rationale": [
+            "no alive, governed asset covers enough of the request",
+            "build on a healthy shared semantic model, using canonical KPI definitions only"
+          ],
+          "evidence": [
+            {
+              "table": "Governance_Rules",
+              "id": "RULE-001",
+              "note": "Reuse before build"
+            },
+            {
+              "table": "Governance_Rules",
+              "id": "RULE-002",
+              "note": "Canonical KPI first"
+            },
+            {
+              "table": "Governance_Rules",
+              "id": "RULE-007",
+              "note": "AI-ready semantics"
+            },
+            {
+              "table": "Semantic_Models",
+              "id": "SM-065",
+              "note": "certified, refresh healthy, AI readiness good"
+            },
+            {
+              "table": "KPI_Catalog",
+              "id": "KPI-001",
+              "note": "Net Sales: canonical, approved"
+            },
+            {
+              "table": "KPI_Catalog",
+              "id": "KPI-004",
+              "note": "Net Sales Growth: canonical, approved"
+            }
+          ]
+        },
+        "owner": "OWN-039",
+        "review_by": "2027-11-07"
+      }
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests",
+      "method": "GET"
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/requests/WI-FINISH-TEST",
+      "method": "GET"
+    },
+    {
+      "path": "/log",
+      "method": "GET"
+    },
+    {
+      "path": "/log",
+      "method": "GET"
+    },
+    {
+      "path": "/evaluation",
+      "method": "GET"
+    },
+    {
+      "path": "/evaluation",
+      "method": "GET"
+    }
+  ]
+}

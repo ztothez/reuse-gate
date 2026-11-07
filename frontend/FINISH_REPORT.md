@@ -69,3 +69,67 @@ The final original-finding regression check again passed all 22 browser checks a
 ### Limits and work not performed
 
 No physical microphone, external speech provider, protected production approval or deployment was used. Real-world transcription quality, privacy at the provider and role comprehension need separate verification. No representative-user study or certified design gate is claimed. The original unavailable visual reference remains unavailable. No dependencies were installed. FlowView, backend, data and deploy files are untouched in these Finish commits; the merge was already present.
+
+## Part 5: final verification
+
+- `npm test`: 160 tests in 26 files passed after Part 4 was committed.
+- `npx tsc --noEmit`: passed.
+- `npm run build`: passed, both client and server bundles. Vite reports its existing tsconfig-path plugin migration suggestion; it is not a build failure.
+- Repository audit: 146 files, zero errors, zero warnings, zero informational findings.
+- Runtime audit: all nine journeys passed at 320, 375, 768 and 1280px. Raw outcome remains FAIL with 24 errors, zero warnings and 160 informational measurement records. No contrast, document-overflow or text-resize-clipping defects remain in this run. The 24 findings are 20 repeated-focus heuristics, three raw-geometry overlap heuristics and one Radar focus-center heuristic. Each has an indexed verdict and concrete evidence in R1_AUDIT_RESOLUTION.md. The independent extended browser check passed all 34 checks and is committed as verification/final-audit-evidence.json. No certified gate is claimed.
+- The browser repeated create, yes clarification, SM-065 assignment simulation from 5/7 to 7/7, demo-labelled test approval, saved before/after record and Evaluation using the isolated local fixture transport. There were 24 intercepted fixture calls and zero unhandled writes. Evidence: verification/mock-flow-evidence.json. No real approval was submitted to an API in this Finish run.
+- Screenshot index: FINISH_SCREENSHOTS.md, with 88 smoke images outside the repository. Runtime-tool screenshots have checksums and paths in FINISH_AUDIT.json; focus and annotated bounds images are linked from the resolution report. Voice tests use a fake recorder and fake transcription response, not a physical microphone.
+- FlowView, both mocks, backend, root data and deploy files are unchanged from ce78605. Mock copies remain byte-identical. No new dependency, push, deployment, cluster operation, key disclosure or access-code disclosure occurred.
+
+## Commits per part
+
+| Part | Commit | Message |
+|---|---|---|
+| Merge already present | ce78605 | Merge branch reuse-gate-build into redesign |
+| 0 | 22e6a2f | chore(part 0): record merged baseline and passing frontend checks |
+| 1 | 9c03d26 | fix(part 1): prevent focus occlusion and prove each R1 audit resolution |
+| 2 | 2fa72a5 | feat(part 2): add transparent evaluation measurements and keyboard details |
+| 3 | ed65ef4 | feat(part 3): add private push-to-talk with explicit transcript confirmation |
+| 4 | 82ed80e | fix(part 4): stabilise tests and polish responsive request workflows |
+| 5 | The commit containing this report's final verification section | chore(part 5): record final checks and per-finding runtime evidence |
+
+The Part 5 hash is provided in the final handoff; a committed file cannot contain the hash of its own commit. Full changed-file lists are available with `git diff --name-only ce78605 HEAD`. All Finish changes are under frontend.
+
+## Changed files in Finish
+
+- frontend/FINISH_AUDIT.json
+- frontend/FINISH_REPORT.md
+- frontend/FINISH_SCREENSHOTS.md
+- frontend/R1_AUDIT_RESOLUTION.md
+- frontend/R1_REPORT.md
+- frontend/src/components/gate/DecisionRecordView.tsx
+- frontend/src/components/gate/RequesterView.tsx
+- frontend/src/components/product/AdminSettings.tsx
+- frontend/src/components/product/EvaluationPage.tsx
+- frontend/src/components/product/ExecutiveOverview.tsx
+- frontend/src/components/product/RequestDetailPage.tsx
+- frontend/src/components/product/RequestPages.tsx
+- frontend/src/components/product/VoiceInput.tsx
+- frontend/src/components/product/shared.tsx
+- frontend/src/lib/api.ts
+- frontend/src/lib/decision-log.ts
+- frontend/src/lib/evaluation.ts
+- frontend/src/lib/use-voice-input.ts
+- frontend/src/routeTree.gen.ts
+- frontend/src/routes/evaluation.tsx
+- frontend/src/styles.css
+- frontend/src/test/audit-fixes.test.tsx
+- frontend/src/test/evaluation.test.tsx
+- frontend/src/test/executive-overview.test.tsx
+- frontend/src/test/voice-input.test.tsx
+- frontend/verification/audit-evidence-final.json
+- frontend/verification/audit-evidence.json
+- frontend/verification/audit-resolution.mjs
+- frontend/verification/evaluation.mjs
+- frontend/verification/final-audit-evidence.json
+- frontend/verification/mock-flow-evidence.json
+- frontend/verification/mock-flow.mjs
+- frontend/verification/repeat-suite.mjs
+- frontend/verification/screenshots.mjs
+- frontend/verification/stability-evidence.json
+- frontend/vitest.config.ts

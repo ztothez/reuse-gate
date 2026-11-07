@@ -8,7 +8,7 @@ await fs.mkdir(output, { recursive: true });
 const browser = await chromium.launch();
 const results = [];
 const widths = { phone320:320, phone375:375, tablet:768, desktop:1280 };
-const paths = { requests:'/requests', item:'/requests/SAMPLE-07', approvals:'/approvals', overview:'/overview', populated_review:'/approvals?id=WI-31CF5342' };
+const paths = { requests:'/requests', item:'/requests/SAMPLE-07', approvals:'/approvals', overview:'/overview', populated_review:'/approvals?id=WI-31CF5342', radar:'/radar', voice:'/requests?create=1', evaluation:'/evaluation' };
 try {
  for (const [viewport,width] of Object.entries(widths).filter(([name])=>!process.env.VERIFY_VIEWPORT||name===process.env.VERIFY_VIEWPORT)) for (const [journey,route] of Object.entries(paths).filter(([name])=>!process.env.VERIFY_JOURNEY||name===process.env.VERIFY_JOURNEY)) {
   const page=await browser.newPage({ viewport:{width,height:900} });
