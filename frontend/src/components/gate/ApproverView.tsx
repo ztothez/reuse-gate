@@ -81,6 +81,14 @@ export function ApproverView({ state }: { state: RequestState }) {
               decided automatically. You decide this request.
             </p>
           )}
+          <ApprovalPanel
+            readiness
+            key={result.request_id + result.text}
+            result={result}
+            blocked={questions.length > 0 || !!state.outdated}
+            decided={state.decided}
+            onDecided={state.setDecided}
+          />
           <Panel
             title="Evidence summary"
             caption="Full evidence, citations, spec and gates are in the Steward view."
@@ -104,20 +112,14 @@ export function ApproverView({ state }: { state: RequestState }) {
               </ol>
             )}
           </Panel>
-          <ApprovalPanel
-            key={result.request_id + result.text}
-            result={result}
-            blocked={questions.length > 0 || !!state.outdated}
-            decided={state.decided}
-            onDecided={state.setDecided}
-          />
+
           {state.decided?.gates && (
             <p
               role="note"
               className={`${state.decided.gates.passed ? "tone-green" : "tone-red"} rounded-md border px-4 py-3 text-sm font-medium`}
             >
               {state.decided.gates.passed
-                ? "Dashboard spec generated. All quality gates passed."
+                ? state.decided.remediation ? "Dashboard spec generated. Gates passed in simulation. Nothing in the BI tool or the estate has changed." : "Dashboard spec generated. All quality gates passed."
                 : "Dashboard spec generated, but release is blocked by a quality gate. See the Steward view."}
             </p>
           )}

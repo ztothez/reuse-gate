@@ -6,10 +6,12 @@ import {
   type GateResult,
   type Question,
   type RecommendResult,
+  type RemediationResult,
 } from "./api";
 
 // What the approver registered for the current result, kept so every role sees the same outcome.
 export interface Decided {
+  remediation?: RemediationResult | undefined;
   mode?: "demo" | undefined;
   id: string;
   decision: "approve" | "reject";

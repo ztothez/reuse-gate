@@ -9,9 +9,13 @@ import {
   type DashboardSpec,
   type GateResult,
   type RecommendResult,
+  type Owner,
+  type RemediationResult,
 } from "@/lib/api";
+import { confirmedIntent, requestGates } from "@/lib/governance";
 import type { Decided } from "@/lib/use-request";
 import { ErrorState, Panel } from "./shared";
+import { ApprovalReadiness } from "./ApprovalReadiness";
 
 const proposedOwner = (result: RecommendResult) => {
   const fromSpec = result.pipeline?.find((s) => s.stage === "Spec")?.output["owner"];
@@ -29,12 +33,14 @@ export function ApprovalPanel({
   onSpec,
   decided,
   onDecided,
+  readiness = false,
 }: {
   result: RecommendResult;
   blocked: boolean;
   onSpec?: (spec: DashboardSpec, gates?: GateResult) => void;
   decided?: Decided | null | undefined;
   onDecided?: ((d: Decided) => void) | undefined;
+  readiness?: boolean;
 }) {
   const [approver, setApprover] = useState("");
   const [owner, setOwner] = useState(proposedOwner(result));
@@ -42,14 +48,38 @@ export function ApprovalPanel({
   const [busy, setBusy] = useState<null | "approve" | "reject">(null);
   const [error, setError] = useState<string | null>(null);
   const [localDone, setLocalDone] = useState<Decided | null>(null);
+  const [selection, setSelection] = useState<Owner | null>(null);
+  const [checked, setChecked] = useState<RemediationResult | null>(null);
+  const [checkedInputs, setCheckedInputs] = useState("");
+  const [checking, setChecking] = useState(false);
   const done = decided ?? localDone;
   const validDate = /^\d{4}-\d{2}-\d{2}$/.test(reviewBy) &&
     !Number.isNaN(Date.parse(reviewBy)) && new Date(reviewBy).toISOString().slice(0, 10) === reviewBy &&
     reviewBy >= new Date().toISOString().slice(0, 10);
   const ready = approver.trim() && owner.trim() && validDate;
+  const simulationCurrent = !!checked && checkedInputs === `${owner}|${reviewBy}`;
+  const needsOwnerResolution = readiness && requestGates(result)?.gates.some((gate) => gate.gate === "owner_and_review_date" && !gate.passed);
+  const resolutionPending = needsOwnerResolution && (!selection || !simulationCurrent);
+  const locked = !!busy || checking;
+  const readinessView = readiness ? (
+    <ApprovalReadiness
+      result={result}
+      owner={done?.owner ?? owner}
+      selection={selection}
+      onSelect={(next) => { setSelection(next); setOwner(next?.owner_id ?? ""); }}
+      reviewBy={done?.reviewBy ?? reviewBy}
+      simulation={checked ?? done?.remediation ?? null}
+      simulationCurrent={!!done?.remediation || simulationCurrent}
+      onChecked={(simulation) => { setChecked(simulation); setCheckedInputs(`${owner}|${reviewBy}`); }}
+      onChecking={setChecking}
+      disabled={locked}
+      recheckBlocked={blocked || !validDate}
+      done={!!done}
+    />
+  ) : null;
 
   async function decide(decision: "approve" | "reject") {
-    if (!ready || busy || (decision === "approve" && blocked)) return;
+    if (!ready || locked || (decision === "approve" && (blocked || resolutionPending))) return;
     setBusy(decision);
     setError(null);
     try {
@@ -60,12 +90,15 @@ export function ApprovalPanel({
         owner,
         review_by: reviewBy,
         answers: result.answers ?? [],
+        intent: confirmedIntent(result),
+        rounds: result.loop?.rounds ?? [],
+        remediations: checked && simulationCurrent ? checked.remediations.map(({ type, target, owner_id }) => ({ type, target, owner_id })) : [],
         text: result.text,
         action: result.recommendation.action,
-        target: result.recommendation.target?.id ?? result.recommendation.build_on ?? "-",
+        ...(result.recommendation.target ? { target: result.recommendation.target.id } : {}),
       });
       if (res.ok !== true) throw new Error("Approval was not confirmed");
-      const record: Decided = { id: res.registered_id, decision, owner, reviewBy, mode: res.mode };
+      const record: Decided = { id: res.registered_id, decision, owner, reviewBy, mode: res.mode, remediation: simulationCurrent ? checked ?? undefined : undefined };
       if (
         decision === "approve" &&
         (result.recommendation.action === "new_build" || result.recommendation.action === "extend")
@@ -90,6 +123,8 @@ export function ApprovalPanel({
 
   if (done) {
     return (
+      <div className="space-y-6">
+      {readinessView}
       <div
         role="status"
         className={`${done.decision === "approve" ? "tone-green" : "tone-gray"} rounded-lg border-2 p-5`}
@@ -107,16 +142,19 @@ export function ApprovalPanel({
           </div>
         )}
       </div>
+      </div>
     );
   }
 
   return (
+    <div className="space-y-6">
+    {readinessView}
     <Panel title="Approval">
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <Label htmlFor="approver">Approver name</Label>
           <Input
-            disabled={!!busy}
+            disabled={locked}
             id="approver"
             className="mt-1"
             value={approver}
@@ -126,7 +164,8 @@ export function ApprovalPanel({
         <div>
           <Label htmlFor="owner">Report owner</Label>
           <Input
-            disabled={!!busy}
+            disabled={locked}
+            readOnly={!!needsOwnerResolution}
             id="owner"
             className="mt-1"
             value={owner}
@@ -136,7 +175,7 @@ export function ApprovalPanel({
         <div>
           <Label htmlFor="review">Review by</Label>
           <Input
-            disabled={!!busy}
+            disabled={locked}
             required
             min={new Date().toISOString().slice(0, 10)}
             aria-invalid={!validDate}
@@ -150,6 +189,7 @@ export function ApprovalPanel({
         </div>
       </div>
       <p id="review-help" className="mt-3 text-sm">Review date is required and must be today or later.</p>
+      {resolutionPending && <p className="mt-3 text-sm">Choose an active owner above and recheck the simulation before approving.</p>}
       {blocked && (
         <p className="mt-3 text-sm text-muted-foreground">
           Answer the questions above and check again before approving. You can still reject.
@@ -161,13 +201,14 @@ export function ApprovalPanel({
         </div>
       )}
       <div className="mt-5 flex flex-wrap justify-end gap-3">
-        <Button variant="outline" disabled={!ready || !!busy} onClick={() => decide("reject")}>
+        <Button variant="outline" disabled={!ready || locked} onClick={() => decide("reject")}>
           {busy === "reject" ? <Loader2 className="animate-spin" /> : <X />} Reject
         </Button>
-        <Button disabled={!ready || blocked || !!busy} onClick={() => decide("approve")}>
+        <Button disabled={!ready || blocked || locked || !!resolutionPending} onClick={() => decide("approve")}>
           {busy === "approve" ? <Loader2 className="animate-spin" /> : <Check />} Approve
         </Button>
       </div>
     </Panel>
+    </div>
   );
 }

@@ -6,7 +6,7 @@ import { ownerSimulation, requestGates } from "@/lib/governance";
 import { ErrorState, Panel } from "./shared";
 import { GateComparison, GateList } from "./GateComparison";
 
-export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy, simulation, simulationCurrent, onChecked, onChecking, disabled = false, done = false }: {
+export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy, simulation, simulationCurrent, onChecked, onChecking, disabled = false, recheckBlocked = false, done = false }: {
   result: RecommendResult;
   owner: string;
   selection: Owner | null;
@@ -17,6 +17,7 @@ export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy
   onChecked: (simulation: RemediationResult) => void;
   onChecking: (checking: boolean) => void;
   disabled?: boolean;
+  recheckBlocked?: boolean;
   done?: boolean;
 }) {
   const [owners, setOwners] = useState<Owner[]>([]);
@@ -46,7 +47,7 @@ export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy
   const sortMarket = (a: Owner, b: Owner) => Number(matchesMarket(b)) - Number(matchesMarket(a));
 
   async function recheck() {
-    if (!selection || checking || disabled || done || !live) return;
+    if (!selection || checking || disabled || recheckBlocked || done || !live) return;
     setChecking(true);
     onChecking(true);
     setError(null);
@@ -100,7 +101,7 @@ export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy
             <p id="owner-selection-help" className="mt-2 text-sm text-muted-foreground">Semantic Model Owners are suggested first. Market matches are highlighted. Every listed owner is active and selectable; the gate checks active status, not role or scope fit.</p>
             {selection && <p className={`mt-2 rounded-md p-3 text-sm ${matchesMarket(selection) ? "tone-blue" : "bg-muted"}`}>{selection.owner_name}: {matchesMarket(selection) ? `Scope matches the request market (${selection.scope}).` : `Scope: ${selection.scope}. The active-owner gate does not enforce scope fit.`}</p>}
           </div>
-          {!done && <Button className="min-h-11 max-w-full whitespace-normal" disabled={disabled || checking || !selection || !live || !target} onClick={() => void recheck()}>{checking ? "Rechecking gates..." : "Recheck gates (simulation)"}</Button>}
+          {!done && <Button className="min-h-11 max-w-full whitespace-normal" disabled={disabled || recheckBlocked || checking || !selection || !live || !target} onClick={() => void recheck()}>{checking ? "Rechecking gates..." : "Recheck gates (simulation)"}</Button>}
           {error && <ErrorState>{error}</ErrorState>}
         </div>
       )}
