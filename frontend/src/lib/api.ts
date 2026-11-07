@@ -354,6 +354,9 @@ export function voiceErrorMessage(code: string) {
     permission_missing: "Voice input is not available right now",
     provider_failed: "Voice input could not be processed",
     provider_timeout: "Voice input took too long",
+    endpoint_unavailable: "Voice input is not available on this API",
+    api_rejected: "The API did not accept the recording",
+    network_error: "Could not reach voice input",
     microphone_denied: "Microphone permission was denied",
     microphone_failed: "The microphone could not start",
   };
@@ -374,6 +377,8 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   try {
     const response = await fetch(`${API}/transcribe`, { method: "POST", headers: { "Content-Type": blob.type }, body: blob, signal: controller.signal });
     const body = await response.json().catch(() => null);
+    if ([404, 405, 501].includes(response.status)) throw new Error(voiceErrorMessage("endpoint_unavailable"));
+    if (response.status === 400 && typeof body?.code !== "string") throw new Error(voiceErrorMessage("api_rejected"));
     if (!response.ok) throw new Error(voiceErrorMessage(typeof body?.code === "string" ? body.code : "provider_failed"));
     if (typeof body?.text !== "string" || !body.text.trim() || typeof body?.language !== "string") throw new Error(voiceErrorMessage("no_speech"));
     return { text: body.text, language: body.language };
@@ -381,6 +386,7 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
     if (timedOut) throw new Error(voiceErrorMessage("provider_timeout"));
     if (error instanceof Error && error.message.endsWith("please type instead")) throw error;
+    if (error instanceof TypeError) throw new Error(voiceErrorMessage("network_error"));
     throw new Error(voiceErrorMessage("provider_failed"));
   } finally {
     clearTimeout(timer);

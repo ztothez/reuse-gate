@@ -106,6 +106,18 @@ describe("voice push-to-talk", () => {
     await transcribeAudio(new Blob(["audio"], { type: "audio/wav" }));
     expect(fetcher.mock.calls[0]![1].headers).toEqual({ "Content-Type": "audio/wav" });
   });
+  it.each([404,405,501])("identifies an unavailable transcription endpoint (%s)", async status => {
+    fetcher.mockResolvedValue(new Response(JSON.stringify({error:"not found"}), {status}));
+    await expect(transcribeAudio(new Blob(["audio"],{type:"audio/webm"}))).rejects.toThrow("Voice input is not available on this API, please type instead");
+  });
+  it("identifies a code-less API rejection without blaming the provider", async () => {
+    fetcher.mockResolvedValue(new Response(JSON.stringify({error:"invalid request"}),{status:400}));
+    await expect(transcribeAudio(new Blob(["audio"],{type:"audio/webm"}))).rejects.toThrow("The API did not accept the recording, please type instead");
+  });
+  it("distinguishes a network failure from a provider response", async () => {
+    fetcher.mockRejectedValue(new TypeError("Failed to fetch"));
+    await expect(transcribeAudio(new Blob(["audio"],{type:"audio/webm"}))).rejects.toThrow("Could not reach voice input, please type instead");
+  });
   it("auto-stops at 30 seconds and announces its recording timer", async () => {
     vi.useFakeTimers();
     render(<VoiceInput onUse={vi.fn()} />);
