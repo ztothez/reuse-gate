@@ -10,33 +10,127 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ApprovalsRouteImport } from './routes/approvals'
+import { Route as LogRouteImport } from './routes/log'
+import { Route as OverviewRouteImport } from './routes/overview'
+import { Route as RadarRouteImport } from './routes/radar'
+import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as RequestsRequestIdRouteImport } from './routes/requests.$requestId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApprovalsRoute = ApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogRoute = LogRouteImport.update({
+  id: '/log',
+  path: '/log',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverviewRoute = OverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RadarRoute = RadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRequestIdRoute = RequestsRequestIdRouteImport.update({
+  id: '/$requestId',
+  path: '/$requestId',
+  getParentRoute: () => RequestsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/approvals': typeof ApprovalsRoute
+  '/log': typeof LogRoute
+  '/overview': typeof OverviewRoute
+  '/radar': typeof RadarRoute
+  '/requests': typeof RequestsRouteWithChildren
+  '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/approvals': typeof ApprovalsRoute
+  '/log': typeof LogRoute
+  '/overview': typeof OverviewRoute
+  '/radar': typeof RadarRoute
+  '/requests': typeof RequestsRouteWithChildren
+  '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/approvals': typeof ApprovalsRoute
+  '/log': typeof LogRoute
+  '/overview': typeof OverviewRoute
+  '/radar': typeof RadarRoute
+  '/requests': typeof RequestsRouteWithChildren
+  '/requests/$requestId': typeof RequestsRequestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/approvals'
+    | '/log'
+    | '/overview'
+    | '/radar'
+    | '/requests'
+    | '/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/approvals'
+    | '/log'
+    | '/overview'
+    | '/radar'
+    | '/requests'
+    | '/requests/$requestId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/approvals'
+    | '/log'
+    | '/overview'
+    | '/radar'
+    | '/requests'
+    | '/requests/$requestId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ApprovalsRoute: typeof ApprovalsRoute
+  LogRoute: typeof LogRoute
+  OverviewRoute: typeof OverviewRoute
+  RadarRoute: typeof RadarRoute
+  RequestsRoute: typeof RequestsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +142,78 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/approvals': {
+      id: '/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof ApprovalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/log': {
+      id: '/log'
+      path: '/log'
+      fullPath: '/log'
+      preLoaderRoute: typeof LogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overview': {
+      id: '/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof OverviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/radar': {
+      id: '/radar'
+      path: '/radar'
+      fullPath: '/radar'
+      preLoaderRoute: typeof RadarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests/$requestId': {
+      id: '/requests/$requestId'
+      path: '/$requestId'
+      fullPath: '/requests/$requestId'
+      preLoaderRoute: typeof RequestsRequestIdRouteImport
+      parentRoute: typeof RequestsRoute
+    }
   }
 }
 
+interface RequestsRouteChildren {
+  RequestsRequestIdRoute: typeof RequestsRequestIdRoute
+}
+
+const RequestsRouteChildren: RequestsRouteChildren = {
+  RequestsRequestIdRoute: RequestsRequestIdRoute,
+}
+
+const RequestsRouteWithChildren = RequestsRoute._addFileChildren(
+  RequestsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ApprovalsRoute: ApprovalsRoute,
+  LogRoute: LogRoute,
+  OverviewRoute: OverviewRoute,
+  RadarRoute: RadarRoute,
+  RequestsRoute: RequestsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

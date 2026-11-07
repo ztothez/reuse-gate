@@ -72,7 +72,7 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.975 0.004 250);
+  --background: oklch(0.975 0.006 85);
   --tone-green: oklch(0.5 0.13 150);
   --tone-teal: oklch(0.5 0.09 190);
   --tone-blue: oklch(0.48 0.14 250);
@@ -86,7 +86,7 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.36 0.11 258);
+  --primary: oklch(0.34 0.055 190);
   --primary-foreground: oklch(0.984 0.003 247.858);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
@@ -98,7 +98,7 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.5 0.14 258);
+  --ring: oklch(0.4 0.07 190);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -232,3 +232,26 @@ main, main > *, section { min-width: 0; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Product shell uses an eight-pixel spacing rhythm. */
+.app-shell { display: grid; min-height: 100vh; }
+.app-nav { display: none; background: var(--card); border-right: 1px solid var(--border); padding: 1rem; min-width: 0; }
+.app-nav.mobile-open { display: block; }
+.app-topbar { display: grid; gap: 1rem; padding: 1rem; background: var(--card); border-bottom: 1px solid var(--border); }
+.nav-link { display: flex; align-items: center; gap: .75rem; min-height: 4rem; padding: .75rem; border-radius: var(--radius); font-size: .875rem; font-weight: 500; }
+.nav-active { background: var(--secondary); color: var(--primary); }
+.control, .primary-action { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 4rem; min-width: 4rem; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); font-size: .875rem; color: var(--foreground); }
+input.control, select.control { justify-content: start; }
+.primary-action { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); font-weight: 600; }
+button:disabled { cursor: not-allowed; }
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
+.panel { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); padding: 1.5rem; box-shadow: var(--shadow-panel); }
+.section-title { margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600; }
+.table-region { max-width: 100%; overflow-x: auto; contain: inline-size layout; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
+.product-table { width: 100%; text-align: left; font-size: .875rem; }
+.product-table th { padding: 1rem; font-size: .75rem; color: var(--muted-foreground); font-weight: 500; white-space: nowrap; }
+.product-table td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
+.product-table td:first-child { min-width: 15rem; max-width: 28rem; }
+.request-link { display: inline-flex; align-items: center; min-height: 4rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media (min-width: 768px) { .app-shell { grid-template-columns: 14rem minmax(0,1fr); } .app-shell.nav-collapsed { grid-template-columns: 5.5rem minmax(0,1fr); } .app-nav { display: block; } .app-topbar { padding: 1rem 2rem; } }
+@media (min-width: 1280px) { .app-topbar { grid-template-columns: minmax(12rem,1fr) auto; align-items: center; } .app-topbar > :last-child { grid-column: 1 / -1; } }

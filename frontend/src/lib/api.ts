@@ -1,4 +1,5 @@
 import mock from "@/data/mock_api.json";
+import { itemRow, localItems } from "./work-item-cache";
 
 export type Action =
   | "reuse"
@@ -275,6 +276,45 @@ export interface LogRecord extends ApprovePayload {
   time: string;
   mode?: "demo";
 }
+export type WorkStatus = "clarifying" | "awaiting_approval" | "human_review" | "approved" | "rejected";
+export interface WorkItemRow {
+  request_id: string; text: string; status: WorkStatus; action: Action;
+  target: string | null; target_name: string | null; owner: string | null;
+  created: string; updated: string; open_questions: number; gates_passed: boolean | null;
+  origin: "user" | "sample";
+  local_only?: boolean | undefined;
+}
+export interface WorkDecision {
+  registered_id: string; decision: "approve" | "reject"; approver: string; owner: string;
+  review_by: string; time: string; gates_passed: boolean | null; estate_snapshot: string;
+}
+export interface WorkItem {
+  request_id: string; text: string; status: WorkStatus; created: string; updated: string;
+  origin: "user" | "sample"; requester: string | null; result: RecommendResult;
+  rounds: LoopRound[]; remediation: RemediationResult | null; decision: WorkDecision | null;
+  activity: { time: string; actor: string; event: "seeded" | "created" | "rechecked" | "remediation_simulated" | "approved" | "rejected"; detail: string }[];
+  local_only?: boolean | undefined;
+}
+export interface RequestFilters { status?: string | undefined; q?: string | undefined; }
+export const getApiBaseUrl = () => API ?? "";
+export const ACCESS_CODE_KEY = "reuse-gate-access-code";
+export function getAccessCode(): string { try { return sessionStorage.getItem(ACCESS_CODE_KEY) ?? ""; } catch { return ""; } }
+export function saveAccessCode(code: string) { sessionStorage.setItem(ACCESS_CODE_KEY, code); }
+export class ApiError extends Error {
+  constructor(message: string, public status: number) { super(message); this.name = "ApiError"; }
+}
+function writeHeaders() { const code = getAccessCode(); return { "Content-Type": "application/json", ...(code ? { "X-Access-Code": code } : {}) }; }
+export const getRequests = (filters: RequestFilters = {}) => {
+  const query = new URLSearchParams();
+  if (filters.status) query.set("status", filters.status);
+  if (filters.q) query.set("q", filters.q);
+  return call<WorkItemRow[]>(`/requests${query.size ? `?${query}` : ""}`, undefined, () => localItems().map(itemRow).filter((row) => (!filters.status || row.status === filters.status) && (!filters.q || `${row.text} ${row.request_id} ${row.target_name ?? ""}`.toLowerCase().includes(filters.q.toLowerCase()))).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 200));
+};
+export const getRequest = (id: string) => call<WorkItem>(`/requests/${encodeURIComponent(id)}`, undefined, () => {
+  const item = localItems().find((candidate) => candidate.request_id === id);
+  if (!item) throw new Error("Request not found in offline data. Connect to the API or open a sample.");
+  return item;
+});
 export interface Health {
   status: "live" | "down" | "demo";
   assets?: number | undefined;
@@ -353,33 +393,29 @@ export async function speak(text: string): Promise<Blob> {
 
 export const getRadar = () => call<Radar>("/radar", undefined, () => data.radar);
 
-// Demo decisions live in memory for this page view, the same way the API keeps its own log.
-const demoLog: LogRecord[] = [];
-
 export async function approve(p: ApprovePayload): Promise<{ ok: true; registered_id: string; mode?: "demo" }> {
-  if (!API) {
-    const registered_id = `DEMO-${Date.now().toString(36).toUpperCase()}`;
-    demoLog.push({ ...p, registered_id, time: new Date().toISOString(), mode: "demo" });
-    return { ok: true, registered_id, mode: "demo" };
-  }
+  if (!API || demo) throw new Error("Approval needs the live API. Offline decisions are not recorded.");
   try {
     const res = await fetch(`${API}/approve`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: writeHeaders(),
       body: JSON.stringify(p),
     });
+    if (res.status === 401) throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+    if (res.status === 409) throw new ApiError("This request already has a decision. Refresh the item.", 409);
     if (!res.ok) throw new Error("Approval rejected");
     const body = await res.json();
     if (body?.ok !== true || typeof body.registered_id !== "string" || !body.registered_id) {
       throw new Error("Approval was not confirmed");
     }
     return body;
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new Error("Could not register the decision. Check the API connection and try again.");
   }
 }
 
-export const getLog = () => call<LogRecord[]>("/log", undefined, () => [...demoLog]);
+export const getLog = () => call<LogRecord[]>("/log", undefined, () => []);
 
 // Health is reported as it is: a failed check never switches the app to demo data.
 export async function getHealth(): Promise<Health> {
@@ -444,13 +480,15 @@ export async function remediate(payload: RemediationPayload): Promise<Remediatio
   try {
     response = await fetch(`${API}/remediate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: writeHeaders(),
       body: JSON.stringify(payload),
     });
   } catch {
     throw new Error("Could not recheck gates. Check the API connection and try again.");
   }
   const body = await response.json().catch(() => null);
+  if (response.status === 401) throw new ApiError("Access code required. Enter it in Admin settings.", 401);
+  if (response.status === 409) throw new ApiError("This request is closed. Refresh the item.", 409);
   if (!response.ok) {
     throw new Error(typeof body?.error === "string" ? body.error : "Could not recheck gates. The simulation needs the live API with /remediate available.");
   }

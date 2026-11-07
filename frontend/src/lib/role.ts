@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Role = "requester" | "approver" | "steward" | "admin";
+export type Role = "requester" | "approver" | "executive" | "admin";
 
 export const ROLES: { id: Role; label: string; hint: string }[] = [
   { id: "requester", label: "Requester", hint: "Ask for a report and get one clear answer" },
   { id: "approver", label: "Approver", hint: "Approve or reject with an owner and review date" },
-  { id: "steward", label: "Steward", hint: "Evidence, citations, spec and gates in full" },
+  { id: "executive", label: "Executive", hint: "See demand, reuse and ownership across requests" },
   { id: "admin", label: "Admin", hint: "Radar, decision log and API health" },
 ];
 
@@ -17,7 +17,7 @@ export const isRole = (v: unknown): v is Role => ROLES.some((r) => r.id === v);
 export function readRole(): Role {
   try {
     const v = localStorage.getItem(ROLE_KEY);
-    return isRole(v) ? v : DEFAULT_ROLE;
+    return v === "steward" ? "admin" : isRole(v) ? v : DEFAULT_ROLE;
   } catch {
     return DEFAULT_ROLE;
   }
@@ -45,7 +45,7 @@ export function useRole(): [Role, (r: Role) => void] {
 export function hasInvalidStoredRole(): boolean {
   try {
     const value = localStorage.getItem(ROLE_KEY);
-    return value !== null && !isRole(value);
+    return value !== null && value !== "steward" && !isRole(value);
   } catch {
     return false;
   }
