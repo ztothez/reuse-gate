@@ -47,7 +47,7 @@ export function ListenButton({ text, large = false }: { text: string; large?: bo
         onClick={listen}
         className={
           large
-            ? "min-h-16 min-w-40 border-2 border-foreground px-8 text-xl font-semibold focus-visible:ring-4 [&_svg]:size-7"
+            ? "min-h-16 min-w-40 disabled:opacity-100 border-2 border-foreground px-8 text-xl font-semibold focus-visible:ring-4 [&_svg]:size-7"
             : undefined
         }
       >

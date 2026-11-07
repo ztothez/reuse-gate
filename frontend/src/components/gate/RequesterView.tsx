@@ -8,7 +8,7 @@ import { ListenButton } from "./ListenButton";
 
 // Glove-friendly controls: at least 64px tall, 20px text, a thick visible focus ring.
 const BIG =
-  "min-h-16 rounded-lg border-2 px-8 text-xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-16 rounded-lg border-2 px-8 text-xl font-semibold focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-100";
 const PRIMARY = `${BIG} border-primary bg-primary text-primary-foreground`;
 const SECONDARY = `${BIG} border-foreground bg-background text-foreground`;
 

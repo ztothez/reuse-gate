@@ -59,6 +59,7 @@ function AssetList({
                   {showReason && <td className="pr-3 text-muted-foreground">{displayText(a.reason || "-")}</td>}
                   <td className="py-1 text-right">
                     <Button
+                      className="min-h-11"
                       size="sm"
                       variant="outline"
                       disabled={queue.has(a.id)}
@@ -129,10 +130,10 @@ export function RadarView() {
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {tiles.map(([k, v]) => (
-          <div key={k} className="rounded-lg border bg-card p-4 shadow-panel">
-            <p className="text-3xl font-semibold tabular-nums">{v}</p>
+          <div key={k} className="min-w-0 rounded-lg border bg-card p-4 shadow-panel">
+            <p className="break-words text-3xl font-semibold tabular-nums">{v}</p>
             <p className="mt-1 text-sm text-muted-foreground">{k}</p>
           </div>
         ))}
@@ -179,7 +180,7 @@ export function RadarView() {
                       <button
                         onClick={() => toggle(c.metric)}
                         aria-expanded={open.has(c.metric)}
-                        className="flex items-center gap-1 rounded py-1 font-medium hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="flex min-h-11 items-center gap-1 rounded py-1 font-medium hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         {open.has(c.metric) ? (
                           <ChevronDown className="h-4 w-4" />
