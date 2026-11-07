@@ -6,8 +6,9 @@ import { ownerSimulation, requestGates } from "@/lib/governance";
 import { ErrorState, Panel } from "./shared";
 import { GateComparison, GateList } from "./GateComparison";
 
-export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy, simulation, simulationCurrent, onChecked, onChecking, disabled = false, recheckBlocked = false, done = false }: {
+export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy, simulation, simulationCurrent, onChecked, onChecking, workItemId, disabled = false, recheckBlocked = false, done = false }: {
   result: RecommendResult;
+  workItemId?: string | undefined;
   owner: string;
   selection: Owner | null;
   onSelect: (owner: Owner | null) => void;
@@ -52,7 +53,7 @@ export function ApprovalReadiness({ result, owner, selection, onSelect, reviewBy
     onChecking(true);
     setError(null);
     try {
-      const response = await remediate(ownerSimulation(result, selection.owner_id, reviewBy));
+      const response = await remediate(ownerSimulation(result, selection.owner_id, reviewBy, workItemId));
       onChecked(response);
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : "Could not recheck gates. Try again.");

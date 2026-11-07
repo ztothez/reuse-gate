@@ -7,7 +7,7 @@ export function GateList({ gates }: { gates: GateSnapshot }) {
   if (gates.passed === null) return <p className="text-sm">No spec gates apply to this decision.</p>;
   return (
     <div className="min-w-0 space-y-3">
-      <p className="text-sm font-semibold">{gates.gates.filter((gate) => gate.passed).length} of {gates.gates.length} gates passing</p>
+      <p className="text-sm font-semibold">{gates.passing ?? gates.gates.filter((gate) => gate.passed).length} of {gates.total ?? gates.gates.length} gates passing</p>
       <ul className="space-y-2 text-sm">
         {gates.gates.map((gate) => (
           <li key={gate.gate} className="rounded-md bg-muted p-3">
@@ -26,7 +26,7 @@ export function GateList({ gates }: { gates: GateSnapshot }) {
 export function GateComparison({ simulation }: { simulation: RemediationResult }) {
   return (
     <section aria-label="Simulation record" className="min-w-0 space-y-5">
-      <p className="tone-blue rounded-md border p-4 text-sm font-semibold">{SIMULATION_NOTICE}</p>
+      <p className="tone-blue rounded-md border p-4 text-sm font-semibold"><span className="mb-1 block">Simulated, not applied</span>{SIMULATION_NOTICE}</p>
       <ul className="space-y-2 text-sm">
         {simulation.remediations.map((assignment) => (
           <li key={assignment.target} className="break-words">

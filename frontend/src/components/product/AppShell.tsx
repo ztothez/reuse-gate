@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
       {offline && <div role="note" className="border-b bg-secondary px-4 py-3 text-sm sm:px-8"><strong>Offline demo data.</strong> Samples and local requests are not saved on the server. Approvals and simulations need the live API.</div>}
       {(invalid || cacheNotice) && <div role="status" className="border-b px-4 py-3 text-sm">{invalid ? "Invalid saved lens was ignored." : cacheNotice}<button className="control ml-3" onClick={() => { resetWorkCache(); setCacheNotice(null); setRole("requester"); setInvalid(false); itemsChanged(); }}>Reset saved data</button></div>}
-      <main id="main-content" className="min-w-0 px-4 py-8 sm:px-8">{children}</main>
+      <main data-lens={role} id="main-content" className="min-w-0 px-4 py-8 sm:px-8">{children}</main>
     </div>
   </div>;
 }

@@ -12,6 +12,10 @@ describe("product shell", () => {
     expect(screen.getByRole("note")).toHaveTextContent("Offline demo data");
     expect(screen.getByRole("navigation")).toBeInTheDocument();
   });
+  it("opens the creation form from a deep link query", async () => {
+    await renderProduct("/requests?create=1");
+    expect(await screen.findByLabelText("What report do you need?")).toBeInTheDocument();
+  });
   it.each(Object.entries(STATUS))("labels %s with text and an icon", (status, meta) => {
     const { container } = render(<StatusBadge status={status as keyof typeof STATUS} />);
     expect(screen.getByText(meta.label)).toBeInTheDocument();

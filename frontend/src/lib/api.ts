@@ -1,5 +1,5 @@
 import mock from "@/data/mock_api.json";
-import { itemRow, localItems } from "./work-item-cache";
+import { itemRow, localItems, saveLocalItem } from "./work-item-cache";
 
 export type Action =
   | "reuse"
@@ -146,6 +146,12 @@ export interface OwnerAssignment {
   owner_id: string;
 }
 export interface GateSnapshot {
+  owner?: string | null;
+  as_of?: string;
+  passing?: number;
+  total?: number;
+  failing?: string[];
+  reason?: string | null;
   passed: boolean | null;
   gates: GateResult["gates"];
 }
@@ -308,13 +314,13 @@ export const getRequests = (filters: RequestFilters = {}) => {
   const query = new URLSearchParams();
   if (filters.status) query.set("status", filters.status);
   if (filters.q) query.set("q", filters.q);
-  return call<WorkItemRow[]>(`/requests${query.size ? `?${query}` : ""}`, undefined, () => localItems().map(itemRow).filter((row) => (!filters.status || row.status === filters.status) && (!filters.q || `${row.text} ${row.request_id} ${row.target_name ?? ""}`.toLowerCase().includes(filters.q.toLowerCase()))).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 200));
+  return call<WorkItemRow[]>(`/requests${query.size ? `?${query}` : ""}`, undefined, () => localItems().map(itemRow).filter((row) => (!filters.status || row.status === filters.status) && (!filters.q || `${row.text} ${row.request_id} ${row.target_name ?? ""}`.toLowerCase().includes(filters.q.toLowerCase()))).sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 200), true);
 };
-export const getRequest = (id: string) => call<WorkItem>(`/requests/${encodeURIComponent(id)}`, undefined, () => {
+export const getRequest = (id: string) => id.startsWith("LOCAL-") ? Promise.resolve(localItems().find((item) => item.request_id === id) ?? null).then((item) => { if (!item) throw new Error("Local draft not found."); return item; }) : call<WorkItem>(`/requests/${encodeURIComponent(id)}`, undefined, () => {
   const item = localItems().find((candidate) => candidate.request_id === id);
   if (!item) throw new Error("Request not found in offline data. Connect to the API or open a sample.");
   return item;
-});
+}, true);
 export interface Health {
   status: "live" | "down" | "demo";
   assets?: number | undefined;
@@ -333,14 +339,10 @@ export const onDemoChange = (fn: (d: boolean) => void) => {
     listeners.delete(fn);
   };
 };
-const setDemo = () => {
-  if (!demo) {
-    demo = true;
-    listeners.forEach((l) => l(true));
-  }
-};
+const setMode = (next: boolean) => { if (demo !== next) { demo = next; listeners.forEach((listener) => listener(next)); } };
+const setDemo = () => setMode(true);
 
-async function call<T>(path: string, init: RequestInit | undefined, fallback: () => T): Promise<T> {
+async function call<T>(path: string, init: RequestInit | undefined, fallback: () => T, workResource = false): Promise<T> {
   if (API) {
     let rejected = "";
     try {
@@ -351,7 +353,7 @@ async function call<T>(path: string, init: RequestInit | undefined, fallback: ()
       if (res.status >= 400 && res.status < 500)
         rejected = `The API rejected the request (${res.status}).`;
       else if (!res.ok) throw new Error(String(res.status));
-      else return (await res.json()) as T;
+      else { const body = (await res.json()) as T; if (workResource) setMode(false); return body; }
     } catch {
       setDemo();
     }
@@ -496,4 +498,35 @@ export async function remediate(payload: RemediationPayload): Promise<Remediatio
     throw new Error("The API did not confirm a simulated gate check. Try again.");
   }
   return body as RemediationResult;
+}
+
+export interface SaveRequestPayload { text?: string; answers?: Answer[]; rounds?: LoopRound[]; request_id?: string; requester?: string; }
+export interface SaveRequestResponse { request_id: string; status: WorkStatus; result: RecommendResult; }
+export async function saveRequest(payload: SaveRequestPayload): Promise<SaveRequestResponse> {
+  if (API) {
+    let response: Response | null = null;
+    try { response = await fetch(`${API}/requests`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, ...(payload.request_id?.startsWith("LOCAL-") ? { request_id: undefined } : {}) }) }); }
+    catch { setDemo(); }
+    if (response) {
+      if (response.status === 409) throw new ApiError("This request already has a decision. Refresh the item.", 409);
+      if (!response.ok) throw new ApiError(response.status === 404 ? "Request not found on the server." : "The request could not be saved. Check the text and try again.", response.status);
+      const body = await response.json();
+      if (typeof body?.request_id !== "string" || !body.result || typeof body.result.text !== "string") throw new Error("The API did not return a saved request.");
+      setMode(false);
+      return body as SaveRequestResponse;
+    }
+  }
+  const prior = localItems().find((item) => item.request_id === payload.request_id);
+  const text = payload.text ?? prior?.text ?? "";
+  if (!text.trim()) throw new Error("Describe the report you need before saving.");
+  const id = prior?.local_only ? prior.request_id : `LOCAL-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const sample = prior ?? localItems().find((item) => item.text.toLowerCase() === text.toLowerCase());
+  const now = new Date().toISOString();
+  const result: RecommendResult = sample ? { ...sample.result, request_id: id, text, answers: payload.answers ?? sample.result.answers ?? [] } : {
+    request_id: id, text, intent: { products: [], market: "", kpis: [], kind: "new_report", clarifications: [], questions: [] },
+    recommendation: { action: "human_review", target: null, build_on: null, retire: [], repair: [], rationale: ["This local draft has not been analysed. Connect to the live API to check existing reports."], evidence: [] }, answers: payload.answers ?? [],
+  };
+  const item: WorkItem = { request_id: id, text, status: sample?.status ?? "human_review", created: prior?.created ?? now, updated: now, origin: sample?.origin ?? "user", requester: payload.requester ?? prior?.requester ?? null, result, rounds: payload.rounds ?? prior?.rounds ?? [], remediation: null, decision: null, activity: [...(prior?.activity ?? []), { time: now, actor: payload.requester ?? "Local user", event: prior ? "rechecked" : "created", detail: "Draft saved locally only. No live analysis or decision was performed." }], local_only: true };
+  saveLocalItem(item);
+  return { request_id: id, status: item.status, result };
 }

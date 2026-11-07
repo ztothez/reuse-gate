@@ -255,3 +255,7 @@ button:disabled { cursor: not-allowed; }
 .request-link { display: inline-flex; align-items: center; min-height: 4rem; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 @media (min-width: 768px) { .app-shell { grid-template-columns: 14rem minmax(0,1fr); } .app-shell.nav-collapsed { grid-template-columns: 5.5rem minmax(0,1fr); } .app-nav { display: block; } .app-topbar { padding: 1rem 2rem; } }
 @media (min-width: 1280px) { .app-topbar { grid-template-columns: minmax(12rem,1fr) auto; align-items: center; } .app-topbar > :last-child { grid-column: 1 / -1; } }
+[data-lens="requester"] :is(button, input, select, textarea, a[href], summary) { min-height: 4rem; min-width: 4rem; }
+@media (min-width: 768px) { .app-shell.nav-collapsed { grid-template-columns: 6.5rem minmax(0,1fr); } }
+
+@media (min-width: 768px) { .app-topbar button[aria-label="Toggle navigation"] { display: none; } }
