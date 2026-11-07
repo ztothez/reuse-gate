@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { useState } from "react";
 import type { Answer } from "@/lib/api";
 import { plainAnswer } from "@/lib/summaries";
@@ -30,15 +31,15 @@ export function RequesterView({ state }: { state: RequestState }) {
         : question
           ? questions.length > 1
             ? `Question ${collected.length + 1} of ${questions.length}: ${question.phrased ?? question.text}`
-            : `One question first: ${question.phrased ?? question.text}`
-          : plainAnswer(result);
+            : question.phrased ?? question.text
+          : displayText(plainAnswer(result));
 
-  async function send() {
-    if (busy || !value.trim()) return;
+  async function send(confirmedAnswer?: string) {
+    if (busy || !(confirmedAnswer ?? value).trim()) return;
     if (question) {
       const all = [
         ...collected,
-        { field: question.field, question: question.text, answer: answer.trim() },
+        { field: question.field, question: question.text, answer: (confirmedAnswer ?? answer).trim() },
       ];
       setAnswer("");
       if (all.length < questions.length) return setCollected(all);
@@ -54,6 +55,7 @@ export function RequesterView({ state }: { state: RequestState }) {
       {state.outdated && <p role="alert">Outdated result. Check the edited request again.</p>}
       {/* 1. The answer, in one sentence */}
       <section aria-label="Answer" className="rounded-lg border-2 border-foreground bg-card p-6">
+        {question && <h2 className="mb-3 text-xl font-semibold">Please confirm</h2>}
         <p
           aria-live="polite"
           role={error ? "alert" : undefined}
@@ -105,6 +107,7 @@ export function RequesterView({ state }: { state: RequestState }) {
         <label htmlFor="requester-box" className="block text-xl font-semibold">
           {question ? "Your answer" : "What report do you need?"}
         </label>
+        <div className="flex flex-col items-stretch gap-3 sm:flex-row">
         <textarea
           id="requester-box"
           aria-describedby="requester-hint"
@@ -120,10 +123,14 @@ export function RequesterView({ state }: { state: RequestState }) {
           className="block min-h-32 w-full rounded-lg border-2 border-foreground bg-background p-4 text-xl text-foreground placeholder:text-foreground/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring"
           placeholder={
             question
-              ? "Type or dictate your answer"
+              ? "Type your answer"
               : "For example: Xarelto net sales by country, monthly"
           }
         />
+        {question && (question.field.toLowerCase() === "market" || /market/i.test(question.text)) && (
+          <button type="button" className={`${PRIMARY} shrink-0 sm:max-w-52`} disabled={busy} onClick={() => void send("Global")}>Yes, use Global</button>
+        )}
+        </div>
         <p id="requester-hint" className="text-xl">
           Press Enter to send.
         </p>

@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { Button } from "@/components/ui/button";
 import type { RecommendResult } from "@/lib/api";
 import { evidenceSummary } from "@/lib/summaries";
@@ -28,7 +29,7 @@ function Decision({ result }: { result: RecommendResult }) {
             )}
           </p>
         )}
-        {rec.rationale[0] && <p className="mt-2 text-sm opacity-90">{rec.rationale[0]}</p>}
+        {rec.rationale[0] && <p className="mt-2 text-sm opacity-90">{displayText(rec.rationale[0])}</p>}
       </div>
     </div>
   );

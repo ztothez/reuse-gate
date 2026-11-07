@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { useState } from "react";
 import { HelpCircle, Layers, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,7 @@ function AssetTable({ rows: all }: { rows: Asset[] }) {
               </td>
               <td className="pr-3 tabular-nums">{a.views_3m ?? "-"}</td>
               <td className="pr-3">{a.owner ?? "Unowned"}</td>
-              <td className="text-xs text-muted-foreground">{a.reason}</td>
+              <td className="text-xs text-muted-foreground">{displayText(a.reason ?? "")}</td>
             </tr>
           ))}
         </tbody>
@@ -186,7 +187,7 @@ export function ResultView({
             Recommendation
           </p>
           <p className="text-2xl font-semibold">{meta.label}</p>
-          <p className="mt-1 text-sm opacity-90">{rec.rationale.join("; ")}</p>
+          <p className="mt-1 text-sm opacity-90">{displayText(rec.rationale.join("; "))}</p>
         </div>
       </div>
 
@@ -197,7 +198,7 @@ export function ResultView({
         >
           <ul className="list-disc space-y-1 pl-5 text-sm">
             {result.ai.explanation.map((line) => (
-              <li key={line}>{line}</li>
+              <li key={line}>{displayText(line)}</li>
             ))}
           </ul>
           {result.ai.speech && <ListenButton key={result.ai.speech} text={result.ai.speech} />}
@@ -291,7 +292,7 @@ export function ResultView({
       {rec.retire.length > 0 && (
         <Panel
           title="Retire"
-          caption={`Low usage, not certified, and a duplicate of the target${rec.retire_note ? `: ${rec.retire_note}` : ""}. All are cited under Evidence.`}
+          caption={`Low usage, not certified, and a duplicate of the target${rec.retire_note ? `: ${displayText(rec.retire_note)}` : ""}. All are cited under Evidence.`}
         >
           <AssetTable rows={rec.retire} />
         </Panel>
@@ -299,7 +300,7 @@ export function ResultView({
       {(rec.consolidate_later?.length ?? 0) > 0 && (
         <Panel
           title="Consolidate later"
-          caption={`Overlapping assets that still have users or are certified: ${rec.consolidate_note}. All are cited under Evidence.`}
+          caption={`Overlapping assets that still have users or are certified: ${displayText(rec.consolidate_note ?? "")}. All are cited under Evidence.`}
         >
           <AssetTable rows={rec.consolidate_later!} />
         </Panel>
@@ -309,7 +310,7 @@ export function ResultView({
           <ul className="divide-y text-sm">
             {rec.repair.map((r, i) => (
               <li key={i} className="py-2">
-                {typeof r === "string" ? r : `${r.id} · ${r.name}`}
+                {typeof r === "string" ? displayText(r) : `${r.id} · ${r.name}`}
               </li>
             ))}
           </ul>
@@ -319,7 +320,7 @@ export function ResultView({
       <Panel title="Why">
         <ul className="list-disc space-y-1 pl-5 text-sm">
           {rec.rationale.map((r) => (
-            <li key={r}>{r}</li>
+            <li key={r}>{displayText(r)}</li>
           ))}
         </ul>
       </Panel>

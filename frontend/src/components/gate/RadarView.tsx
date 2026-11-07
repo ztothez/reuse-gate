@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { Fragment, useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ function AssetList({
                     <Endorsement value={a.endorsement} />
                   </td>
                   <td className="pr-3">{a.status.replace(/_/g, " ")}</td>
-                  {showReason && <td className="pr-3 text-muted-foreground">{a.reason || "-"}</td>}
+                  {showReason && <td className="pr-3 text-muted-foreground">{displayText(a.reason || "-")}</td>}
                   <td className="py-1 text-right">
                     <Button
                       size="sm"
