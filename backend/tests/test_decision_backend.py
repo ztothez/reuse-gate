@@ -193,6 +193,19 @@ class DecisionBackendTest(unittest.TestCase):
                 with urllib.request.urlopen(f"http://127.0.0.1:{api.server_address[1]}{path}", timeout=10) as resp:
                     body = json.load(resp)
                 self.assertEqual((resp.status, body["ok"], body["decision_backend"], body["kserve"]["reachable"]), (200, True, "kserve", True))
+                self.assertTrue(body["estate_snapshot"].startswith("sha256:"))
+                self.assertEqual(set(body["providers"]), {"intent", "explanation", "speech", "transcription"})
+
+    def test_health_reports_providers_without_calling_them(self):
+        with patch.dict(os.environ, {"REUSE_GATE_LLM_TIERS": "together,featherless", "TOGETHER_API_KEY": "fake"}, clear=True):
+            self.assertEqual(server.providers(), {"providers": {"intent": "configured", "explanation": "configured", "speech": "not_configured",
+                                                                "transcription": "not_configured"}, "llm_tiers": ["together"]})
+            self.assertNotIn("fake", json.dumps(server.providers()), "never a key")
+        with patch.dict(os.environ, {"LLM_MODE": "rules", "TOGETHER_API_KEY": "fake", "ELEVENLABS_API_KEY": "fake"}, clear=True):
+            self.assertEqual(server.providers(), {"providers": {"intent": "off", "explanation": "off", "speech": "configured",
+                                                                "transcription": "configured"}, "llm_tiers": []})
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(server.providers()["providers"]["intent"], "not_configured")
 
 
 if __name__ == "__main__":

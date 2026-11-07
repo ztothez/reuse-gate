@@ -140,6 +140,10 @@ class WorkItemTest(Api):
         self.assertEqual(entry["record"]["recommendation"]["action"], "new_build")
         self.assertEqual(self.call("/approve", {"request_id": rid, "decision": "reject", "approver": "A", "owner": "B"})[0], 409)
         self.assertEqual(self.call("/requests", {"request_id": rid, "answers": []})[0], 409)
+        code, closed = self.call("/remediate", {"request_id": rid, "remediations": [FIX]})
+        self.assertEqual((code, closed["error"]), (409, f"{rid} is already approved"))
+        _, one = self.call(f"/requests/{rid}")
+        self.assertEqual(one["activity"][-1]["event"], "approved", "a closed item gets no new simulation")
 
     def test_reject_sets_rejected(self):
         _, made = self.call("/requests", {"text": "Create a Nubeqa net sales dashboard for Germany."})

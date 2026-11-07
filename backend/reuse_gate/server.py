@@ -21,7 +21,8 @@ State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.
 startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
 With REUSE_GATE_WRITE_TOKEN set, POST /approve and /remediate need a matching X-Access-Code header. Creating, re-checking and
 answering a work item through /requests stay open, so a requester can answer questions without a code; they are rate limited.
-GET  /health, /healthz                                 -> ok, the decision backend in use and whether reuse-gate-kserve answers
+GET  /health, /healthz                                 -> ok, the estate snapshot, the decision backend in use, whether
+                                                          reuse-gate-kserve answers, and which model tiers have a key
 GET  /n8n/radar-digest
 POST /radar-ping                                       -> same digest with no key, for a Knative PingSource. Read-only, ignores the body
 POST /n8n/approval
@@ -39,11 +40,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
-from reuse_gate.llm import live_client, load_env
+from reuse_gate.llm import live_client, load_env, tier_config, tier_names
 from reuse_gate.pipeline import run_request
 from reuse_gate import decision, security, workitems
 from reuse_gate.answers import AnswerStore
-from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
+from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate, snapshot_id
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import SpeechError, speak
@@ -59,6 +60,16 @@ WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
 MAX_BODY = 1_000_000
 STORE = workitems.Store()  # replaced at startup by a store next to the decision log
 LIMITER = security.RateLimiter()  # enabled at startup; off in tests unless a test turns it on
+
+
+def providers():
+    """For /health: whether each model capability has a key (configured), is turned off, or has none. No provider is called,
+    so configured never claims the provider answers; each result says which tier did."""
+    rules = os.environ.get("LLM_MODE") == "rules"
+    tiers = [] if rules else [name for name in tier_names() if tier_config(name)]
+    llm = "off" if rules else "configured" if tiers else "not_configured"
+    voice = "configured" if os.environ.get("ELEVENLABS_API_KEY") else "not_configured"
+    return {"providers": {"intent": llm, "explanation": llm, "speech": voice, "transcription": voice}, "llm_tiers": tiers}
 
 
 def do_recommend(text, answers=None, rounds=None):
@@ -249,7 +260,7 @@ class Handler(BaseHTTPRequestHandler):
             item = STORE.get(url.path[len("/requests/"):])
             return self._send(200, workitems.detail(item)) if item else self._send(404, {"error": "no such request"})
         if self.path in ("/health", "/healthz"):  # always 200 while the process serves, so probes never fail on KServe
-            self._send(200, {"ok": True, "assets": len(EST.assets), **decision.health()})
+            self._send(200, {"ok": True, "assets": len(EST.assets), "estate_snapshot": snapshot_id(EST), **decision.health(), **providers()})
         elif self.path == "/radar":
             self._send(200, radar(EST))
         elif self.path == "/evaluation":
@@ -329,6 +340,8 @@ class Handler(BaseHTTPRequestHandler):
                 if not write_authorized(self):
                     return self._send(401, {"error": "access code required"})
                 item, context = with_item(body)
+                if item and item["status"] in ("approved", "rejected"):
+                    return self._send(409, {"error": f"{item['request_id']} is already {item['status']}"})
                 try:
                     response = simulate(EST, context)
                 except RemediationError as exc:
