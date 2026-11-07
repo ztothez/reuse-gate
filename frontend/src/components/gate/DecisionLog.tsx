@@ -25,7 +25,7 @@ export function DecisionLog() {
             ["Decisions made", log.length],
             ["New builds avoided", newBuildsAvoided(log)],
           ].map(([k, v]) => (
-            <div key={k} className="min-w-40 rounded-lg border bg-card p-4 shadow-panel">
+            <div key={k} className="min-w-0 rounded-lg border bg-card p-4 shadow-panel">
               <p className="text-3xl font-semibold tabular-nums">{v}</p>
               <p className="mt-1 text-sm text-muted-foreground">{k}</p>
             </div>
@@ -81,7 +81,7 @@ export function DecisionLog() {
                     </td>
                     <td className="pr-3 font-mono text-xs">{e.target}</td>
                     <td className="pr-3 font-medium">
-                      {e.decision === "approve" ? "Approved" : "Rejected"}
+                      {e.decision === "approve" ? "Approved" : "Rejected"}{e.mode === "demo" ? " (demo)" : ""}
                     </td>
                     <td className="pr-3">{e.approver}</td>
                     <td className="pr-3">{e.owner}</td>

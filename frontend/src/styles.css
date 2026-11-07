@@ -91,7 +91,7 @@
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: oklch(0.45 0.04 257.417);
   --accent: oklch(0.968 0.007 247.896);
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
@@ -217,4 +217,18 @@
   color: var(--t);
   background: color-mix(in oklab, var(--t) 8%, white);
   border-color: color-mix(in oklab, var(--t) 35%, white);
+}
+
+/* Keep wide data inside its own scrolling region. */
+main, main > *, section { min-width: 0; }
+.overflow-x-auto { max-width: 100%; }
+[data-slot="tabs-trigger"] { color: var(--foreground); }
+
+/* Isolate the intrinsic width of wide tables from the document. */
+.overflow-x-auto { contain: inline-size layout; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

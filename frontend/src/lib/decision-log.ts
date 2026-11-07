@@ -3,6 +3,7 @@ import { getLog, type Action, type LogRecord } from "./api";
 
 // A decision as the Admin view shows it. Older API rows carry no text, action or target.
 export interface LogEntry {
+  mode?: "demo";
   id: string;
   time: string;
   text: string;
@@ -15,6 +16,7 @@ export interface LogEntry {
 }
 
 export const toEntry = (r: LogRecord): LogEntry => ({
+  ...(r.mode === "demo" ? { mode: "demo" as const } : {}),
   id: r.registered_id,
   time: r.time,
   text: r.text ?? r.request_id,

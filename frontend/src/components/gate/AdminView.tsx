@@ -44,7 +44,7 @@ export function HealthIndicator() {
           ? `Health (GET /health): ${HEALTH_TEXT[health.status](health)}`
           : "Checking API health..."}
       </p>
-      <Button variant="outline" size="sm" onClick={check} disabled={checking}>
+      <Button variant="outline" size="sm" className="min-h-11" onClick={check} disabled={checking}>
         {checking ? <Loader2 className="animate-spin" /> : <RefreshCw />} Check again
       </Button>
     </div>
@@ -56,9 +56,9 @@ export function AdminView() {
     <div className="space-y-6">
       <HealthIndicator />
       <Tabs defaultValue="log">
-        <TabsList>
-          <TabsTrigger value="log">Decision log</TabsTrigger>
-          <TabsTrigger value="radar">Radar</TabsTrigger>
+        <TabsList className="h-auto">
+          <TabsTrigger className="min-h-11 text-foreground" value="log">Decision log</TabsTrigger>
+          <TabsTrigger className="min-h-11 text-foreground" value="radar">Radar</TabsTrigger>
         </TabsList>
         <TabsContent value="log" className="mt-6">
           <DecisionLog />

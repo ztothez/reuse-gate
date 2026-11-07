@@ -116,7 +116,7 @@ describe("requester view", () => {
     api.recommend.mockResolvedValueOnce(withQuestion).mockResolvedValueOnce(withTarget);
     render(<Harness />);
     await ask();
-    expect(await screen.findByText(`One question first: ${QUESTION}`)).toBeInTheDocument();
+    expect(await screen.findByText(QUESTION)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Use this" })).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Your answer"), { target: { value: "Germany" } });
     fireEvent.keyDown(screen.getByLabelText("Your answer"), { key: "Enter" });
@@ -125,6 +125,19 @@ describe("requester view", () => {
       { field: "market", question: QUESTION, answer: "Germany" },
     ]);
     expect(await screen.findByRole("button", { name: "Use this" })).toBeInTheDocument();
+  });
+
+  it("confirms Global with the API question and recorded rounds", async () => {
+    api.recommend.mockResolvedValueOnce(withQuestion).mockResolvedValueOnce(withTarget);
+    render(<Harness />);
+    await ask();
+    expect(await screen.findByRole("heading", { name: "Please confirm" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Type your answer")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Yes, use Global" }));
+    await waitFor(() => expect(api.recommend).toHaveBeenCalledTimes(2));
+    expect(api.recommend.mock.calls[1]![1]).toEqual([
+      { field: "market", question: QUESTION, answer: "Global" },
+    ]);
   });
 
   it("explains a failure in the answer sentence", async () => {

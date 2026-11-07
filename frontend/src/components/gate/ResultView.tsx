@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { useState } from "react";
 import { HelpCircle, Layers, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,7 @@ function AssetTable({ rows: all }: { rows: Asset[] }) {
               </td>
               <td className="pr-3 tabular-nums">{a.views_3m ?? "-"}</td>
               <td className="pr-3">{a.owner ?? "Unowned"}</td>
-              <td className="text-xs text-muted-foreground">{a.reason}</td>
+              <td className="text-xs text-muted-foreground">{displayText(a.reason ?? "")}</td>
             </tr>
           ))}
         </tbody>
@@ -61,12 +62,14 @@ export function ResultView({
   result,
   onAnswers,
   rechecking,
+  outdated,
   decided,
   onDecided,
 }: {
   result: RecommendResult;
   onAnswers?: (answers: Answer[]) => void;
   rechecking?: boolean;
+  outdated?: boolean | undefined;
   decided?: Decided | null | undefined;
   onDecided?: ((d: Decided) => void) | undefined;
 }) {
@@ -81,7 +84,7 @@ export function ResultView({
   const gates = localGates ?? decided?.gates ?? null;
   const questions: Question[] =
     intent.questions ?? intent.clarifications.map((text) => ({ text, field: "model" }));
-  const blocked = questions.length > 0;
+  const blocked = questions.length > 0 || !!outdated;
   const filled = questions.flatMap((q, i) => {
     const answer = answers[i]?.trim();
     return answer ? [{ field: q.field, question: q.text, answer }] : [];
@@ -89,6 +92,18 @@ export function ResultView({
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className={`${meta.tone} flex items-start gap-4 rounded-lg border p-6 sm:p-8`} role="status">
+        <Icon className="h-12 w-12 shrink-0" aria-hidden />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Recommendation
+          </p>
+          <p className="text-3xl font-semibold">{meta.label}</p>
+          {rec.target && <p className="mt-3 text-2xl font-semibold">{rec.target.name}</p>}
+          <p className="mt-4 text-base text-foreground">{displayText(rec.rationale.join("; "))}</p>
+        </div>
+      </div>
+
       {result.ai?.source && (
         <p
           role="note"
@@ -177,16 +192,7 @@ export function ResultView({
         )}
       </Panel>
 
-      <div className={`${meta.tone} flex items-start gap-4 rounded-lg border-2 p-6`} role="status">
-        <Icon className="h-10 w-10 shrink-0" aria-hidden />
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
-            Recommendation
-          </p>
-          <p className="text-2xl font-semibold">{meta.label}</p>
-          <p className="mt-1 text-sm opacity-90">{rec.rationale.join("; ")}</p>
-        </div>
-      </div>
+
 
       {result.ai?.explanation && (
         <Panel
@@ -195,7 +201,7 @@ export function ResultView({
         >
           <ul className="list-disc space-y-1 pl-5 text-sm">
             {result.ai.explanation.map((line) => (
-              <li key={line}>{line}</li>
+              <li key={line}>{displayText(line)}</li>
             ))}
           </ul>
           {result.ai.speech && <ListenButton key={result.ai.speech} text={result.ai.speech} />}
@@ -289,7 +295,7 @@ export function ResultView({
       {rec.retire.length > 0 && (
         <Panel
           title="Retire"
-          caption={`Low usage, not certified, and a duplicate of the target${rec.retire_note ? `: ${rec.retire_note}` : ""}. All are cited under Evidence.`}
+          caption={`Low usage, not certified, and a duplicate of the target${rec.retire_note ? `: ${displayText(rec.retire_note)}` : ""}. All are cited under Evidence.`}
         >
           <AssetTable rows={rec.retire} />
         </Panel>
@@ -297,7 +303,7 @@ export function ResultView({
       {(rec.consolidate_later?.length ?? 0) > 0 && (
         <Panel
           title="Consolidate later"
-          caption={`Overlapping assets that still have users or are certified: ${rec.consolidate_note}. All are cited under Evidence.`}
+          caption={`Overlapping assets that still have users or are certified: ${displayText(rec.consolidate_note ?? "")}. All are cited under Evidence.`}
         >
           <AssetTable rows={rec.consolidate_later!} />
         </Panel>
@@ -307,7 +313,7 @@ export function ResultView({
           <ul className="divide-y text-sm">
             {rec.repair.map((r, i) => (
               <li key={i} className="py-2">
-                {typeof r === "string" ? r : `${r.id} · ${r.name}`}
+                {typeof r === "string" ? displayText(r) : `${r.id} · ${r.name}`}
               </li>
             ))}
           </ul>
@@ -317,7 +323,7 @@ export function ResultView({
       <Panel title="Why">
         <ul className="list-disc space-y-1 pl-5 text-sm">
           {rec.rationale.map((r) => (
-            <li key={r}>{r}</li>
+            <li key={r}>{displayText(r)}</li>
           ))}
         </ul>
       </Panel>

@@ -42,7 +42,7 @@ export function RequestForm({ state }: { state: RequestState }) {
               key={ex}
               type="button"
               onClick={() => setText(ex)}
-              className="max-w-full truncate rounded-full border bg-secondary px-3 py-1 text-left text-xs text-secondary-foreground hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-h-11 max-w-full whitespace-normal break-words rounded-lg border bg-secondary px-3 py-1 text-left text-xs text-secondary-foreground hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {ex}
             </button>

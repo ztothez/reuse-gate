@@ -12,7 +12,7 @@ export const ROLES: { id: Role; label: string; hint: string }[] = [
 export const ROLE_KEY = "reuse-gate-role";
 export const DEFAULT_ROLE: Role = "requester";
 
-const isRole = (v: unknown): v is Role => ROLES.some((r) => r.id === v);
+export const isRole = (v: unknown): v is Role => ROLES.some((r) => r.id === v);
 
 export function readRole(): Role {
   try {
@@ -40,4 +40,13 @@ export function useRole(): [Role, (r: Role) => void] {
     setRoleState(r);
   }, []);
   return [role, setRole];
+}
+
+export function hasInvalidStoredRole(): boolean {
+  try {
+    const value = localStorage.getItem(ROLE_KEY);
+    return value !== null && !isRole(value);
+  } catch {
+    return false;
+  }
 }

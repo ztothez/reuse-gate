@@ -10,6 +10,7 @@ import {
 
 // What the approver registered for the current result, kept so every role sees the same outcome.
 export interface Decided {
+  mode?: "demo" | undefined;
   id: string;
   decision: "approve" | "reject";
   owner: string;
@@ -19,6 +20,7 @@ export interface Decided {
 }
 
 export interface RequestState {
+  outdated?: boolean;
   text: string;
   setText: (t: string) => void;
   loading: boolean;
@@ -40,6 +42,7 @@ export const openQuestions = (r: RecommendResult): Question[] =>
 
 export function useRequestState(): RequestState {
   const [text, setText] = useState("");
+  const [submittedText, setSubmittedText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResultState] = useState<RecommendResult | null>(null);
@@ -59,7 +62,9 @@ export function useRequestState(): RequestState {
     setError(null);
     setResult(null);
     try {
-      setResult(await recommend(text));
+      const next = await recommend(text);
+      setSubmittedText(text);
+      setResult(next);
     } catch {
       setError("Could not get a recommendation. Please try again.");
     } finally {
@@ -80,6 +85,7 @@ export function useRequestState(): RequestState {
           result.loop?.rounds,
         );
         setResult(next);
+        setSubmittedText(next.text);
         setText(next.text);
       } catch {
         setError("Could not apply your answers. Please try again.");
@@ -97,6 +103,7 @@ export function useRequestState(): RequestState {
   }, [setResult]);
 
   return {
+    outdated: result !== null && text !== submittedText,
     text,
     setText,
     loading,

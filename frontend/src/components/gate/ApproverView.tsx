@@ -1,3 +1,4 @@
+import { displayText } from "@/lib/display-text";
 import { Button } from "@/components/ui/button";
 import type { RecommendResult } from "@/lib/api";
 import { evidenceSummary } from "@/lib/summaries";
@@ -11,15 +12,15 @@ function Decision({ result }: { result: RecommendResult }) {
   const meta = ACTIONS[rec.action] ?? ACTIONS.human_review;
   const Icon = meta.icon;
   return (
-    <div className={`${meta.tone} flex items-start gap-4 rounded-lg border-2 p-6`} role="status">
-      <Icon className="h-10 w-10 shrink-0" aria-hidden />
+    <div className={`${meta.tone} flex items-start gap-4 rounded-lg border p-6 sm:p-8`} role="status">
+      <Icon className="h-12 w-12 shrink-0" aria-hidden />
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wider opacity-80">
           Decision to approve
         </p>
-        <p className="text-2xl font-semibold">{meta.label}</p>
+        <p className="text-3xl font-semibold">{meta.label}</p>
         {(rec.target || rec.build_on) && (
-          <p className="mt-1 text-lg font-medium">
+          <p className="mt-3 text-2xl font-semibold">
             {rec.target ? rec.target.name : `Build on semantic model ${rec.build_on}`}
             {rec.target && (
               <span className="ml-2 align-middle">
@@ -28,7 +29,7 @@ function Decision({ result }: { result: RecommendResult }) {
             )}
           </p>
         )}
-        {rec.rationale[0] && <p className="mt-2 text-sm opacity-90">{rec.rationale[0]}</p>}
+        {rec.rationale[0] && <p className="mt-4 text-base text-foreground">{displayText(rec.rationale[0])}</p>}
       </div>
     </div>
   );
@@ -57,6 +58,7 @@ export function ApproverView({ state }: { state: RequestState }) {
               New request
             </Button>
           </div>
+          {state.outdated && <ErrorState>Outdated result. Resubmit the edited request before approving.</ErrorState>}
           <Decision result={result} />
           {state.accepted && result.recommendation.target && (
             <p role="note" className="tone-blue rounded-md border px-4 py-3 text-sm font-medium">
@@ -105,7 +107,7 @@ export function ApproverView({ state }: { state: RequestState }) {
           <ApprovalPanel
             key={result.request_id + result.text}
             result={result}
-            blocked={questions.length > 0}
+            blocked={questions.length > 0 || !!state.outdated}
             decided={state.decided}
             onDecided={state.setDecided}
           />

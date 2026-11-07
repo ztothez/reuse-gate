@@ -43,9 +43,13 @@ export function ApprovalPanel({
   const [error, setError] = useState<string | null>(null);
   const [localDone, setLocalDone] = useState<Decided | null>(null);
   const done = decided ?? localDone;
-  const ready = approver.trim() && owner.trim();
+  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(reviewBy) &&
+    !Number.isNaN(Date.parse(reviewBy)) && new Date(reviewBy).toISOString().slice(0, 10) === reviewBy &&
+    reviewBy >= new Date().toISOString().slice(0, 10);
+  const ready = approver.trim() && owner.trim() && validDate;
 
   async function decide(decision: "approve" | "reject") {
+    if (!ready || busy || (decision === "approve" && blocked)) return;
     setBusy(decision);
     setError(null);
     try {
@@ -60,7 +64,8 @@ export function ApprovalPanel({
         action: result.recommendation.action,
         target: result.recommendation.target?.id ?? result.recommendation.build_on ?? "-",
       });
-      const record: Decided = { id: res.registered_id, decision, owner, reviewBy };
+      if (res.ok !== true) throw new Error("Approval was not confirmed");
+      const record: Decided = { id: res.registered_id, decision, owner, reviewBy, mode: res.mode };
       if (
         decision === "approve" &&
         (result.recommendation.action === "new_build" || result.recommendation.action === "extend")
@@ -90,7 +95,7 @@ export function ApprovalPanel({
         className={`${done.decision === "approve" ? "tone-green" : "tone-gray"} rounded-lg border-2 p-5`}
       >
         <p className="text-lg font-semibold">
-          {done.decision === "approve" ? "Approved." : "Rejected."} Registered as{" "}
+          {done.decision === "approve" ? "Approved." : "Rejected."} {done.mode === "demo" ? "Demo decision." : ""} Registered as{" "}
           <span className="font-mono">{done.id}</span>
         </p>
         <p className="mt-1 text-sm">
@@ -111,6 +116,7 @@ export function ApprovalPanel({
         <div>
           <Label htmlFor="approver">Approver name</Label>
           <Input
+            disabled={!!busy}
             id="approver"
             className="mt-1"
             value={approver}
@@ -120,6 +126,7 @@ export function ApprovalPanel({
         <div>
           <Label htmlFor="owner">Report owner</Label>
           <Input
+            disabled={!!busy}
             id="owner"
             className="mt-1"
             value={owner}
@@ -129,6 +136,11 @@ export function ApprovalPanel({
         <div>
           <Label htmlFor="review">Review by</Label>
           <Input
+            disabled={!!busy}
+            required
+            min={new Date().toISOString().slice(0, 10)}
+            aria-invalid={!validDate}
+            aria-describedby="review-help"
             id="review"
             type="date"
             className="mt-1"
@@ -137,6 +149,7 @@ export function ApprovalPanel({
           />
         </div>
       </div>
+      <p id="review-help" className="mt-3 text-sm">Review date is required and must be today or later.</p>
       {blocked && (
         <p className="mt-3 text-sm text-muted-foreground">
           Answer the questions above and check again before approving. You can still reject.

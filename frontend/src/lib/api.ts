@@ -186,6 +186,7 @@ export interface ApprovePayload {
 export interface LogRecord extends ApprovePayload {
   registered_id: string;
   time: string;
+  mode?: "demo";
 }
 export interface Health {
   status: "live" | "down" | "demo";
@@ -240,7 +241,8 @@ export function mockRecommend(text: string): RecommendResult {
     const head = r.text.toLowerCase().slice(0, 30);
     return q.includes(head) || (q.length > 0 && head.includes(q.slice(0, 30)));
   });
-  return hit ?? data.requests[0]!;
+  if (!hit) throw new Error("No demo example matches this request. Choose an example or connect the live API.");
+  return { ...hit, text };
 }
 
 export const recommend = (text: string, answers: Answer[] = [], rounds?: LoopRound[]) =>
@@ -267,16 +269,28 @@ export const getRadar = () => call<Radar>("/radar", undefined, () => data.radar)
 // Demo decisions live in memory for this page view, the same way the API keeps its own log.
 const demoLog: LogRecord[] = [];
 
-export const approve = (p: ApprovePayload) =>
-  call<{ ok: boolean; registered_id: string }>(
-    "/approve",
-    { method: "POST", body: JSON.stringify(p) },
-    () => {
-      const registered_id = `DEC-${Date.now().toString(36).toUpperCase()}`;
-      demoLog.push({ ...p, registered_id, time: new Date().toISOString() });
-      return { ok: true, registered_id };
-    },
-  );
+export async function approve(p: ApprovePayload): Promise<{ ok: true; registered_id: string; mode?: "demo" }> {
+  if (!API) {
+    const registered_id = `DEMO-${Date.now().toString(36).toUpperCase()}`;
+    demoLog.push({ ...p, registered_id, time: new Date().toISOString(), mode: "demo" });
+    return { ok: true, registered_id, mode: "demo" };
+  }
+  try {
+    const res = await fetch(`${API}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(p),
+    });
+    if (!res.ok) throw new Error("Approval rejected");
+    const body = await res.json();
+    if (body?.ok !== true || typeof body.registered_id !== "string" || !body.registered_id) {
+      throw new Error("Approval was not confirmed");
+    }
+    return body;
+  } catch {
+    throw new Error("Could not register the decision. Check the API connection and try again.");
+  }
+}
 
 export const getLog = () => call<LogRecord[]>("/log", undefined, () => [...demoLog]);
 
