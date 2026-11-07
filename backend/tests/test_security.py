@@ -92,7 +92,8 @@ class PoisonTest(unittest.TestCase):
         self.assertEqual((out["ai"]["guard"], out["ai"]["explanation_source"]), ("replaced", "rules"))
         self.assertIn("instruction-like wording", out["ai"]["guard_unsupported"])
         self.assertEqual(out["ai"]["explanation"], out["recommendation"]["rationale"], "the model's echo is not shown")
-        # The rules rationale names the target, so the poisoned name appears there as data. See docs/security.md, residual risks.
+        # This fixture poisons the estate after loading, so the name reaches the rationale as data. Names loaded from the
+        # database are cleaned first, so a poisoned name never gets this far: see tests/test_names.py.
         self.assertIn(POISON, out["recommendation"]["rationale"][0])
 
     def test_injection_in_request_text_never_reaches_a_model(self):

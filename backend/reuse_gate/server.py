@@ -405,6 +405,8 @@ if __name__ == "__main__":
     load_env()
     N8N_API_KEY = os.environ.get("N8N_API_KEY") or os.environ.get("n8n_API_KEY", "")
     EST = Estate(sys.argv[1], os.environ.get("CATALOG_PATH", DEFAULT_CATALOG))
+    if EST.name_issues:
+        print(f"WARNING: {len(EST.name_issues)} display name(s) cleaned at load: {', '.join(i for _, i, _ in EST.name_issues[:20])}", file=sys.stderr)
     LLM_CLIENT = live_client()
     WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
     if not WRITE_TOKEN:
