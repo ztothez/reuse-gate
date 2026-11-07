@@ -105,15 +105,19 @@ def relevance(result, lines):
 
 
 def judge(client, est, result, lines, prompt):
+    """(faithful, unsupported claims). The judge sees the same request, intent and decision brief the generator was given
+    (explain_brief: coverage, retire and consolidate lists, the first 15 citations), plus the cited rows themselves, so it
+    does not mark a claim unsupported only because the generator had evidence the judge was not shown."""
     rec = result["recommendation"]
     rows = [faithfulness._row(est, e["table"], e["id"]) for e in rec["evidence"]][:40]
     value = client.json_chat([{"role": "system", "content": prompt},
-                              {"role": "user", "content": json.dumps({"explanation": lines, "decision": {
-                                  "action": rec["action"], "target": rec["target"], "kpis": result["intent"]["kpis"], "rationale": rec["rationale"]},
-                                  "cited_rows": rows}, default=str)}], temperature=0, max_tokens=800)
+                              {"role": "user", "content": json.dumps({"explanation": lines, "request": result.get("text"),
+                                                                      "intent": result["intent"], "decision": explain_brief(rec),
+                                                                      "cited_rows": rows}, default=str)}], temperature=0, max_tokens=800)
     if not isinstance(value.get("faithful"), bool):
         raise ValueError("judge answer has no faithful flag")
-    return value["faithful"]
+    claims = value.get("unsupported_claims")
+    return value["faithful"], [str(c) for c in claims] if isinstance(claims, list) else []
 
 
 def role(kind):
@@ -169,11 +173,18 @@ def generation(est, generator, judge_client, judge_model):
                 continue
             seen.add(key)
             try:
-                verdicts.append(judge(judge_client, est, result, lines, prompt))
+                faithful, claims = judge(judge_client, est, result, lines, prompt)
             except Exception as exc:
                 print(f"judge failed: {failure(judge_client, exc)}", file=sys.stderr)
+                continue
+            verdicts.append(faithful)
+            if not faithful:  # every failing verdict with the judge's reason, for a person to read
+                rec = result["recommendation"]
+                print(f"UNFAITHFUL per judge: {rec['action']} {(rec['target'] or {}).get('id', '-')}\n"
+                      f"  explanation: {' '.join(lines)}\n"
+                      + "".join(f"  unsupported: {c}\n" for c in claims or ["(the judge gave no reason)"]), file=sys.stderr)
         judged = metric("faithfulness_judge", "Faithfulness (LLM judge)", ratio(sum(verdicts), len(verdicts)), "share", len(verdicts),
-                        f"{judge_model} on {judge_name} judges each distinct explanation against the decision and cited rows; prompt in data/judge_prompt.txt."
+                        f"{judge_model} on {judge_name} judges each distinct explanation against the same request, intent and decision brief the generator saw, and the cited rows; prompt in data/judge_prompt.txt."
                         + (f" Explanations by {gen_model} on {gen_name}." if generator else ""),
                         f"{len(distinct)} distinct explanations by {gen_model}",
                         "A model's opinion, not ground truth: the judge can miss or invent problems, and it was not calibrated against human labels."

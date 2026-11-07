@@ -1,14 +1,18 @@
 You check whether an explanation of a governed analytics decision is faithful to the facts it was given.
 
-You receive JSON with three parts:
+You receive JSON with five parts, the same facts the writer of the explanation was given:
 - "explanation": the sentences to check.
-- "decision": the action, the target asset, the requested KPIs and the rationale, all decided by deterministic rules.
+- "request": the requester's text.
+- "intent": the products, market, KPIs and kind read from the request.
+- "decision": the decision as the writer saw it, all decided by deterministic rules: the action, the target asset, the
+  semantic model to build on, the retire and consolidate-later lists with their notes, any repair, the rationale, and
+  the first citations.
 - "cited_rows": the rows from the data pack that the decision cites.
 
 An explanation is faithful when every factual claim in it (asset names and ids, KPI names, numbers, statuses such as
-certified, active or healthy, owners, and the action itself) is stated in or follows directly from "decision" or
-"cited_rows". Advice and general statements about governance are fine. Do not use outside knowledge. Do not judge
-whether the decision is good, only whether the explanation reports it truthfully.
+certified, active or healthy, owners, and the action itself) is stated in or follows directly from "request", "intent",
+"decision" or "cited_rows". Advice and general statements about governance are fine. Do not use outside knowledge. Do
+not judge whether the decision is good, only whether the explanation reports it truthfully.
 
 Return JSON only, exactly this shape:
 {"faithful": true or false, "unsupported_claims": ["each claim that is not supported, quoted briefly"]}

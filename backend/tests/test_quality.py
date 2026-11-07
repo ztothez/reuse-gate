@@ -306,5 +306,26 @@ class EvaluationApiTest(unittest.TestCase):
         self.assertIn("eval_quality", body["error"])
 
 
+class EvaluationGateTest(unittest.TestCase):
+    """scripts/check_evaluation.py: deterministic metrics gate the pipeline, the LLM judge is reported but never gates."""
+
+    def evaluation(self, **values):
+        base = {"faithfulness_deterministic": 1.0, "guard_replacement_rate": 0.0, "citation_validity": 1.0,
+                "context_precision": 0.95, "context_recall": 0.99, "faithfulness_judge": 0.2}
+        base.update(values)
+        return {"groups": [{"group": "g", "metrics": [{"id": k, "value": v} for k, v in base.items()]}]}
+
+    def test_a_low_judge_score_does_not_fail_the_gate(self):
+        rows = load("check_evaluation").check(self.evaluation())
+        self.assertTrue(all(r[3] for r in rows))
+        self.assertNotIn("faithfulness_judge", [r[0] for r in rows])
+
+    def test_deterministic_faithfulness_and_guard_rate_stay_hard_gates(self):
+        gate = load("check_evaluation")
+        for bad in ({"faithfulness_deterministic": 0.97}, {"guard_replacement_rate": 0.2}, {"faithfulness_deterministic": None}):
+            failed = [r[0] for r in gate.check(self.evaluation(**bad)) if not r[3]]
+            self.assertEqual(failed, list(bad), bad)
+
+
 if __name__ == "__main__":
     unittest.main()

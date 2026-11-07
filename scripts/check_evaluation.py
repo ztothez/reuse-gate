@@ -16,15 +16,19 @@ sys.path.insert(0, str(ROOT / "backend"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 # metric id -> (comparison, limit). Documented in docs/openshift.md, "Pipeline gates".
+# faithfulness_judge is deliberately not a gate. It is still computed and served in /evaluation with its caveat, but it is
+# one model's opinion of another model's text: it was not calibrated against human labels, it can miss or invent problems,
+# and a run depends on a third-party provider being up. A pipeline must not pass or fail on that. The hard gates for
+# explanations are deterministic: faithfulness_deterministic (every id, KPI, number and status is in the decision or its
+# cited rows) and guard_replacement_rate, both reproducible from the same files on every run.
 MINIMUMS = {
     "faithfulness_deterministic": (">=", 1.0),  # no AI explanation states an id, number, KPI or status the decision does not support
     "guard_replacement_rate": ("<=", 0.10),
     "citation_validity": (">=", 1.0),  # every cited row exists in the data pack
     "context_precision": (">=", 0.90),
     "context_recall": (">=", 0.95),
-    "faithfulness_judge": (">=", 0.80),  # only when the judge ran
 }
-REQUIRED = {"faithfulness_deterministic", "guard_replacement_rate", "citation_validity", "context_precision", "context_recall"}
+REQUIRED = set(MINIMUMS)
 
 
 def check(evaluation):
