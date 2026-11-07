@@ -181,7 +181,7 @@ class SpeakApiTest(SpeakBase):
         with patch.object(server, "speak", return_value=b"ID3audio"):
             code, headers, body = self.post(b'{"text": "Hello"}')
         self.assertEqual((code, headers["Content-Type"], body), (200, "audio/mpeg", b"ID3audio"))
-        self.assertEqual(headers["Access-Control-Allow-Origin"], "*")
+        self.assertNotIn("Access-Control-Allow-Origin", headers, "no Origin header, so no CORS grant")
 
     def test_errors_are_json_with_the_right_status(self):
         for data, status in ((b'{"text": ""}', 400), (b'{"text": 5}', 400), (b"[1]", 400), (b"not json", 400)):

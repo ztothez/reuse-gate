@@ -6,6 +6,8 @@ This catches invented facts, not wrong reasoning: a sentence can use only true f
 import json
 import re
 
+from reuse_gate.recommend import INJECTION
+
 ID = re.compile(r"\b(?:AST|SM|OWN|KPI|RULE|REQ|SIG|MKT|PRD)-\d+\b", re.I)
 NUMBER = re.compile(r"(?<![\w.-])\d[\d,]*(?:\.\d+)?%?(?![\w-])")
 STATUS_FIELDS = (("assets", ("lifecycle_status", "endorsement")), ("models", ("endorsement", "refresh_status", "ai_readiness")))
@@ -87,4 +89,6 @@ def check(est, result, lines):
         pattern = re.escape(word).replace(r"\_", "[_ ]")
         if re.search(rf"(?<!\w){pattern}(?!\w)", low) and not re.search(rf"(?<!\w){pattern}(?!\w)", corpus):
             unsupported.append(f"status {word}")
+    if INJECTION.search(text):  # wording copied from a poisoned asset name or request, aimed at people or systems
+        unsupported.append("instruction-like wording")
     return {"passed": not unsupported, "unsupported": unsupported}

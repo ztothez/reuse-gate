@@ -25,6 +25,7 @@ POST /n8n/approval
 """
 import json
 import hmac
+from http import HTTPStatus
 import os
 import sys
 import uuid
@@ -37,7 +38,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
-from reuse_gate import workitems
+from reuse_gate import security, workitems
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate
 from reuse_gate.spec import build_spec
@@ -54,6 +55,7 @@ EVALUATION = Path(__file__).resolve().parents[2] / "data" / "evaluation.json"
 WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
 MAX_BODY = 1_000_000
 STORE = workitems.Store()  # replaced at startup by a store next to the decision log
+LIMITER = security.RateLimiter()  # enabled at startup; off in tests unless a test turns it on
 
 
 def do_recommend(text, answers=None, rounds=None):
@@ -123,14 +125,28 @@ def radar_digest():
 
 
 class Handler(BaseHTTPRequestHandler):
+    server_version, sys_version = "reuse-gate", ""  # no Python version in the Server header
+
+    def version_string(self):
+        return self.server_version
+
+    def _common_headers(self):
+        headers = getattr(self, "headers", None)  # absent when the request line itself could not be parsed
+        origin = security.cors_origin(headers.get("Origin") if headers else None)
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Vary", "Origin")
+        for name, value in security.HEADERS.items():
+            self.send_header(name, value)
+
     def _send(self, code, body):
         data = json.dumps(body, default=str).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code")
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self._common_headers()
         self.end_headers()
         self.wfile.write(data)
 
@@ -138,9 +154,43 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "audio/mpeg")
         self.send_header("Content-Length", str(len(audio)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self._common_headers()
         self.end_headers()
         self.wfile.write(audio)
+
+    def send_error(self, code, message=None, explain=None):
+        """http.server's own errors (bad request line, oversized headers) as short JSON, never an HTML page."""
+        self.close_connection = True
+        try:
+            self._send(code, {"error": (message or HTTPStatus(code).phrase)[:200]})
+        except OSError:
+            pass
+
+    def _not_allowed(self):
+        self._send(405, {"error": f"method {self.command} is not allowed; use GET, POST or OPTIONS"})
+
+    do_PUT = do_DELETE = do_PATCH = do_TRACE = do_CONNECT = do_HEAD = _not_allowed
+
+    def _guarded(self, handler):
+        """Any unexpected failure answers 500 with no detail. The log gets the exception type only, never a traceback or a value."""
+        try:
+            handler()
+        except Exception as exc:
+            sys.stderr.write(f"{self.command} {urlsplit(self.path).path} failed: {type(exc).__name__}\n")
+            try:
+                self._send(500, {"error": "internal error"})
+            except OSError:
+                pass
+
+    def do_GET(self):
+        self._guarded(self._get)
+
+    def do_POST(self):
+        route = urlsplit(self.path).path
+        if route in security.LIMITS and not LIMITER.allow(route, self._client()):
+            self._drain()
+            return self._send(429, {"error": "too many requests from this address; wait a minute", "code": "rate_limited"})
+        self._guarded(self._post)
 
     def _body(self):
         n = int(self.headers.get("Content-Length") or 0)
@@ -154,7 +204,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self._send(204, {})
 
-    def do_GET(self):
+    def _get(self):
         url = urlsplit(self.path)
         if url.path == "/requests":
             query = parse_qs(url.query)
@@ -216,7 +266,7 @@ class Handler(BaseHTTPRequestHandler):
         except TranscribeError as exc:
             return self._send(exc.status, exc.body())
 
-    def do_POST(self):
+    def _post(self):
         if self.path == "/transcribe":
             return self._transcribe()
         if self.path == "/radar-ping":  # a PingSource cannot send the n8n key; this exposes nothing beyond GET /radar
@@ -317,7 +367,8 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(200, {"request_id": rid, "status": item["status"], "result": result})
 
     def log_message(self, fmt, *args):
-        sys.stderr.write("%s %s\n" % (self.address_string(), fmt % args))
+        """The request line and status only. Bodies are never logged, and any configured secret value is redacted."""
+        sys.stderr.write(security.redact("%s %s\n" % (self.address_string(), fmt % args)))
 
 
 if __name__ == "__main__":
@@ -329,6 +380,7 @@ if __name__ == "__main__":
     if not WRITE_TOKEN:
         print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve, remediate and work item updates are open to anyone", file=sys.stderr)
     STORE = workitems.Store(Path(LOG_FILE).parent / "requests.jsonl")
+    LIMITER = security.RateLimiter(enabled=os.environ.get("RATE_LIMITS", "on") != "off")
     seeded = seed_samples()
     if seeded:
         print(f"Seeded {seeded} sample work items")

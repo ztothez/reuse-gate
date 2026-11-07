@@ -161,9 +161,10 @@ class WorkItemTest(Api):
         self.assertEqual(self.call("/requests", {"request_id": "WI-NOPE"})[0], 404)
 
     def test_cors_allows_the_access_code_header(self):
-        req = urllib.request.Request(f"http://127.0.0.1:{self.httpd.server_port}/approve", method="OPTIONS")
+        req = urllib.request.Request(f"http://127.0.0.1:{self.httpd.server_port}/approve", method="OPTIONS", headers={"Origin": "http://localhost:8080"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             self.assertIn("X-Access-Code", resp.headers["Access-Control-Allow-Headers"])
+            self.assertEqual(resp.headers["Access-Control-Allow-Origin"], "http://localhost:8080")
 
 
 @unittest.skipUnless(DB.exists(), "run load_estate.py first")
