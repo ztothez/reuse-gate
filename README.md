@@ -324,6 +324,19 @@ citation. SM-065's owner, OWN-037, is inactive. Assigning any of the 47 active o
 and all 80 then pass every gate (specs passing every gate would go from 13/124 to 93/124). Radar lists this under
 `ownership_bottlenecks`: inactive owners ranked by the specs and assets they block, with citations.
 
+### Requests as work items
+
+`POST /requests` keeps a request as a work item with a status: `clarifying`, `awaiting_approval`, `human_review`, `approved`
+or `rejected`. Re-checks reuse the item's stored answers and rounds. `/approve` and `/remediate` take the item's `request_id`,
+set its status and add to its activity trail; a remediation is recorded as simulated. `GET /requests` lists items, newest first.
+Items are stored as JSON lines in `requests.jsonl` next to the decision log, at most 500. An empty store is seeded with the
+10 example chips as samples (`SAMPLE-01` to `SAMPLE-10`, requester "Sample user"), from saved answers and with no model call.
+`/recommend` is unchanged and creates no work item.
+
+With `REUSE_GATE_WRITE_TOKEN` set, `/approve`, `/remediate` and work item re-checks need the same value in an `X-Access-Code`
+header. Reading, creating requests, `/recommend` and `/speak` stay open. Without it the API logs a warning at startup and stays
+open as before. This is a shared code, not user accounts: it stops casual changes, not a determined insider.
+
 ### What-if remediation and the decision record
 
 - `POST /remediate` simulates owner assignments and reruns the spec gates. It accepts only `assign_owner` on an existing asset or
@@ -461,4 +474,5 @@ The digest ends in a **Format digest** node with `subject` and `message`. Connec
   then gets the first mock answer. Live API rejections are shown as errors.
 - **Open text to speech:** `/speak` accepts any text up to the limit from anyone who can reach the API. The caps limit the cost, but do not
   stop misuse, and the text goes to ElevenLabs, a third party. A real deployment needs the access controls above.
-- **Single process:** one Python process, a local file for the log, and no authentication.
+- **Single process:** one Python process, local files for the log and the work items, and at most a shared access code. On
+  OpenShift those files live in the pod, so a restart loses them and the samples are seeded again.
