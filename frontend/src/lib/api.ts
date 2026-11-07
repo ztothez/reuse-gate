@@ -362,7 +362,7 @@ export function voiceErrorMessage(code: string) {
   };
   return `${messages[code] ?? messages["provider_failed"]}, please type instead`;
 }
-export interface Transcript { text: string; language: string }
+export interface Transcript { text: string; language: string | null }
 export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise<Transcript> {
   if (!API || demo) throw new Error(voiceErrorMessage("not_configured"));
   if (!blob.size) throw new Error(voiceErrorMessage("empty_audio"));
@@ -380,8 +380,8 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
     if ([404, 405, 501].includes(response.status)) throw new Error(voiceErrorMessage("endpoint_unavailable"));
     if (response.status === 400 && typeof body?.code !== "string") throw new Error(voiceErrorMessage("api_rejected"));
     if (!response.ok) throw new Error(voiceErrorMessage(typeof body?.code === "string" ? body.code : "provider_failed"));
-    if (typeof body?.text !== "string" || !body.text.trim() || typeof body?.language !== "string") throw new Error(voiceErrorMessage("no_speech"));
-    return { text: body.text, language: body.language };
+    if (typeof body?.text !== "string" || !body.text.trim()) throw new Error(voiceErrorMessage("no_speech"));
+    return { text: body.text, language: typeof body.language === "string" ? body.language : null };
   } catch (error) {
     if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
     if (timedOut) throw new Error(voiceErrorMessage("provider_timeout"));

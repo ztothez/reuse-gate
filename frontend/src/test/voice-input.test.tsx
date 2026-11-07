@@ -62,6 +62,10 @@ async function record() {
   fireEvent.click(screen.getByRole("button", { name: "Stop recording" }));
 }
 describe("voice push-to-talk", () => {
+  it.each([null, undefined])("accepts valid text when language metadata is %s", async language => {
+    fetcher.mockResolvedValue(new Response(JSON.stringify({text:"A confirmed transcript",language})));
+    await expect(transcribeAudio(new Blob(["audio"],{type:"audio/webm"}))).resolves.toEqual({text:"A confirmed transcript",language:null});
+  });
   it("sends the raw blob with the recorder MIME type, then requires editable confirmation", async () => {
     const onUse = vi.fn(),
       store = vi.spyOn(Storage.prototype, "setItem"),
