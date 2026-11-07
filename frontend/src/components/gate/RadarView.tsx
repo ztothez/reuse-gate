@@ -140,9 +140,9 @@ export function RadarView() {
       <Panel title="KPI definition status">
         <div className="space-y-2" role="list">
           {STATUS_ORDER.filter((s) => s in t.kpi_status).map((s) => (
-            <div key={s} role="listitem" className="flex items-center gap-3 text-sm">
-              <span className="w-44 shrink-0">{s.replace(/_/g, " ")}</span>
-              <div className="h-7 flex-1 rounded bg-muted">
+            <div key={s} role="listitem" className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-3 text-sm">
+              <span className="min-w-0 break-words">{s.replace(/_/g, " ")}</span>
+              <div className="min-w-0 h-7 flex-1 rounded bg-muted">
                 <div
                   className={`${STATUS_TONE[s]} flex h-7 items-center rounded px-2 text-xs font-semibold text-primary-foreground`}
                   style={{ width: `${Math.max(((t.kpi_status[s] ?? 0) / max) * 100, 8)}%` }}
