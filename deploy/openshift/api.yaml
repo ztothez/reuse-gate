@@ -77,6 +77,10 @@ spec:
             - name: REUSE_GATE_WRITE_TOKEN
               valueFrom:
                 secretKeyRef: {name: reuse-gate-access, key: REUSE_GATE_WRITE_TOKEN, optional: true}
+            # One code per person or seat, role:name:code;... Set, it enforces least privilege on every endpoint (backend/reuse_gate/access.py).
+            - name: REUSE_GATE_ROLE_CODES
+              valueFrom:
+                secretKeyRef: {name: reuse-gate-access, key: REUSE_GATE_ROLE_CODES, optional: true}
           readinessProbe:
             httpGet: {path: /healthz, port: 8080}
             periodSeconds: 10

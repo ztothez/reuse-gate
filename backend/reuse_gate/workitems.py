@@ -95,9 +95,12 @@ class Store:
         with self._lock:
             return self.items.get(request_id)
 
-    def list(self, status=None, q=None):
+    def list(self, status=None, q=None, keep=None):
+        """keep(item) -> bool limits the list to the items the caller may see."""
         with self._lock:
             rows = list(self.items.values())
+        if keep:
+            rows = [i for i in rows if keep(i)]
         if status:
             rows = [i for i in rows if i["status"] == status]
         if q:

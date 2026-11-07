@@ -17,10 +17,12 @@ GET  /requests/{id}                                    -> one work item with its
 POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
                                                        -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
+GET  /me                                               -> {role, name, enforced} for the caller's access code
 State: REUSE_GATE_STATE_DIR (default: the working directory) holds decision_log.jsonl and requests.jsonl. Both are read back at
 startup, so a volume there survives pod restarts. A missing or read-only directory never stops the server: it keeps state in memory.
-With REUSE_GATE_WRITE_TOKEN set, POST /approve and /remediate need a matching X-Access-Code header. Creating, re-checking and
-answering a work item through /requests stay open, so a requester can answer questions without a code; they are rate limited.
+Access: with REUSE_GATE_ROLE_CODES set (see access.py), every endpoint but health, the PingSource and n8n needs an X-Access-Code
+that maps to a role, and each role gets only its own data (least privilege). GET /me says who the code belongs to. Without role
+codes, REUSE_GATE_WRITE_TOKEN alone guards POST /approve and /remediate, and everything else is open, as for local development.
 GET  /health, /healthz                                 -> ok, the estate snapshot, the decision backend in use, whether
                                                           reuse-gate-kserve answers, and which model tiers have a key
 GET  /n8n/radar-digest
@@ -42,7 +44,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env, tier_config, tier_names
 from reuse_gate.pipeline import run_request
-from reuse_gate import decision, security, workitems
+from reuse_gate import access, decision, security, workitems
 from reuse_gate.answers import AnswerStore
 from reuse_gate.remediate import RemediationError, active_owners, decision_record, simulate, snapshot_id
 from reuse_gate.spec import build_spec
@@ -248,30 +250,57 @@ class Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self._send(204, {})
 
+    def _who(self, action):
+        """The caller when their role may do action; otherwise answers 401 or 403 and returns None."""
+        who = access.principal(self.headers)
+        if who is None:
+            self._send(401, {"error": "sign in with your access code", "code": "sign_in"})
+            return None
+        if not access.allowed(who, action):
+            self._send(403, {"error": f"the {who.role} role cannot do this", "code": "forbidden"})
+            return None
+        return who
+
     def _get(self):
         url = urlsplit(self.path)
+        if url.path == "/me":
+            who = access.principal(self.headers)
+            if who is None:
+                return self._send(401, {"error": "sign in with your access code", "code": "sign_in"})
+            return self._send(200, {"role": who.role, "name": who.name, "enforced": who.enforced})
         if url.path == "/requests":
+            if not (who := self._who("requests.read")):
+                return
             query = parse_qs(url.query)
             status, q = (query.get("status") or [None])[0], (query.get("q") or [None])[0]
             if status and status not in workitems.STATUSES:
                 return self._send(400, {"error": f"status must be one of {', '.join(workitems.STATUSES)}"})
-            return self._send(200, STORE.list(status, q))
+            return self._send(200, STORE.list(status, q, keep=lambda item: access.can_see(who, item)))
         if url.path.startswith("/requests/"):
+            if not (who := self._who("requests.read")):
+                return
             item = STORE.get(url.path[len("/requests/"):])
-            return self._send(200, workitems.detail(item)) if item else self._send(404, {"error": "no such request"})
+            if not item or not access.can_see(who, item):  # another person's item answers like a missing one
+                return self._send(404, {"error": "no such request"})
+            return self._send(200, access.redact(who, workitems.detail(item)))
         if self.path in ("/health", "/healthz"):  # always 200 while the process serves, so probes never fail on KServe
             self._send(200, {"ok": True, "assets": len(EST.assets), "estate_snapshot": snapshot_id(EST), **decision.health(), **providers()})
         elif self.path == "/radar":
-            self._send(200, radar(EST))
+            if self._who("radar"):
+                self._send(200, radar(EST))
         elif self.path == "/evaluation":
+            if not self._who("evaluation"):
+                return
             try:
                 self._send(200, json.loads(EVALUATION.read_text(encoding="utf-8")))
             except (OSError, ValueError):
                 self._send(404, {"error": "no evaluation on this server; run scripts/eval_quality.py"})
         elif self.path == "/owners":
-            self._send(200, active_owners(EST))
+            if self._who("owners"):
+                self._send(200, active_owners(EST))
         elif self.path == "/log":
-            self._send(200, LOG)
+            if self._who("log"):
+                self._send(200, LOG)
         elif self.path == "/n8n/radar-digest":
             if not n8n_authorized(self):
                 return self._send(401, {"error": "n8n API key required"})
@@ -295,6 +324,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def _transcribe(self):
         """POST /transcribe. The audio is read, sent on, and dropped; nothing about it is logged."""
+        who = access.principal(self.headers)
+        if who is None or not access.allowed(who, "transcribe"):
+            self._drain()
+            return self._who("transcribe")
         try:
             n = int(self.headers.get("Content-Length") or 0)
         except ValueError:
@@ -318,6 +351,11 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, radar_digest())
         try:
             body = self._body()
+            action = {"/recommend": "recommend", "/speak": "speak", "/requests": "requests.read", "/remediate": "remediate",
+                      "/approve": "approve", "/spec": "spec"}.get(self.path)
+            who = access.OPEN
+            if action and not (who := self._who(action)):
+                return
             if self.path == "/recommend":
                 text = body.get("text", "")
                 if not isinstance(text, str):
@@ -335,10 +373,12 @@ class Handler(BaseHTTPRequestHandler):
                 except SpeechError as exc:
                     return self._send(exc.status, {"error": str(exc)})
             if self.path == "/requests":
-                return self._requests(body)
+                return self._requests(body, who)
             if self.path == "/remediate":
-                if not write_authorized(self):
+                if not who.enforced and not write_authorized(self):
                     return self._send(401, {"error": "access code required"})
+                if who.enforced:
+                    body["actor"] = who.name  # the signed-in person, never a name from the body
                 item, context = with_item(body)
                 if item and item["status"] in ("approved", "rejected"):
                     return self._send(409, {"error": f"{item['request_id']} is already {item['status']}"})
@@ -351,8 +391,10 @@ class Handler(BaseHTTPRequestHandler):
                     STORE.remediated(item["request_id"], response, body.get("actor"))
                 return self._send(200, response)
             if self.path == "/approve":
-                if not write_authorized(self):
+                if not who.enforced and not write_authorized(self):
                     return self._send(401, {"error": "access code required"})
+                if who.enforced:
+                    body["approver"] = who.name  # the record names the signed-in approver, never a name from the body
                 missing = [k for k in ("request_id", "decision", "approver", "owner") if not body.get(k)]
                 if missing or body["decision"] not in ("approve", "reject"):
                     return self._send(400, {"error": f"missing or invalid: {missing or 'decision'}"})
@@ -384,8 +426,14 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as exc:
             self._send(400, {"error": str(exc)})
 
-    def _requests(self, body):
-        """POST /requests: create a work item, or re-check one. Answers are sent in full, as with /recommend."""
+    def _requests(self, body, who=access.OPEN):
+        """POST /requests: create a work item, or re-check one. Answers are sent in full, as with /recommend.
+        With role codes, only business and admin create or recheck, a business user only their own items, and the
+        requester is the signed-in name."""
+        if not access.allowed(who, "requests.create"):
+            return self._send(403, {"error": f"the {who.role} role cannot create or recheck requests", "code": "forbidden"})
+        if who.enforced:
+            body["requester"] = who.name
         rid = body.get("request_id")
         answers, rounds, text = body.get("answers"), body.get("rounds"), body.get("text")
         if answers is not None and (not isinstance(answers, list) or not all(isinstance(a, dict) and isinstance(a.get("answer", ""), str) for a in answers)):
@@ -402,7 +450,7 @@ class Handler(BaseHTTPRequestHandler):
             item = STORE.create(run_item(new, text.strip(), answers or [], rounds or []), requester and requester[:100], request_id=new)
             return self._send(200, {"request_id": item["request_id"], "status": item["status"], "result": item["result"]})
         item = STORE.get(rid) if isinstance(rid, str) else None
-        if not item:
+        if not item or not access.can_see(who, item):
             return self._send(404, {"error": "no such request"})
         if item["status"] in ("approved", "rejected"):
             return self._send(409, {"error": f"{rid} is already {item['status']}; submit a new request"})
@@ -423,7 +471,10 @@ if __name__ == "__main__":
         print(f"WARNING: {len(EST.name_issues)} display name(s) cleaned at load: {', '.join(i for _, i, _ in EST.name_issues[:20])}", file=sys.stderr)
     LLM_CLIENT = live_client()
     WRITE_TOKEN = os.environ.get("REUSE_GATE_WRITE_TOKEN", "")
-    if not WRITE_TOKEN:
+    roles = access.codes()
+    if roles:
+        print(f"Access: least privilege enforced for {len(roles)} role code(s): {', '.join(sorted({r for r, _, _ in roles}))}", file=sys.stderr)
+    elif not WRITE_TOKEN:
         print("WARNING: REUSE_GATE_WRITE_TOKEN is not set, so approve and remediate are open to anyone", file=sys.stderr)
     state = Path(os.environ.get("REUSE_GATE_STATE_DIR") or ".")
     LOG_FILE = str(state / "decision_log.jsonl")
