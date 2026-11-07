@@ -10,8 +10,8 @@ For a new oncology build, the gates block release because the data model's owner
 
 A developer proposes a rule change, and it is measured on all one hundred and fifty requests before anyone may approve it.
 
-Every role has its own view and sees only its own data, and approvers are notified by email.
+Every role has its own view and sees only its own data.
 
-On Bayer's synthetic data pack, fifty-seven of one hundred and fifty requests avoid a new build. That is thirty-eight percent fewer dashboards to build and maintain. One owner fix would unblock eighty more specs. These figures are modelled from the data, not measured savings.
+On Bayer's synthetic data pack, fifty-seven of one hundred and fifty requests avoid a new build. That is thirty-eight percent fewer dashboards to build and maintain. One owner fix would unblock eighty more specs. These figures are modelled, not measured.
 
-It runs on Red Hat OpenShift AI, and the decisions are rules, not guesses, so they are repeatable and auditable. Build less. Build better.
+All of this runs on Red Hat OpenShift AI. The decision service is deployed as a model with KServe, and it shows up here, in the OpenShift AI dashboard. The app shows each decision ran on KServe. Before every release, an OpenShift Pipelines run checks the tests and the governance, evaluation, and security gates. The decisions are rules, not guesses, so they are repeatable and auditable. Build less. Build better.

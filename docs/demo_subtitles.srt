@@ -80,45 +80,61 @@ one hundred and fifty requests before anyone may approve it.
 
 21
 00:01:19,178 --> 00:01:24,076
-Every role has its own view and sees only its own data,
+Every role has its own view and sees only its own data.
 
 22
-00:01:24,076 --> 00:01:26,524
-and approvers are notified by email.
-
-23
-00:01:26,924 --> 00:01:31,822
+00:01:24,476 --> 00:01:29,373
 On Bayer's synthetic data pack, fifty-seven of one hundred and fifty requests
 
-24
-00:01:31,822 --> 00:01:33,455
+23
+00:01:29,373 --> 00:01:31,006
 avoid a new build.
 
-25
-00:01:33,455 --> 00:01:37,537
+24
+00:01:31,006 --> 00:01:35,088
 That is thirty-eight percent fewer dashboards to build and maintain.
 
-26
-00:01:37,537 --> 00:01:40,802
+25
+00:01:35,088 --> 00:01:38,353
 One owner fix would unblock eighty more specs.
 
+26
+00:01:38,353 --> 00:01:40,802
+These figures are modelled, not measured.
+
 27
-00:01:40,802 --> 00:01:44,884
-These figures are modelled from the data, not measured savings.
+00:01:41,202 --> 00:01:44,876
+All of this runs on Red Hat OpenShift AI.
 
 28
-00:01:45,284 --> 00:01:50,182
-It runs on Red Hat OpenShift AI, and the decisions are rules,
+00:01:44,876 --> 00:01:49,773
+The decision service is deployed as a model with KServe, and it
 
 29
-00:01:50,182 --> 00:01:53,447
-not guesses, so they are repeatable and auditable.
+00:01:49,773 --> 00:01:53,039
+shows up here, in the OpenShift AI dashboard.
 
 30
-00:01:53,447 --> 00:01:54,647
-Build less.
+00:01:53,039 --> 00:01:56,304
+The app shows each decision ran on KServe.
 
 31
-00:01:54,647 --> 00:01:55,847
+00:01:56,304 --> 00:02:01,202
+Before every release, an OpenShift Pipelines run checks the tests and the
+
+32
+00:02:01,202 --> 00:02:03,243
+governance, evaluation, and security gates.
+
+33
+00:02:03,243 --> 00:02:08,141
+The decisions are rules, not guesses, so they are repeatable and auditable.
+
+34
+00:02:08,141 --> 00:02:09,341
+Build less.
+
+35
+00:02:09,341 --> 00:02:10,541
 Build better.
 

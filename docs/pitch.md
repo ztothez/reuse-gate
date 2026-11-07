@@ -19,15 +19,30 @@ voice pace; nudge them in CapCut if the voice runs faster or slower. Record with
 
 | Time | Section | Show |
 | --- | --- | --- |
-| 0:00 to 0:13 | Problem | Analyst view, Radar: conflicting KPIs, ownerless and unused reports (or one slide with "360 reports, 206 unused, 86 without an owner") |
-| 0:13 to 0:28 | Solution | Business view, Ask page, the five-stage strip on a request |
-| 0:28 to 0:42 | Demo: ask | Business: type the Nubeqa request, answer the question, the answer card "Extend Nubeqa Gross-to-Net Monthly" |
-| 0:42 to 0:50 | Demo: analyst | Viewing as Analyst: Evidence tab, then Dashboards, "Start from a request's spec" |
-| 0:50 to 1:03 | Demo: governance | Viewing as Approver: `SAMPLE-07`, Gates tab, Simulate owner, 7 of 7, Approve |
-| 1:03 to 1:10 | Demo: developer | Viewing as Developer: Configuration, a measured change, 57 to 51 |
-| 1:10 to 1:17 | Demo: roles | Flick through Executive report, Operator wall, Admin outbox showing "sent" |
-| 1:17 to 1:38 | Impact | Overview page: 57 of 150, 13 to 93 of 124 (labelled modelled) |
-| 1:38 to 1:56 | Close | Top bar "decisions on KServe", then the OpenShift AI Deployments page |
+| 0:00 to 0:13 | Problem | Analyst view, Radar: conflicting KPIs, ownerless and unused reports (or one slide: "360 reports, 206 unused, 86 without an owner") |
+| 0:13 to 0:27 | Solution | Business view, Ask page, the five-stage strip on a request |
+| 0:27 to 0:44 | Demo: ask | Business: the Nubeqa request, answer the question, the answer card "Extend Nubeqa Gross-to-Net Monthly" |
+| 0:44 to 0:54 | Demo: analyst | Viewing as Analyst: Evidence tab, then Dashboards, "Start from a request's spec" |
+| 0:54 to 1:10 | Demo: governance | Viewing as Approver: `SAMPLE-07`, Gates tab, Simulate owner, 7 of 7, Approve |
+| 1:10 to 1:19 | Demo: developer | Viewing as Developer: Configuration, a measured change, 57 to 51 |
+| 1:19 to 1:24 | Demo: roles | Flick through Executive report and Operator wall |
+| 1:24 to 1:41 | Impact | Overview page: 57 of 150, 13 to 93 of 124 (labelled modelled) |
+| 1:41 to 2:10 | Red Hat OpenShift AI | See the Red Hat shots below, in order |
+
+### Red Hat shots (1:41 to 2:10)
+
+1. **OpenShift AI dashboard** (https://data-science-gateway.apps.rm1.0a51.p1.openshiftapps.com): project `ztothez-dev`,
+   Models or Deployments: "Reuse Gate decision service" (`reuse-gate-kserve`), serving runtime `reuse-gate-decision-runtime`,
+   status green. Hold 6 seconds. Save a still as `docs/openshift-ai-deployment.png` for the Red Hat form.
+2. **The app's top bar**: "decisions on KServe", and on an answer card, viewing as Analyst, the decision source. 4 seconds.
+3. **OpenShift console**, Pipelines, PipelineRuns (https://console-openshift-console.apps.rm1.0a51.p1.openshiftapps.com, project
+   `ztothez-dev`): the latest `reuse-gate-verify` run, all five tasks green (unit tests, governance, evaluation, security,
+   rollout). 6 seconds.
+4. Optional, terminal: `oc get inferenceservice reuse-gate-kserve` (READY True) and
+   `curl -s https://reuse-gate-kserve-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com/v1/models/reuse-gate-kserve`
+   (`"ready": true`).
+
+If the Red Hat award wants its own clip, cut these four shots plus the closing narration paragraph into a 30-second video.
 
 ## 4-minute pitch
 
