@@ -150,7 +150,7 @@ export function ExecutiveOverview() {
           {bottleneck && (
             <p className="panel mb-6 text-sm">
               SM-065 is linked to inactive owner <strong>{bottleneck.owner_name}</strong> and{" "}
-              <strong>{bottleneck.specs_blocked} modelled spec blockers</strong>. This models
+              <strong>{bottleneck.specs_blocked} proposed specifications blocked</strong>. This models
               governance risk; it does not mean those reports have been changed.
             </p>
           )}

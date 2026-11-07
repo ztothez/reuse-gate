@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { getRequests, requestsForView, saveRequest, type WorkItemRow } from "@/lib/api";
 import { itemsChanged, useResource } from "@/lib/use-resource";
@@ -10,6 +10,8 @@ import { VoiceInput } from "./VoiceInput";
 export { RequestDetailPage } from "./RequestDetailPage";
 export function NewRequestForm() {
   const navigate = useNavigate();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const [text, setText] = useState("");
   const [requester, setRequester] = useState("");
   const [busy, setBusy] = useState(false);
@@ -19,7 +21,7 @@ export function NewRequestForm() {
       className="panel mb-8 space-y-4"
       onSubmit={(event) => {
         event.preventDefault();
-        if (!text.trim() || busy) return;
+        if (!hydrated || !text.trim() || busy) return;
         setBusy(true);
         setError(null);
         void saveRequest({ text, ...(requester.trim() ? { requester: requester.trim() } : {}) })
@@ -46,12 +48,12 @@ export function NewRequestForm() {
           className="control min-h-32 w-full text-base"
           rows={4}
           value={text}
-          disabled={busy}
+          disabled={busy || !hydrated}
           onChange={(event) => setText(event.target.value)}
           required
           placeholder="Describe the products, market and measures you need"
         />
-        <VoiceInput onUse={setText} disabled={busy} />
+        <VoiceInput onUse={setText} disabled={busy || !hydrated} />
       </div>
       <label className="block text-sm font-semibold" htmlFor="new-requester">
         Your name (optional)
@@ -60,7 +62,7 @@ export function NewRequestForm() {
         id="new-requester"
         className="control w-full"
         value={requester}
-        disabled={busy}
+        disabled={busy || !hydrated}
         onChange={(event) => setRequester(event.target.value)}
       />
       {error && (
@@ -68,7 +70,7 @@ export function NewRequestForm() {
           {error}
         </p>
       )}
-      <button className="primary-action" disabled={busy || !text.trim()}>
+      <button className="primary-action" disabled={busy || !hydrated || !text.trim()}>
         {busy ? "Creating request..." : "Create request"}
       </button>
     </form>

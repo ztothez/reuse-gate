@@ -63,7 +63,7 @@ export function RequesterView({ state }: { state: RequestState }) {
         <p
           aria-live="polite"
           role={error ? "alert" : undefined}
-          className={result && !question ? "text-xl leading-relaxed" : "text-2xl font-semibold leading-snug sm:text-3xl"}
+          className="request-headline"
         >
           {sentence}
         </p>

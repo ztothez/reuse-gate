@@ -107,6 +107,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
     <>
       <PageHeading
         title={item.text}
+        titleClassName="request-headline"
         description="A saved request with a status, evidence and a decision trail."
         action={
           <button
@@ -230,6 +231,7 @@ function DetailContent({ item, reload }: { item: WorkItem; reload: () => void })
             )}
             <section className="panel">
               <h2 className="section-title">Cited evidence</h2>
+              {rec.evidence.length === 0 && <p className="text-sm text-muted-foreground">No cited evidence is available for this interpretation. Recheck with the API before making a decision.</p>}
               <ul className="divide-y text-sm">
                 {rec.evidence.map((entry) => (
                   <li key={entry.table + entry.id} className="py-3">

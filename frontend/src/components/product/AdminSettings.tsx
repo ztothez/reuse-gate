@@ -142,6 +142,7 @@ export function AdminSettings() {
           loading={owners.loading}
           error={owners.error}
           empty={!owners.data?.length}
+          emptyText="No active owners were returned. Check the API connection before assigning ownership."
           retry={owners.reload}
         />
         {!!owners.data?.length && (

@@ -68,7 +68,7 @@ describe("voice push-to-talk", () => {
     await record();
     const field = await screen.findByLabelText("Review transcript");
     expect(field).toHaveValue("A transcribed request");
-    expect(field).toHaveFocus();
+    await waitFor(() => expect(field).toHaveFocus());
     expect(onUse).not.toHaveBeenCalled();
     const [url, init] = fetcher.mock.calls[0]!;
     expect(url).toBe("http://voice.test/transcribe");

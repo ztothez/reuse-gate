@@ -25,7 +25,7 @@ describe("Executive evidence", () => {
       "/approvals",
     );
     expect(screen.getByText(/Certified-owner status is not reported/)).toBeInTheDocument();
-    expect(screen.getByText(/modelled spec blockers/)).toBeInTheDocument();
+    expect(screen.getByText(/proposed specifications blocked/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Recheck gates (simulation)" })).toBeDisabled();
   });
 });

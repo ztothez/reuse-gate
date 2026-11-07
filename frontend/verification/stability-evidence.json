@@ -1,0 +1,62 @@
+[
+  {
+    "run": 1,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.323
+  },
+  {
+    "run": 2,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.967
+  },
+  {
+    "run": 3,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.883
+  },
+  {
+    "run": 4,
+    "passed": true,
+    "tests": 160,
+    "seconds": 11.008
+  },
+  {
+    "run": 5,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.978
+  },
+  {
+    "run": 6,
+    "passed": true,
+    "tests": 160,
+    "seconds": 11.356
+  },
+  {
+    "run": 7,
+    "passed": true,
+    "tests": 160,
+    "seconds": 11.029
+  },
+  {
+    "run": 8,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.645
+  },
+  {
+    "run": 9,
+    "passed": true,
+    "tests": 160,
+    "seconds": 10.83
+  },
+  {
+    "run": 10,
+    "passed": true,
+    "tests": 160,
+    "seconds": 12.476
+  }
+]

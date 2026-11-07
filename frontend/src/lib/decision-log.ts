@@ -36,7 +36,7 @@ export const toEntry = (r: LogRecord): LogEntry => ({
   review_by: r.review_by,
 });
 
-// Newest first, as read from GET /log (or the in-memory demo log when the API is unavailable).
+// Newest first from GET /log. Offline mode has no fabricated decision records.
 export function useDecisionLog() {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);

@@ -266,6 +266,9 @@ section {
   --request-column-min: 15rem;
   --request-column-max: 28rem;
   --focus-clearance: 8rem;
+  --request-headline-min: 1.375rem;
+  --request-headline-max: 1.75rem;
+  --table-min-width: 44rem;
 }
 /* Product shell uses an eight-pixel spacing rhythm. */
 .app-shell {
@@ -358,6 +361,7 @@ button:disabled {
 }
 .product-table {
   width: 100%;
+  min-width: var(--table-min-width);
   text-align: left;
   font-size: var(--type-body);
 }
@@ -456,4 +460,12 @@ main :is(a[href], button, input, select, textarea, summary, [tabindex]) {
 .table-region {
   max-height: var(--table-max-height);
   overflow: auto;
+}
+.request-headline {
+  font-size: clamp(var(--request-headline-min), 3vw, var(--request-headline-max));
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+}
+input[type="checkbox"] {
+  accent-color: var(--primary);
 }

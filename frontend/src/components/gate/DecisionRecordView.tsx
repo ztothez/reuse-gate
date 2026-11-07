@@ -14,6 +14,7 @@ export function DecisionRecordView({ record, origin }: { record: DecisionRecord;
       <div className="min-w-0 sm:col-span-2"><dt className="font-semibold">Request text</dt><dd className="mt-1 break-words">{record.request_text}</dd></div>
       <div><dt className="font-semibold">Clarification rounds</dt><dd>{record.rounds.length}</dd></div>
       <div><dt className="font-semibold">Origin</dt><dd>{origin}</dd></div>
+      <div><dt className="font-semibold">Approver</dt><dd className="break-words">{record.approver}</dd></div>
       <div><dt className="font-semibold">Decision</dt><dd>{record.decision} · {record.recommendation.action.replace(/_/g, " ")}</dd></div>
       <div><dt className="font-semibold">Build on model</dt><dd>{record.recommendation.build_on ?? "None"}</dd></div>
       <div><dt className="font-semibold">Owner</dt><dd className="break-words">{record.owner}</dd></div>

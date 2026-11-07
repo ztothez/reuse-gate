@@ -12,7 +12,7 @@ const paths = { requests:'/requests', item:'/requests/SAMPLE-07', approvals:'/ap
 try {
  for (const [viewport,width] of Object.entries(widths).filter(([name])=>!process.env.VERIFY_VIEWPORT||name===process.env.VERIFY_VIEWPORT)) for (const [journey,route] of Object.entries(paths).filter(([name])=>!process.env.VERIFY_JOURNEY||name===process.env.VERIFY_JOURNEY)) {
   const page=await browser.newPage({ viewport:{width,height:900} });
-  await page.goto(base+route); await page.locator('main h1').waitFor();
+  await page.goto(base+route,{waitUntil:"domcontentloaded"}); await page.locator('main h1').waitFor();
   await page.waitForTimeout(1500);
   const expected=await page.evaluate(()=>Array.from(document.querySelectorAll('a[href],button,input,select,textarea,[tabindex],summary')).filter(e=>!e.disabled&&e.tabIndex>=0&&e.checkVisibility()&&e.getBoundingClientRect().width>0&&(!e.closest('details:not([open])')||e.closest('summary'))).map((e,i)=>{e.dataset.finishFocus=String(i);return {index:i,name:e.getAttribute('aria-label')||e.labels?.[0]?.textContent.trim()||e.textContent.trim().slice(0,80)||e.id,tag:e.tagName,type:e.type||''};}));
   assert(expected.length>0);
@@ -49,7 +49,7 @@ try {
  }
  for(const viewport of ['tablet','desktop']){
   const page=await browser.newPage({viewport:{width:widths[viewport],height:900}});
-  await page.goto(base+'/radar');await page.locator('main h1').waitFor();await page.waitForTimeout(1500);
+  await page.goto(base+'/radar',{waitUntil:'domcontentloaded'});await page.locator('main h1').waitFor();await page.waitForTimeout(1500);
   const boxes=await page.evaluate(()=>Array.from(document.querySelectorAll('main a[href],main button,main [tabindex="0"]')).map((e,index)=>{
    const r=e.getBoundingClientRect();let box={left:r.left+scrollX,right:r.right+scrollX,top:r.top+scrollY,bottom:r.bottom+scrollY};
    for(let p=e.parentElement;p;p=p.parentElement){const s=getComputedStyle(p),r=p.getBoundingClientRect();if(s.overflowX!=='visible'){box.left=Math.max(box.left,r.left+scrollX);box.right=Math.min(box.right,r.right+scrollX);}if(s.overflowY!=='visible'){box.top=Math.max(box.top,r.top+scrollY);box.bottom=Math.min(box.bottom,r.bottom+scrollY);}}
@@ -57,7 +57,7 @@ try {
   }));
   const collisions=await page.evaluate((boxes)=>{const found=[];for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){const a=boxes[i],b=boxes[j];const ae=document.querySelector(`[data-finish-box="${a.index}"]`),be=document.querySelector(`[data-finish-box="${b.index}"]`);if(ae.contains(be)||be.contains(ae))continue;const w=Math.min(a.box.right,b.box.right)-Math.max(a.box.left,b.box.left),h=Math.min(a.box.bottom,b.box.bottom)-Math.max(a.box.top,b.box.top);if(w>4&&h>4)found.push({a:a.index,b:b.index,width:w,height:h});}return found;},boxes);
   assert.deepEqual(collisions,[],`Painted Radar overlap ${viewport}`);
-  await page.evaluate((boxes)=>{for(const {box,index} of boxes){if(box.right<=box.left||box.bottom<=box.top)continue;const d=document.createElement('div');Object.assign(d.style,{position:'absolute',left:`${box.left}px`,top:`${box.top}px`,width:`${box.right-box.left}px`,height:`${box.bottom-box.top}px`,border:'1px solid #005a50',pointerEvents:'none',zIndex:'10000',fontSize:'10px',color:'#00352f'});d.textContent=String(index);document.body.append(d);}},boxes);
+  await page.evaluate((boxes)=>{for(const {box,index} of boxes){if(box.right<=box.left||box.bottom<=box.top)continue;const d=document.createElement('div');Object.assign(d.style,{position:'absolute',left:`${box.left}px`,top:`${box.top}px`,width:`${box.right-box.left}px`,height:`${box.bottom-box.top}px`,border:'1px solid var(--primary)',pointerEvents:'none',zIndex:'10000',fontSize:'var(--type-meta)',color:'var(--primary)'});d.textContent=String(index);document.body.append(d);}},boxes);
   await page.screenshot({path:path.join(output,`radar-bounds-${viewport}.png`),fullPage:true});
   results.push({journey:'radar',viewport,boxes,collisions,passed:true,screenshot:`radar-bounds-${viewport}.png`});await page.close();
  }
