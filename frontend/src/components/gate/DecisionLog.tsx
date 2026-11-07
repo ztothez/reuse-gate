@@ -1,10 +1,10 @@
-import { Download } from "lucide-react";
+import { Download, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { newBuildsAvoided, useDecisionLog } from "@/lib/decision-log";
-import { ACTIONS, EmptyState, Panel } from "./shared";
+import { ACTIONS, EmptyState, ErrorState, Panel } from "./shared";
 
 export function DecisionLog() {
-  const log = useDecisionLog();
+  const { log, loading, error, refresh } = useDecisionLog();
 
   function exportLog() {
     const url = URL.createObjectURL(
@@ -31,14 +31,22 @@ export function DecisionLog() {
             </div>
           ))}
         </div>
-        <Button variant="outline" onClick={exportLog} disabled={log.length === 0}>
-          <Download /> Export JSON
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={refresh} disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : <RefreshCw />} Refresh
+          </Button>
+          <Button variant="outline" onClick={exportLog} disabled={log.length === 0}>
+            <Download /> Export JSON
+          </Button>
+        </div>
       </div>
-      <Panel title="Decisions">
+      {error && <ErrorState>{error}</ErrorState>}
+      <Panel title="Decisions" caption="Read from the API decision log (GET /log), newest first.">
         {log.length === 0 ? (
           <EmptyState>
-            No decisions yet. Approve or reject a recommendation in New request.
+            {loading
+              ? "Loading decisions..."
+              : "No decisions yet. Approve or reject a recommendation as an Approver."}
           </EmptyState>
         ) : (
           <div className="overflow-x-auto">
@@ -68,7 +76,9 @@ export function DecisionLog() {
                       {new Date(e.time).toLocaleString()}
                     </td>
                     <td className="max-w-xs pr-3">{e.text}</td>
-                    <td className="pr-3">{ACTIONS[e.action]?.label ?? e.action}</td>
+                    <td className="pr-3">
+                      {e.action ? (ACTIONS[e.action]?.label ?? e.action) : "-"}
+                    </td>
                     <td className="pr-3 font-mono text-xs">{e.target}</td>
                     <td className="pr-3 font-medium">
                       {e.decision === "approve" ? "Approved" : "Rejected"}
