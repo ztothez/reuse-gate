@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 from reuse_gate.estate import Estate
 from reuse_gate.llm import NoLLM
 from reuse_gate.pipeline import run_request
+from reuse_gate.remediate import ownership_bottlenecks
 
 
 def radar(est):
@@ -40,6 +41,7 @@ def radar(est):
         "ownerless_assets": [brief(a) for a in no_owner[:10]],
         "high_reach_uncertified": [brief(a) for a in sorted(uncert, key=lambda a: -est.views(a["asset_id"]))[:10]],
         "dead_assets": [brief(a) for a in dead[:10]],
+        "ownership_bottlenecks": ownership_bottlenecks(est),
     }
 
 

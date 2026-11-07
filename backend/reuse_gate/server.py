@@ -6,7 +6,10 @@ POST /recommend  {"text": "...", "answers": [...]}      -> recommendation item (
 POST /speak      {"text": "..."}                       -> audio/mpeg from ElevenLabs, capped and cached
 POST /spec       {intent, recommendation, owner, review_by} -> {spec, gates}
 GET  /radar                                            -> radar summary
-POST /approve    {request_id, decision, approver, owner, review_by}
+POST /remediate  {request_id | intent, remediations: [{type: assign_owner, target, owner_id}], owner?, review_by?, as_of?}
+                                                       -> simulated before and after gates. Never changes the estate
+POST /approve    {request_id, decision, approver, owner, review_by, text?, intent?, rounds?, remediations?, ...}
+                                                       -> stores the body plus a server-built record (decision, gates, estate hash)
 GET  /log                                              -> approvals recorded by this process
 GET  /health
 GET  /n8n/radar-digest
@@ -25,6 +28,7 @@ from reuse_gate.estate import DEFAULT_CATALOG, Estate
 from reuse_gate.export_mock import radar
 from reuse_gate.llm import live_client, load_env
 from reuse_gate.pipeline import run_request
+from reuse_gate.remediate import RemediationError, decision_record, simulate
 from reuse_gate.spec import build_spec
 from reuse_gate.spec_gate import check
 from reuse_gate.speech import SpeechError, speak
@@ -45,7 +49,7 @@ def do_recommend(text, answers=None, rounds=None):
 
 def register_decision(body):
     entry = {**body, "registered_id": "REG-" + uuid.uuid4().hex[:8].upper(),
-             "time": datetime.now(timezone.utc).isoformat()}
+             "time": datetime.now(timezone.utc).isoformat(), "record": decision_record(EST, body)}
     LOG.append(entry)
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(entry) + "\n")
@@ -152,6 +156,11 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send_audio(speak(body.get("text")))
                 except SpeechError as exc:
                     return self._send(exc.status, {"error": str(exc)})
+            if self.path == "/remediate":
+                try:
+                    return self._send(200, simulate(EST, body))
+                except RemediationError as exc:
+                    return self._send(400, {"error": str(exc), "applied": "nothing"})
             if self.path == "/approve":
                 missing = [k for k in ("request_id", "decision", "approver", "owner") if not body.get(k)]
                 if missing or body["decision"] not in ("approve", "reject"):
