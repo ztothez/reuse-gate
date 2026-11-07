@@ -8,7 +8,8 @@ For the finals (4 minutes plus 6 minutes of questions) and the submission form. 
 1. `oc whoami`, then `sh deploy/openshift/wake.sh`.
 2. `curl -s https://reuse-gate-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com/healthz` shows `"decision_backend": "kserve"` and
    `"reachable": true`.
-3. Enter the access code in Settings in the browser you present from (approve and simulate need it).
+3. Sign in with your role codes in the browser you present from: business, analyst, developer and approver, using Add a role.
+   Give judges a business or analyst code if they want to try it; the approver code stays with you.
 4. Open the tabs below in advance. If a model provider is down, say so: decisions never depend on a model.
 
 ## 4-minute pitch
@@ -46,9 +47,11 @@ Live UI: https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
   explanation; the decision is deterministic and cited, and the UI says which component did what.
 - **What if the model provider is down?** Tiers fall back (Together, then Featherless, then rules) with a circuit breaker.
   Decisions are identical with every model unreachable; tested on 194 decisions.
-- **Is this enterprise ready?** The parts that are: health probes, a non-root read-only container, a state volume, a gated pipeline,
-  an access code on writes, a recorded decision trail. Not yet: single sign-on and per-user authorization (designed in the README,
-  not built), and a real connector to Power BI or Fabric metadata. The data pack is synthetic.
+- **Is this enterprise ready?** The parts that are: least privilege enforced by the API (each role gets only its own rows and
+  fields, business users see only their own requests, records name the signed-in approver), health probes, a non-root read-only
+  container, a state volume, a gated pipeline, a recorded decision trail, and no fallback to bundled data. Not yet: single sign-on
+  in place of role codes (the seam is one function), scope-based approval rights, and a real connector to Power BI or Fabric
+  metadata. The data pack is synthetic, as the challenge provides it.
 - **Why 57 of 150?** 150 requests come from 10 distinct texts, and the estate is deliberately messy, so reuse as-is is 0. If only
   canonical KPI definitions may count, it is 33 of 150; the README shows both.
 - **Why KServe for rules?** The decision service is the model being served: versioned, health-checked and scaled by OpenShift AI
