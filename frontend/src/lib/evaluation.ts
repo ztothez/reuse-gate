@@ -84,7 +84,7 @@ export function metricMeaning(metric: EvaluationMetric) {
 export function modelAttribution(method: string) {
   return (
     method.match(/Generated explanations by (.+)$/)?.[0] ??
-    method.match(/^[^;]+ as judge/)?.[0] ??
+    method.match(/^[^;]+?(?:as judge|judges each distinct explanation[^;]*)/)?.[0] ??
     null
   );
 }

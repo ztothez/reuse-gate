@@ -75,7 +75,9 @@ def remote(est, intent, human_review, post=None):
     try:
         reply = (post or _post)(f"{base}/v1/models/{kserve_model()}:predict", body, kserve_timeout())
     except urllib.error.HTTPError as exc:
-        raise KServeError(f"http_{exc.code}") from exc
+        code = exc.code
+        exc.close()
+        raise KServeError(f"http_{code}") from None
     except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as exc:
         slow = isinstance(exc, TimeoutError) or isinstance(getattr(exc, "reason", None), TimeoutError)
         raise KServeError("timeout" if slow else "unreachable") from exc

@@ -227,6 +227,7 @@ class Handler(BaseHTTPRequestHandler):
     def _body(self):
         n = int(self.headers.get("Content-Length") or 0)
         if n > MAX_BODY:
+            self._drain(n)
             raise ValueError("request body is too large")
         body = json.loads(self.rfile.read(n) or b"{}")
         if not isinstance(body, dict):
@@ -267,14 +268,14 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._send(404, {"error": "not found"})
 
-    def _drain(self):
+    def _drain(self, limit=MAX_BODY):
         """Read and discard the body, so closing the connection cannot lose the response."""
         try:
             n = int(self.headers.get("Content-Length") or 0)
         except ValueError:
             return
-        if n > 0:
-            self.rfile.read(min(n, MAX_BODY))
+        if 0 < n <= max(limit, 2_000_000):
+            self.rfile.read(n)
 
     def _client(self):
         """The address the OpenShift router saw: the last X-Forwarded-For entry, which the router appends. A client cannot forge it."""

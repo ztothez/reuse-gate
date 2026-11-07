@@ -7,20 +7,21 @@ requests in the SinceAI data pack, 57 avoid a new build. That is the platform's 
 maintainable and governed analytics products", with "ownership, KPI consistency, human oversight and lifecycle control".
 
 This page is exact about what runs where. "Live" means running in project `ztothez-dev` on the Developer Sandbox on
-2026-11-07. "After rollout" means applied by `deploy/openshift/rollout.sh`, which has not been run yet.
+2026-11-07. "After rollout" means applied by the final run of `deploy/openshift/rollout.sh`, which has not been run yet. The
+API manifest, the state volume and API build 8 were applied earlier on 2026-11-07, so those parts are already live.
 
 ## 1. What runs where
 
 | Component | Runs on OpenShift | Why |
 | --- | --- | --- |
 | UI (`reuse-gate-ui`, static React build on UBI nginx, non-root) | Yes, live | Deployment, Service and edge Route `reuse-gate-ui` |
-| API (`reuse-gate`, Python standard library) | Yes, live | Deployment, Service and edge Route `reuse-gate`. Live image `e7eccf8b5e28`, which predates this page's changes |
+| API (`reuse-gate`, Python standard library) | Yes, live | Deployment, Service and edge Route `reuse-gate`. Build 8 serves `/healthz`, `/evaluation` and the state volume; it predates the judge change in `data/evaluation.json` |
 | Decision service `reuse-gate-kserve` | Yes, live | KServe InferenceService (raw deployment) on the ServingRuntime `reuse-gate-decision-runtime`, KServe v1 protocol. The "model" is the deterministic decision logic and the data pack in the image |
-| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | Only when asked at rollout | Live, the API decides in its own pod and does not call KServe. `api.yaml` keeps `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it and checks `/healthz` reports KServe reachable |
+| API decisions through KServe (`REUSE_GATE_DECISION_BACKEND=kserve`) | Only when asked at rollout | Live, the API decides in its own pod and does not call KServe, although `/healthz` reports KServe reachable from the API. `api.yaml` keeps `local`; `REUSE_GATE_DECISION_BACKEND=kserve sh deploy/openshift/rollout.sh` switches it and checks `/healthz` reports KServe reachable |
 | BuildConfigs `reuse-gate`, `reuse-gate-ui` | Yes, live | Binary Docker builds from a clean `git archive` export |
 | Tekton pipeline `reuse-gate-verify` | Yes, live with 3 tasks; 5 tasks after rollout | Unit tests, governance gate and rollout are live (2 successful runs). Evaluation and security gates are added by the rollout |
 | Knative PingSource `reuse-gate-radar-ping` | Yes, live | Calls `/radar-ping` at 06:00 on weekdays (Europe/Helsinki). A scheduled run has not been observed yet |
-| PVC `reuse-gate-state` (1Gi, gp3) | After rollout | Work items, the decision log and the model and audio caches |
+| PVC `reuse-gate-state` (1Gi, gp3) | Yes, live | Mounted at `/var/lib/reuse-gate`: work items, the decision log and the model and audio caches |
 | In-cluster language model | No | Tried on the vLLM CPU runtime and rejected, see section 6 |
 | CSC Aitta (`openai/gpt-oss-120b`, embeddings) | No, external (Finland) | Default first model tier. Returned HTTP 503 during this work |
 | Featherless (`zai-org/GLM-5.2`) | No, external | Default second model tier |
@@ -118,7 +119,8 @@ The KServe call stays inside the project (`allow-same-namespace` NetworkPolicy).
   2. `governance-gate`: every recommendation has an action, a rationale and cited rows.
   3. `evaluation-gate`: `scripts/check_evaluation.py`, fresh offline and on the shipped `data/evaluation.json`. Minimums:
      deterministic faithfulness 1.0, guard replacement rate at most 0.10, citation validity 1.0, context precision at least
-     0.90, context recall at least 0.95, LLM judge at least 0.80 when it ran. Current: 1.0, 0.0, 1.0, 0.937, 0.992, not run.
+     0.90, context recall at least 0.95. Current: 1.0, 0.0, 1.0, 0.937, 0.992. The LLM judge (0.811, 30 of 37) is reported
+     in `/evaluation` but is not a gate: it is a model's uncalibrated opinion and depends on a third-party provider.
   4. `security-gate`: security unit tests, then `scripts/security_check.py` against the API started in the task with throwaway
      token and n8n values: 19 of 19 locally.
   5. `rollout`: restarts the API and the predictor and waits for both.
@@ -133,8 +135,9 @@ The KServe call stays inside the project (`allow-same-namespace` NetworkPolicy).
 
 ## 6. Known limits
 
-- **Not rolled out.** Everything marked "after rollout" is validated with `oc apply --dry-run=server`, unit tests and local runs,
-  not on the cluster. The live API is the older image without `/healthz`, the KServe path, the state volume or the new gates.
+- **Not fully rolled out.** Everything marked "after rollout" is validated with `oc apply --dry-run=server`, unit tests and local
+  runs, not on the cluster. The live API already has `/healthz`, the state volume and the KServe client, but decides locally, and
+  the live pipeline still has 3 tasks without the evaluation and security gates.
 - **In-cluster model tier: no-go.** On the vLLM CPU (x86) runtime with 2 CPU requested and 4 CPU limit:
   `Qwen2.5-0.5B-Instruct` started in 174 s and answered intent calls in 8.7 to 16.0 s (median 13.8 s), but 0 of 21 messy
   prompts gave a usable intent: it returned every product and KPI from the allow-lists and no `kind`. Those values are all

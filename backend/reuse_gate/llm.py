@@ -313,6 +313,11 @@ class LLM:
             return self._clip(exc.read(400).decode("utf-8", "replace"))
         except Exception:
             return ""
+        finally:
+            try:
+                exc.close()
+            except Exception:
+                pass
 
     def json_chat(self, messages, **params):
         raw = re.sub(r"<think>.*?</think>", "", self.chat(messages, **params), flags=re.S).strip()

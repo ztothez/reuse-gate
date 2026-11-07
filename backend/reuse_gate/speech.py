@@ -61,7 +61,9 @@ def speak(text):
         with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
             audio = resp.read()
     except urllib.error.HTTPError as exc:
-        raise SpeechError(502, f"the audio service returned HTTP {exc.code}") from exc
+        code = exc.code
+        exc.close()
+        raise SpeechError(502, f"the audio service returned HTTP {code}") from None
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise SpeechError(502, "the audio service could not be reached") from exc
     if not audio:

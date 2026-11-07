@@ -33,12 +33,27 @@ describe("evaluation measurements", () => {
     expect(modelAttribution("meta-llama/Llama-3.3-70B-Instruct as judge; prompt elsewhere")).toBe(
       "meta-llama/Llama-3.3-70B-Instruct as judge",
     );
+    expect(
+      modelAttribution(
+        "meta-llama/Llama-3.3-70B-Instruct on Featherless judges each distinct explanation against the same request, intent and decision brief the generator saw, and the cited rows; prompt in data/judge_prompt.txt.",
+      ),
+    ).toBe(
+      "meta-llama/Llama-3.3-70B-Instruct on Featherless judges each distinct explanation against the same request, intent and decision brief the generator saw, and the cited rows",
+    );
     expect(modelAttribution("rules only")).toBeNull();
   });
   it("shows a not-measured reason and all method details", async () => {
+    const unmeasured = {
+      ...mock.evaluation.groups[1]!.metrics[1]!,
+      value: null,
+      n: 0,
+      method: "meta-llama/Llama-3.3-70B-Instruct as judge; prompt in data/judge_prompt.txt",
+      basis: "not run",
+      caveat: "Not run: only 6 distinct explanations, fewer than 30.",
+    };
     load.mockResolvedValue({
       ...mock.evaluation,
-      groups: [{ group: "generation", metrics: [mock.evaluation.groups[1]!.metrics[1]] }],
+      groups: [{ group: "generation", metrics: [unmeasured] }],
     });
     const { container } = render(<EvaluationPage />);
     expect(await screen.findByText("Not measured")).toBeInTheDocument();
