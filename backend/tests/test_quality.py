@@ -125,7 +125,7 @@ class EvaluationTest(unittest.TestCase):
         for m in self.metrics.values():
             self.assertEqual(set(m), METRIC_KEYS, m["id"])
             self.assertTrue(m["caveat"].strip(), m["id"])
-            self.assertNotIn("—", json.dumps(m))
+            self.assertNotIn("\u2014", json.dumps(m, ensure_ascii=False), "no em dashes in user-facing text")
 
     def test_known_numbers(self):
         m = self.metrics
