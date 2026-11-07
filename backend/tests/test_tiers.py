@@ -123,6 +123,63 @@ class TierFallbackTest(unittest.TestCase):
         self.assertNotIn("sk-secret-value", json.dumps(list(a.last_failures)))
 
 
+class BreakerTest(unittest.TestCase):
+    """Every tier, the last one and the embeddings included, is skipped for LLM_TIER_COOLDOWN_S after a failure."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.msg = [{"role": "user", "content": "hi"}]
+
+    def test_last_tier_breaker_opens_then_closes(self):
+        c = LLM("http://c/v1", "", "m", cache_dir=self.tmp.name, retries=0, tier="featherless")
+        c.use_cache = False
+        with patch.dict(os.environ, {"LLM_TIER_COOLDOWN_S": "60"}), patch("urllib.request.urlopen", side_effect=TimeoutError("slow")) as spy:
+            with self.assertRaises(LLMError):
+                c.chat(self.msg)
+            with self.assertRaises(LLMError) as ctx:
+                c.chat(self.msg)
+        self.assertEqual((spy.call_count, ctx.exception.code), (1, "cooling_down"))
+        self.assertEqual(list(c.last_failures), [{"tier": "featherless", "reason": "cooling_down"}])
+        c._skip_until = 0  # the cooldown has passed
+        with patch("urllib.request.urlopen", side_effect=[reply("ok")]):
+            self.assertEqual(c.chat(self.msg), "ok")
+
+    def test_open_breakers_cost_no_time(self):
+        b = LLM("http://b/v1", "", "m2", cache_dir=self.tmp.name, retries=0, tier="featherless")
+        a = LLM("http://a/v1", "", "m1", cache_dir=self.tmp.name, retries=0, tier="aitta", fallback=b)
+        a.use_cache = b.use_cache = False
+        with patch("urllib.request.urlopen", side_effect=TimeoutError("slow")):
+            with self.assertRaises(LLMError):
+                a.chat(self.msg)
+        with patch("urllib.request.urlopen") as spy:
+            for _ in range(5):
+                with self.assertRaises(LLMError):
+                    a.chat(self.msg)
+        spy.assert_not_called()
+        self.assertEqual(list(a.last_failures), [{"tier": "aitta", "reason": "cooling_down"}, {"tier": "featherless", "reason": "cooling_down"}])
+
+    def test_embeddings_breaker_survives_across_requests(self):
+        from reuse_gate import kpi_match
+        kpi_match._EMBEDDERS.clear()
+        with patch.dict(os.environ, {"AITTA_API_KEY": "k"}):
+            first = kpi_match.embedder_from_env()
+            first.use_cache = False
+            with patch("urllib.request.urlopen", side_effect=urllib.error.HTTPError("u", 503, "x", None, None)) as spy:
+                with self.assertRaises(LLMError):
+                    first.embed(["a"], "e5")
+                again = kpi_match.embedder_from_env()
+                with self.assertRaises(LLMError) as ctx:
+                    again.embed(["b"], "e5")
+        self.assertIs(again, first)
+        self.assertEqual((spy.call_count, ctx.exception.code), (1, "cooling_down"))
+        kpi_match._EMBEDDERS.clear()
+
+    def test_timeouts_stay_short(self):
+        _, tiers = chain({**DEFAULT_ENV, "REUSE_GATE_LLM_TIERS": "aitta,featherless,together", "TOGETHER_API_KEY": "t"})
+        self.assertEqual([(t.tier, t.timeout, t.retries) for t in tiers], [("aitta", 20.0, 0), ("featherless", 40.0, 0), ("together", 20.0, 0)])
+
+
 class FakeTieredClient:
     """Answers intent and explanation like the chain would after the first tier failed."""
     configured, answers, last_model, last_tier = True, None, "m2", "aitta"

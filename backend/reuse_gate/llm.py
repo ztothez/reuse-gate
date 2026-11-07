@@ -69,7 +69,12 @@ TOGETHER_URL = "https://api.together.xyz/v1"  # US provider, an outage fallback 
 PRIMARY_MODEL = "openai/gpt-oss-120b"
 FALLBACK_MODEL = "zai-org/GLM-5.2"
 MAX_CONCURRENT = 4  # model calls at once across the whole server. Aitta is small, shared and limited per user per minute
-PRIMARY_COOLDOWN = 120  # seconds to skip a failed primary, so a person is not kept waiting on every call
+PRIMARY_COOLDOWN = 120  # seconds to skip a failed tier, so a person is not kept waiting on every call
+
+
+def tier_cooldown():
+    """Circuit breaker: after a failure a tier (chat or embeddings) is skipped for this many seconds, then tried again."""
+    return float(os.environ.get("LLM_TIER_COOLDOWN_S", PRIMARY_COOLDOWN))
 
 
 def call_timeout():
@@ -213,17 +218,20 @@ class LLM:
             self.last_model, self.last_tier = self.model, self.tier
             return cached
         with self._slot():
-            if self.fallback and time.monotonic() < self._skip_until:
-                return self._from_fallback(messages, params, "cooling_down")
+            if time.monotonic() < self._skip_until:  # the breaker is open: no call until the cooldown ends
+                if self.fallback:
+                    return self._from_fallback(messages, params, "cooling_down")
+                self.last_failures = [{"tier": self.tier, "reason": "cooling_down"}]
+                raise LLMError(f"tier {self.tier} is cooling down after a failure", "cooling_down")
             try:
                 content = self._fetch(messages, params)
             except LLMBudgetError:
                 raise  # a spent budget must stop the run, not move the spending elsewhere
             except LLMError as exc:
+                self._skip_until = time.monotonic() + tier_cooldown()
                 if not self.fallback:
                     self.last_failures = [{"tier": self.tier, "reason": exc.code}]
                     raise
-                self._skip_until = time.monotonic() + PRIMARY_COOLDOWN
                 return self._from_fallback(messages, params, exc.code)
         self.last_model, self.last_tier = self.model, self.tier
         if self.use_cache:
@@ -395,6 +403,8 @@ class LLM:
         cached = self._read_cache(key) if self.use_cache else None
         if cached is not None:
             return cached
+        if time.monotonic() < self._skip_until:
+            raise LLMError("embeddings are cooling down after a failure", "cooling_down")
         if self.calls >= self.max_calls:
             raise LLMBudgetError(f"LLM call budget exhausted ({self.max_calls})")
         self.calls += 1
@@ -407,9 +417,11 @@ class LLM:
             with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 vectors = [d["embedding"] for d in sorted(json.load(resp)["data"], key=lambda d: d["index"])]
         except urllib.error.HTTPError as exc:
-            raise LLMError(f"embedding request failed: HTTP {exc.code}") from exc
+            self._skip_until = time.monotonic() + tier_cooldown()
+            raise LLMError(f"embedding request failed: HTTP {exc.code}", f"http_{exc.code}") from exc
         except (urllib.error.URLError, TimeoutError, OSError, KeyError, TypeError, ValueError) as exc:
-            raise LLMError(f"embedding request failed: {exc}") from exc
+            self._skip_until = time.monotonic() + tier_cooldown()
+            raise LLMError(f"embedding request failed: {exc}", "unreachable") from exc
         if self.use_cache:
             self._write_cache(key, vectors)
         return vectors
