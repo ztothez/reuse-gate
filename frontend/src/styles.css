@@ -265,6 +265,7 @@ section {
   --table-max-height: 70vh;
   --request-column-min: 15rem;
   --request-column-max: 28rem;
+  --focus-clearance: 8rem;
 }
 /* Product shell uses an eight-pixel spacing rhythm. */
 .app-shell {
@@ -441,6 +442,13 @@ button:disabled {
 /* Long words and the existing technical flow reflow within their own regions. */
 main {
   overflow-wrap: anywhere;
+}
+/* Reserve room for the request action bar when keyboard focus scrolls into view. */
+html {
+  scroll-padding-block: var(--focus-clearance);
+}
+main :is(a[href], button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-block: var(--focus-clearance);
 }
 .app-topbar form > button {
   flex-shrink: 0;
