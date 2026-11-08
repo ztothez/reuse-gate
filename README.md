@@ -9,8 +9,8 @@ Built by team ZtotheZ (Roosa Yöruusu) at the **Since AI Hackathon 2026** in Tur
 synthetic Builder Data Pack; no real Bayer data is used. The hackathon is over, and the code is kept as it was submitted, with
 small clean-ups.
 
-**Live UI** (while the Developer Sandbox stays up): https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com. Access
-needs a role code. Evidence of the running system on Red Hat OpenShift AI is in [docs/evidence/](docs/evidence/).
+During the hackathon it ran on a Red Hat OpenShift AI Developer Sandbox, which has since been shut down. Screenshots and
+command output of the running system are in [docs/evidence/](docs/evidence/); to run it yourself, see Run and OpenShift below.
 
 Each role has its own app: Business asks and gets one answer; Analyst builds dashboards from the data pack; Developer proposes
 configuration changes that are measured on all 150 requests; Approver decides; Executive reads a plain-language report; Operator
@@ -501,7 +501,7 @@ in `deploy/openshift/api.yaml`. Without them it runs on the rule baseline. The K
 `POST /radar-ping` returns the same payload as `GET /n8n/radar-digest` with no key, because a PingSource cannot send custom headers. It is
 read-only, ignores the request body, and exposes only data that the public `GET /radar` already shows. `GET /n8n/radar-digest` still needs its key.
 
-The UI is a static site at https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com, served by a non-root UBI nginx image on port 8080
+The UI is a static site served by a non-root UBI nginx image on port 8080
 (`frontend/Containerfile`, `deploy/openshift/frontend.yaml`). The API URL is compiled into the bundle from the `VITE_API_URL` build argument in the
 BuildConfig, so a new API URL needs a new build. Build it from a clean export so that no local files reach the image:
 
@@ -566,7 +566,7 @@ what was measured are in [docs/openshift.md](docs/openshift.md).
 
 ### Email and workflows (n8n)
 
-**Live on n8n Cloud** (`ztothez.app.n8n.cloud`). The API posts each event to the **Reuse Gate notifications** workflow
+During the hackathon this ran on n8n Cloud. The API posts each event to the **Reuse Gate notifications** workflow
 (webhook checked with the `Reuse Gate webhook secret` header credential), and n8n sends the email with its **Proton SMTP**
 credential. The SMTP password lives in n8n only. `backend/reuse_gate/notify.py` writes every event to an outbox with its outcome
 (sent, failed, not configured, no recipient), shown on the admin's Workflows page. Sending runs in a thread and never fails the
