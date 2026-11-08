@@ -18,3 +18,17 @@ the live API's data for that role. The front end in the screenshots is the curre
 | `10-openshift-ai-cli.png` | `oc` and `curl` output: the KServe InferenceService (READY True) on its ServingRuntime, running pods, the OpenShift Pipelines run with all five tasks Succeeded, routes, the model's ready check, and the API health reporting `decision_backend: kserve` |
 
 Manifests: [deploy/openshift/](../../deploy/openshift/). Write-up: [docs/openshift.md](../openshift.md).
+
+## OpenShift console and OpenShift AI dashboard (8 November 2026, 10:19 to 10:24)
+
+| File | What it shows |
+| --- | --- |
+| `13-openshift-ai-deployments-kserve.png` | **Red Hat OpenShift AI dashboard**, project `ztothez-dev`, Deployments: "Reuse Gate decision service" on "Reuse Gate decision runtime (KServe v1, CPU)", internal and external endpoint, status Ready |
+| `11-openshift-project-overview.png` | Project `ztothez-dev` overview: inventory, utilization, recent events of the rollout |
+| `12-openshift-projects.png` | The `ztothez-dev` project, active |
+| `14-openshift-deployments.png` | Deployments `reuse-gate` (API), `reuse-gate-kserve-predictor` (labelled `opendatahub.io/dashboard=true`, `serving.kserve.io/inferenceservice=reuse-gate-kserve`) and `reuse-gate-ui`, 1 of 1 pods each |
+| `15-openshift-pods-builds.png` | Pods: the image builds from clean exports, the running KServe predictor (3/3) and UI, pipeline task pods |
+| `16-openshift-secrets-names-only.png` | Secret names only (`reuse-gate-access`, `-llm`, `-elevenlabs`, `-n8n`): keys live in the cluster, never in the image or repo |
+| `17-openshift-configmaps-kserve-modelconfig.png` | ConfigMaps, including the KServe model config `modelconfig-reuse-gate-kserve-0` |
+| `18-openshift-routes.png` | Routes for the API, the KServe predictor and the UI, all Accepted |
+| `19-openshift-services.png` | Services for the API, the KServe predictor and the UI |
