@@ -6,7 +6,7 @@ estate problems without anyone asking. Built for the Since AI Hackathon 2026, Ba
 
 **Live UI:** https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
 
-**Judges:** sign in with the judge access code given in the submission. "Viewing as" then switches between all seven roles
+**Judges:** sign in with the access code `1eecfd9f15528117`, also shown on the sign-in page. "Viewing as" then switches between all seven roles
 (Business, Analyst, Developer, Approver, Admin, Executive, Operator), and the API serves each view exactly that role's data and
 rights. Every request page has a **Discussion** button for the request's chat with the agent.
 

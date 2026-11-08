@@ -30,7 +30,7 @@ Before anyone builds a new dashboard, Reuse Gate checks what already exists and 
 
 **What's next.** Single sign-on in place of access codes (one function changes), approval rights by domain, a real Power BI or Fabric metadata connector instead of the data pack, .pbip export from the dashboard studio, and a pilot with one Bayer division (see the pilot plan).
 
-**Try it.** Sign in with the judge code JUDGE_CODE. "Viewing as" switches between all seven roles; the API serves each view exactly that role's data. Every request page has a Discussion button for the request's chat with the agent.
+**Try it.** Sign in with the access code 1eecfd9f15528117 (also shown on the sign-in page). "Viewing as" switches between all seven roles; the API serves each view exactly that role's data. Every request page has a Discussion button for the request's chat with the agent.
 
 ## Built with
 Red Hat OpenShift AI, KServe, Python, React, TypeScript, OpenShift Pipelines (Tekton), SQLite, n8n, ElevenLabs, gpt-oss-120b, GLM-5.2, Tailwind CSS, Recharts, Vite

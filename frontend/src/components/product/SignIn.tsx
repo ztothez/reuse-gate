@@ -2,6 +2,9 @@ import { useState } from "react";
 import { addSession, getMe } from "@/lib/api";
 import { isRole } from "@/lib/role";
 
+// The public demo code for judges and voters: a judge code views as any role, with exactly that role's rights.
+const DEMO_CODE = "1eecfd9f15528117";
+
 // Sign in with the access code you were given. The API says which role and name the code belongs to; the app never decides.
 export function SignIn({ onDone, adding = false }: { onDone: () => void; adding?: boolean }) {
   const [code, setCode] = useState("");
@@ -40,6 +43,13 @@ export function SignIn({ onDone, adding = false }: { onDone: () => void; adding?
         requests; analysts and developers read evidence and specs; approvers decide. The code stays
         in this browser tab only.
       </p>
+      {!adding && (
+        <p className="tone-blue rounded p-3 text-sm">
+          Judges and voters: sign in with the access code{" "}
+          <strong className="select-all font-mono text-base">{DEMO_CODE}</strong>. It opens every
+          role in "Viewing as".
+        </p>
+      )}
       <label htmlFor="access-code-input" className="block text-sm font-semibold">
         Access code
       </label>
