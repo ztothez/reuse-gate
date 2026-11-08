@@ -2,13 +2,15 @@
 
 Before anyone builds a new dashboard, Reuse Gate checks whether an existing report can be reused, repaired, extended,
 migrated or retired. A person approves the outcome. New assets get an owner and a review date, and a Radar view shows
-estate problems without anyone asking. Built for the Since AI Hackathon 2026, Bayer challenge "Build Less, Build Better".
+estate problems without anyone asking.
 
-**Live UI:** https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com
+Built by team ZtotheZ (Roosa Yöruusu) at the **Since AI Hackathon 2026** in Turku, 6 to 8 November 2026, for Bayer's challenge
+"Build Less, Build Better: AI for Governed Analytics", and entered for the Red Hat OpenShift AI award. It runs on Bayer's
+synthetic Builder Data Pack; no real Bayer data is used. The hackathon is over, and the code is kept as it was submitted, with
+small clean-ups.
 
-**Judges:** sign in with the access code `1eecfd9f15528117`, also shown on the sign-in page. "Viewing as" then switches between all seven roles
-(Business, Analyst, Developer, Approver, Admin, Executive, Operator), and the API serves each view exactly that role's data and
-rights. Every request page has a **Discussion** button for the request's chat with the agent.
+**Live UI** (while the Developer Sandbox stays up): https://reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com. Access
+needs a role code. Evidence of the running system on Red Hat OpenShift AI is in [docs/evidence/](docs/evidence/).
 
 Each role has its own app: Business asks and gets one answer; Analyst builds dashboards from the data pack; Developer proposes
 configuration changes that are measured on all 150 requests; Approver decides; Executive reads a plain-language report; Operator
@@ -451,7 +453,7 @@ and name; "Viewing as" offers only the roles that tab is signed in to.
 - Codes are compared in constant time, kept in the browser tab's sessionStorage only, and never logged.
 - With a live API configured, the UI never falls back to bundled data or local drafts: an unreachable API is shown as an error.
 
-- A judge code (`judge:Judge:<code>`) is for demo reviewers: "Viewing as" offers all seven roles, and each call carries the view
+- A judge code (`judge:Judge:<code>`) was used for the hackathon's reviewers: "Viewing as" offers all seven roles, and each call carries the view
   (`X-View-Role`). The API then gives exactly that role's data and rights under the judge's name; viewing as Business also shows the
   marked sample requests. Every other code ignores the header.
 - Separation of duties for configuration: nobody approves a change they proposed (403), and an approved change is a release patch,
