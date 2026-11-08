@@ -48,3 +48,40 @@ The YouTube link (unlisted) of the 2-minute video.
 - Source code: `reuse-gate-source.zip`
 - Pitch deck: `reuse-gate-pitch-deck.pdf`
 - Supporting document: `reuse-gate-pilot-plan.pdf`
+
+# Partner technologies
+
+## CSC / LUMI AI Factory
+We used CSC's Aitta inference service for gpt-oss-120b, the first model tier that reads messy requests and words explanations, and for multilingual-e5-large embeddings in our KPI-matching probe. When Aitta was unavailable during the weekend, the tiered fallback moved to the next provider and the rules, so decisions never stopped.
+
+## Red Hat OpenShift AI
+How: The whole system runs on Red Hat OpenShift AI: the deterministic decision service is served as a model by a KServe InferenceService on its own ServingRuntime (visible in the OpenShift AI dashboard), the API calls it for every reuse decision, and an OpenShift Pipelines (Tekton) run executes unit tests plus governance, evaluation and security gates before every rollout.
+Evidence link: https://github.com/ztothez/reuse-gate/tree/main/docs/evidence (screenshot `10-openshift-ai-cli.png`; manifests in `deploy/openshift/`)
+
+## Featherless AI
+GLM-5.2 on Featherless is our fallback model tier: when the first tier fails or is slow, it reads the business request and words the clarifying questions and explanations, before the rule parser takes over.
+
+## ElevenLabs
+ElevenLabs text to speech reads each answer aloud with the Listen button, so business users and operators can hear the decision hands-free, and ElevenLabs speech to text lets them speak a request instead of typing. Calls are capped, budgeted and cached, and we narrated our demo video with ElevenLabs.
+
+## Lovable
+We generated the first version of the React front end with Lovable from a written product prompt (docs/LOVABLE_PROMPT.md), then rebuilt it into seven role-based apps on the live API.
+
+## n8n
+n8n sends Reuse Gate's email: the API posts each event (a request ready for approval, a decision, a configuration change, an executive report) to an n8n workflow that emails the right role through SMTP, and two more workflows register approvals by webhook and email a weekday radar digest.
+
+# MLH
+
+Prize categories: Best Use of ElevenLabs.
+
+## Technology feedback
+Red Hat OpenShift AI (KServe): serving a rules engine as a model through a custom ServingRuntime worked well and made it visible in the OpenShift AI dashboard; one surprise was that KServe reverts a plain `oc rollout restart` of the predictor, so our pipeline replaces the predictor pod to pick up a new image.
+
+## GenAI tools used
+Claude (Claude Code), Lovable. Add any others you used.
+
+## Did you implement a generative AI model or API?
+Yes. Language models (gpt-oss-120b through Together AI and CSC Aitta, GLM-5.2 on Featherless) read messy report requests into structured intent, word clarifying questions and plain-language explanations, and answer questions in a request's chat; a faithfulness guard rejects any model text that names a fact not in the decision. We kept the decisions themselves deterministic rules, because governance decisions must be repeatable and auditable; ElevenLabs provides text to speech and speech to text.
+
+## Domain registered this weekend
+Leave empty.
