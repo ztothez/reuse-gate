@@ -56,7 +56,7 @@ We used CSC's Aitta inference service for gpt-oss-120b, the first model tier tha
 
 ## Red Hat OpenShift AI
 How: The whole system runs on Red Hat OpenShift AI: the deterministic decision service is served as a model by a KServe InferenceService on its own ServingRuntime (visible in the OpenShift AI dashboard), the API calls it for every reuse decision, and an OpenShift Pipelines (Tekton) run executes unit tests plus governance, evaluation and security gates before every rollout.
-Evidence link: https://github.com/ztothez/reuse-gate/tree/main/docs/evidence (screenshot `10-openshift-ai-cli.png`; manifests in `deploy/openshift/`)
+Evidence link: https://github.com/ztothez/reuse-gate/tree/main/assets (screenshot `10-openshift-ai-cli.png`; manifests in `deploy/openshift/`)
 
 ## Featherless AI
 GLM-5.2 on Featherless is our fallback model tier: when the first tier fails or is slow, it reads the business request and words the clarifying questions and explanations, before the rule parser takes over.

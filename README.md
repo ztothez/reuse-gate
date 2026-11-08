@@ -9,8 +9,18 @@ Built by team ZtotheZ (Roosa Yöruusu) at the **Since AI Hackathon 2026** in Tur
 synthetic Builder Data Pack; no real Bayer data is used. The hackathon is over, and the code is kept as it was submitted, with
 small clean-ups.
 
-During the hackathon it ran on a Red Hat OpenShift AI Developer Sandbox, which has since been shut down. Screenshots and
-command output of the running system are in [docs/evidence/](docs/evidence/); to run it yourself, see Run and OpenShift below.
+During the hackathon it ran on a Red Hat OpenShift AI Developer Sandbox, which has since been shut down. Screenshots of every
+role's view and of the platform are in [assets/](assets/); to run it yourself, see Run and OpenShift below.
+
+| Business: one clear answer | Analyst: dashboard studio |
+| --- | --- |
+| ![Business view: the answer card](assets/01-business-answer.png) | ![Dashboard studio](assets/03-analyst-dashboard-studio.png) |
+| **Approver: the gates** | **Executive: plain-language report** |
+| ![Approver view: spec gates](assets/04-approver-gates.png) | ![Executive report](assets/06-executive-report.png) |
+| **Operator: the wall** | **Red Hat OpenShift AI: the decision service on KServe** |
+| ![Operator wall](assets/07-operator-wall.png) | ![OpenShift AI dashboard](assets/13-openshift-ai-deployments-kserve.png) |
+
+More screenshots, one per role and of the OpenShift console, are in [assets/README.md](assets/README.md).
 
 Each role has its own app: Business asks and gets one answer; Analyst builds dashboards from the data pack; Developer proposes
 configuration changes that are measured on all 150 requests; Approver decides; Executive reads a plain-language report; Operator
