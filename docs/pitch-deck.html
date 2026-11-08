@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reuse Gate pitch deck</title>
+<style>
+  @page { size: 13.333in 7.5in; margin: 0; }
+  * { box-sizing: border-box; }
+  :root { --ink: #1b1c1a; --muted: #5d5e57; --page: #f6f6f3; --panel: #ffffff; --line: #dcdcd5; --blue: #1f5fbd; --blue-soft: #e6eefa;
+          --green: #1d7a33; --green-soft: #e3f1e6; --amber: #8a5a00; --amber-soft: #fbf0d9; --red: #b3261e; --red-soft: #f8e4e2; }
+  html, body { margin: 0; background: var(--page); color: var(--ink); font-family: "Noto Sans", "Segoe UI", Helvetica, Arial, sans-serif; }
+  .slide { width: 13.333in; height: 7.5in; padding: 0.7in 0.85in; page-break-after: always; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .slide:last-child { page-break-after: auto; }
+  .kicker { color: var(--blue); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14pt; margin: 0 0 10pt; }
+  h1 { font-size: 40pt; line-height: 1.1; margin: 0 0 18pt; letter-spacing: -0.01em; }
+  h2 { font-size: 30pt; line-height: 1.15; margin: 0 0 22pt; letter-spacing: -0.01em; }
+  p, li { font-size: 17pt; line-height: 1.45; }
+  .muted { color: var(--muted); }
+  .foot { position: absolute; bottom: 0.35in; left: 0.85in; right: 0.85in; display: flex; justify-content: space-between; font-size: 10.5pt; color: var(--muted); }
+  .grid { display: grid; gap: 16pt; }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10pt; padding: 16pt 18pt; }
+  .big { font-size: 46pt; font-weight: 700; line-height: 1; margin: 4pt 0 8pt; font-variant-numeric: tabular-nums; }
+  .label { font-size: 13.5pt; color: var(--muted); }
+  .note { font-size: 11pt; color: var(--muted); margin-top: auto; padding-top: 10pt; }
+  .flow { display: flex; align-items: stretch; gap: 8pt; margin: 6pt 0 22pt; }
+  .step { flex: 1; border-radius: 8pt; padding: 12pt; border: 1px solid var(--line); background: var(--panel); }
+  .step b { display: block; font-size: 15pt; } .step span { font-size: 11.5pt; color: var(--muted); }
+  .arrow { align-self: center; color: var(--muted); font-size: 18pt; }
+  .t-user { background: #fde9dc; border-color: #f2b48c; } .t-agent { background: #fdf3cf; border-color: #e8c95b; }
+  .t-rule { background: var(--green-soft); border-color: #9cc9a6; } .t-state { background: var(--blue-soft); border-color: #9db7e3; }
+  .pill { display: inline-block; border-radius: 99pt; padding: 3pt 10pt; font-size: 11.5pt; font-weight: 700; border: 1px solid; }
+  .p-blue { color: var(--blue); background: var(--blue-soft); border-color: #9db7e3; }
+  .p-green { color: var(--green); background: var(--green-soft); border-color: #9cc9a6; }
+  .p-amber { color: var(--amber); background: var(--amber-soft); border-color: #e3c27a; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5pt; }
+  td, th { text-align: left; padding: 8pt 10pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12pt; color: var(--muted); font-weight: 600; }
+  td:first-child { font-weight: 700; white-space: nowrap; }
+  .title { justify-content: center; background: var(--panel); }
+  .title h1 { font-size: 64pt; color: var(--blue); margin-bottom: 10pt; }
+  .title .sub { font-size: 26pt; margin: 0 0 30pt; }
+  .arch { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14pt; }
+  .box { border: 2px solid var(--blue); border-radius: 10pt; padding: 12pt 14pt; background: var(--panel); }
+  .box h3 { margin: 0 0 6pt; font-size: 16pt; color: var(--blue); } .box p { margin: 0; font-size: 12.5pt; line-height: 1.4; }
+  .box.rh { border-color: #cc0000; } .box.rh h3 { color: #cc0000; }
+  ul { margin: 0; padding-left: 22pt; } li { margin-bottom: 6pt; }
+</style>
+</head>
+<body>
+
+<section class="slide title">
+  <p class="kicker">Since AI Hackathon 2026 · Bayer challenge</p>
+  <h1>Reuse Gate</h1>
+  <p class="sub">Build less, build better: check what exists before anyone builds a new dashboard.</p>
+  <p class="muted">Team ZtotheZ · Roosa Yöruusu · Runs on Red Hat OpenShift AI</p>
+</section>
+
+<section class="slide">
+  <p class="kicker">The problem</p>
+  <h2>Every new question becomes a new dashboard</h2>
+  <div class="grid g4">
+    <div class="card"><div class="big">360</div><div class="label">reports in the estate</div></div>
+    <div class="card"><div class="big">206</div><div class="label">unused or marked for retirement</div></div>
+    <div class="card"><div class="big">86</div><div class="label">without an active owner</div></div>
+    <div class="card"><div class="big">13</div><div class="label">KPIs with conflicting definitions</div></div>
+  </div>
+  <p style="margin-top:26pt">Self-service BI is fast, but nobody checks what already exists. The result is sprawl, duplicate logic,
+     unclear ownership and a maintenance bill that grows with every request.</p>
+  <p class="note">Source: Bayer's synthetic Builder Data Pack (Analytics_Assets, KPI_Catalog, Owners).</p>
+  <div class="foot"><span>Reuse Gate</span><span>2</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">The solution</p>
+  <h2>A gate before the build, with a person in charge</h2>
+  <div class="flow">
+    <div class="step t-user"><b>Prompt</b><span>plain words, or voice</span></div><div class="arrow">→</div>
+    <div class="step t-agent"><b>Clarify</b><span>at most 3 rounds; rules pick the questions</span></div><div class="arrow">→</div>
+    <div class="step t-rule"><b>Evidence</b><span>every report in scope, cited rows</span></div><div class="arrow">→</div>
+    <div class="step t-rule"><b>Decision</b><span>reuse, repair, extend, migrate, retire, build</span></div><div class="arrow">→</div>
+    <div class="step t-rule"><b>Gates</b><span>7 checks block release</span></div><div class="arrow">→</div>
+    <div class="step t-state"><b>Approve</b><span>owner and review date</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><p style="margin:0"><b>Rules decide.</b> Deterministic, cited, repeatable and auditable. If every model is down,
+       the decisions stay the same.</p></div>
+    <div class="card"><p style="margin:0"><b>AI reads and words.</b> It reads messy requests, phrases questions and explanations, and
+       answers in a request's chat. A faithfulness guard drops any claim not in the decision.</p></div>
+  </div>
+  <div class="foot"><span>Mapped to Bayer's flow: Prompt-to-Intent, Intent-to-Evidence, Evidence-to-Spec, Spec-to-Report</span><span>3</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">Demo</p>
+  <h2>One request, one clear answer</h2>
+  <div class="grid g2" style="align-items:start">
+    <div class="card">
+      <p class="label" style="margin:0 0 6pt">Business user asks</p>
+      <p style="margin:0 0 14pt">"Create a global Nubeqa dashboard showing sales growth, forecast variance and market access by country."</p>
+      <span class="pill p-blue">EXTEND AN EXISTING REPORT</span>
+      <p style="font-size:22pt;font-weight:700;margin:10pt 0 4pt">Nubeqa Gross-to-Net Monthly</p>
+      <p style="margin:0">Covers 2 of 3 requested KPIs as primary. Forecast Variance needs adding. Don't build a new one.</p>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14pt"><div class="big">8 → 20</div><div class="label">of 21 messy prompts understood: at first, then after the clarification loop</div></div>
+      <div class="card"><div class="big">1,098</div><div class="label">citations across 150 requests, every one exists (validity 1.0)</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Analysts see every cited row; the business user sees one card and can listen to it</span><span>4</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">Governance</p>
+  <h2>Nothing is released until it is owned</h2>
+  <div class="grid g3">
+    <div class="card"><span class="pill p-amber">GATES</span><div class="big" style="margin-top:10pt">5 → 7</div>
+      <div class="label">of 7 gates pass after the approver simulates one active owner for an oncology build. The record keeps both.</div></div>
+    <div class="card"><span class="pill p-green">ESTATE</span><div class="big" style="margin-top:10pt">13 → 93</div>
+      <div class="label">of 124 specs would pass after one owner fix on a shared semantic model (modelled).</div></div>
+    <div class="card"><span class="pill p-blue">CONFIGURATION</span><div class="big" style="margin-top:10pt">57 → 51</div>
+      <div class="label">avoided builds if "unused" meant below 300 views: measured on all 150 requests before an approver decides. Nobody approves their own change.</div></div>
+  </div>
+  <div class="foot"><span>Change the configuration, not the report</span><span>5</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">Least privilege</p>
+  <h2>Everyone gets their own app, and only their own data</h2>
+  <table>
+    <tr><td>Business</td><td>Asks, gets one plain answer with audio; sees only their own requests</td></tr>
+    <tr><td>Analyst</td><td>Cited evidence; dashboard studio fills a request's spec with real rows (render_preview), drag and drop, export</td></tr>
+    <tr><td>Developer</td><td>Proposes rule and vocabulary changes, each measured on 150 requests</td></tr>
+    <tr><td>Approver</td><td>Gates, what-if owner fix, approval with owner and review date</td></tr>
+    <tr><td>Executive</td><td>One-page report in plain words, a source under every section; print or email</td></tr>
+    <tr><td>Operator</td><td>Wall screen for gloves and distance: what is broken now and who to call</td></tr>
+    <tr><td>Admin</td><td>Workflows and email through n8n, with an outbox of every message</td></tr>
+  </table>
+  <p class="note">Enforced by the API on every endpoint, not hidden in the UI. Approver names are hidden from those who do not decide.</p>
+  <div class="foot"><span>Reuse Gate</span><span>6</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">Business impact</p>
+  <h2>38% fewer dashboards to build and maintain</h2>
+  <div class="grid g3">
+    <div class="card"><div class="big">57 / 150</div><div class="label">requests avoid a new build: reuse, repair, extend or migrate instead</div></div>
+    <div class="card"><div class="big">451</div><div class="label">reports in the estate with the gate, against 510 without it, after the same 150 requests</div></div>
+    <div class="card"><div class="big">80</div><div class="label">more specs unblocked by one owner fix</div></div>
+  </div>
+  <p style="margin-top:22pt">Fewer reports to refresh, certify and support; one definition per KPI; every asset with an owner and a review date.</p>
+  <p class="note">Modelled on Bayer's synthetic data pack, assuming each recommendation is approved; not measured savings. Method and caveats are on the Evaluation page.</p>
+  <div class="foot"><span>Reuse Gate</span><span>7</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">Red Hat OpenShift AI</p>
+  <h2>Served, gated and observable on OpenShift AI</h2>
+  <div class="arch">
+    <div class="box"><h3>Web app</h3><p>React UI, one app per role. Sign-in by role code; the top bar shows where each decision ran.</p></div>
+    <div class="box"><h3>Reuse Gate API</h3><p>Python, non-root, read-only container, state volume. Least privilege on every endpoint. Falls back to in-pod rules and says so.</p></div>
+    <div class="box rh"><h3>KServe InferenceService</h3><p>The decision service as a served model on its own ServingRuntime, listed in the OpenShift AI dashboard.</p></div>
+    <div class="box rh"><h3>OpenShift Pipelines</h3><p>Tekton run before every rollout: unit tests, governance gate, evaluation gate, security gate, rollout.</p></div>
+    <div class="box"><h3>Model tiers</h3><p>gpt-oss-120b, then GLM-5.2, then rules, with a circuit breaker. Models read and word; they never decide.</p></div>
+    <div class="box"><h3>n8n and ElevenLabs</h3><p>Email for approvers, requesters and developers; a weekday radar digest; Listen in plain language.</p></div>
+  </div>
+  <p class="note">380 backend and 187 front-end tests. Live: reuse-gate-ui-ztothez-dev.apps.rm1.0a51.p1.openshiftapps.com</p>
+  <div class="foot"><span>Reuse Gate</span><span>8</span></div>
+</section>
+
+<section class="slide">
+  <p class="kicker">What's next</p>
+  <h2>From hackathon to a pilot in one division</h2>
+  <div class="grid g2">
+    <div class="card"><ul>
+      <li>Single sign-on instead of role codes (one function changes)</li>
+      <li>Power BI or Fabric metadata scanner in place of the data pack</li>
+      <li>Approval rights by domain; tamper-evident decision log</li>
+      <li>.pbip export from the dashboard studio</li>
+    </ul></div>
+    <div class="card"><ul>
+      <li>8-week pilot with one analytics team</li>
+      <li>Measure real avoided builds, time to answer, owner coverage</li>
+      <li>Go or no-go on agreed thresholds</li>
+      <li>See the pilot plan in the submission</li>
+    </ul></div>
+  </div>
+  <p style="margin-top:30pt;font-size:24pt;font-weight:700;color:var(--blue)">Build less. Build better. With a person in charge.</p>
+  <div class="foot"><span>Reuse Gate · Team ZtotheZ</span><span>9</span></div>
+</section>
+
+</body>
+</html>

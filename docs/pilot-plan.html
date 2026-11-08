@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reuse Gate pilot plan</title>
+<style>
+  @page { size: A4; margin: 18mm 18mm 20mm; }
+  body { font-family: "Noto Sans", "Segoe UI", Helvetica, Arial, sans-serif; color: #1b1c1a; font-size: 10.5pt; line-height: 1.5; }
+  h1 { font-size: 22pt; color: #1f5fbd; margin: 0 0 2pt; }
+  .sub { color: #5d5e57; margin: 0 0 14pt; }
+  h2 { font-size: 13pt; margin: 16pt 0 6pt; color: #1b1c1a; border-bottom: 1px solid #dcdcd5; padding-bottom: 3pt; }
+  table { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 9.8pt; }
+  th, td { text-align: left; vertical-align: top; padding: 5pt 6pt; border-bottom: 1px solid #dcdcd5; }
+  th { color: #5d5e57; font-weight: 600; }
+  ul { margin: 4pt 0 8pt; padding-left: 16pt; } li { margin-bottom: 3pt; }
+  .box { background: #e6eefa; border: 1px solid #9db7e3; border-radius: 6pt; padding: 8pt 10pt; margin: 8pt 0; }
+  h2 { break-after: avoid; } .box, tr { break-inside: avoid; }
+</style>
+</head>
+<body>
+<h1>Reuse Gate: pilot and continuation plan</h1>
+<p class="sub">Team ZtotheZ · Since AI Hackathon 2026, Bayer challenge "Build Less, Build Better" · 8 November 2026</p>
+
+<div class="box"><b>Proposal.</b> An 8-week pilot with one analytics team in one Bayer division, on real BI metadata, to measure
+whether Reuse Gate avoids new builds without slowing requesters down. A go or no-go decision at week 8 on thresholds agreed
+before the start.</div>
+
+<h2>1. Where we are</h2>
+<p>The prototype runs on Red Hat OpenShift AI with Bayer's synthetic Builder Data Pack: 360 reports, 56 KPI definitions, 75
+semantic models, 150 business requests. On that data, 57 of 150 requests avoid a new build and all 1,098 cited rows exist. These
+are modelled results on synthetic data. The pilot replaces them with measured ones.</p>
+<p>Built and tested: the decision pipeline with cited evidence and seven release gates, the clarification loop, human approval
+with owner and review date, least privilege for seven roles enforced by the API, the analyst dashboard studio, measured
+configuration changes, the executive report, the operator wall, email through n8n, a KServe decision service and a gated
+Tekton pipeline.</p>
+
+<h2>2. Scope</h2>
+<table>
+  <tr><th>In scope</th><th>Out of scope</th></tr>
+  <tr><td>One division and one analytics team (suggested: a commercial analytics team with an active Power BI estate)<br>
+          New report requests for that team for 8 weeks<br>
+          Read-only metadata: workspaces, reports, semantic models, measures, owners, usage</td>
+      <td>Changing or deleting any report automatically<br>
+          Business data values (only metadata and usage counts)<br>
+          Other divisions, until the go decision</td></tr>
+</table>
+
+<h2>3. Plan</h2>
+<table>
+  <tr><th>Weeks</th><th>Work</th><th>Exit criterion</th></tr>
+  <tr><td>0 to 1</td><td>Agree thresholds and owners. Security review. Connect single sign-on (only the identity function changes).</td><td>Signed pilot charter</td></tr>
+  <tr><td>1 to 3</td><td>Replace the data pack loader with the Power BI or Fabric metadata scanner and usage logs. Map the division's KPI catalogue and owners. Re-run the evaluation on real metadata.</td><td>Citation validity 1.0 on real metadata</td></tr>
+  <tr><td>3 to 4</td><td>Shadow mode: requests go through the normal process, and Reuse Gate's recommendation is recorded beside it without being shown.</td><td>Agreement with what the team actually did</td></tr>
+  <tr><td>4 to 8</td><td>Live mode: requesters see the answer card, approvers decide in Reuse Gate, developers build from the spec.</td><td>Metrics below, weekly</td></tr>
+  <tr><td>8</td><td>Review with the team, the division's BI lead and governance. Go or no-go.</td><td>Decision on record</td></tr>
+</table>
+
+<h2>4. What we measure</h2>
+<table>
+  <tr><th>Metric</th><th>How</th><th>Suggested go threshold</th></tr>
+  <tr><td>New builds avoided</td><td>Approved reuse, repair, extend or migrate decisions / all decided requests</td><td>at least 20%</td></tr>
+  <tr><td>Recommendation accepted</td><td>Approver agrees with the recommended action</td><td>at least 70%</td></tr>
+  <tr><td>Time to first answer</td><td>Request filed to answer card</td><td>under 1 working day, against today's baseline</td></tr>
+  <tr><td>Owner coverage</td><td>New and touched reports with an active owner and review date</td><td>100% of approved items</td></tr>
+  <tr><td>Citation validity</td><td>Cited rows that exist in the metadata</td><td>1.0</td></tr>
+  <tr><td>Requester satisfaction</td><td>Two-question survey after each answer</td><td>at least 4 of 5</td></tr>
+</table>
+<p>A 20-row human gold set is already prepared in the repository; the pilot team labels real requests the same way, so the
+recommendation quality is measured, not only the rule compliance.</p>
+
+<h2>5. Roles</h2>
+<ul>
+  <li><b>Business requesters</b> file requests and answer questions.</li>
+  <li><b>Analysts</b> check evidence and build previews in the dashboard studio.</li>
+  <li><b>Approver</b> (the team's BI lead) decides, with owner and review date.</li>
+  <li><b>Developers</b> build from approved specs and propose rule changes, measured before review.</li>
+  <li><b>Governance and IT</b> own access, the decision log and the platform.</li>
+</ul>
+
+<h2>6. Platform, security and governance</h2>
+<ul>
+  <li>Runs in the division's Red Hat OpenShift AI project: the KServe decision service, the API and the UI, with the existing
+      Tekton gates (tests, governance, evaluation, security) before every rollout.</li>
+  <li>Single sign-on replaces access codes; roles come from directory groups. Least privilege stays enforced by the API.</li>
+  <li>Language models only read requests and word text. In the pilot they run on an approved endpoint (or in-cluster on a GPU
+      node); with no model, decisions are unchanged.</li>
+  <li>Read-only metadata access. No business data values leave the source systems.</li>
+  <li>Before scale-up: approval rights by domain, separation of duties on requests, and a tamper-evident central decision log.</li>
+</ul>
+
+<h2>7. Risks</h2>
+<table>
+  <tr><th>Risk</th><th>Mitigation</th></tr>
+  <tr><td>Metadata is messier than the data pack</td><td>Shadow mode first; the gates name what is missing instead of guessing</td></tr>
+  <tr><td>Requesters bypass the gate</td><td>Make the answer faster than building; the BI lead routes new requests through it</td></tr>
+  <tr><td>Rules too strict or too loose</td><td>Developers propose changes, measured on all requests, approved by someone else</td></tr>
+  <tr><td>Model provider unavailable</td><td>Tiered fallback to rules; decisions do not depend on a model</td></tr>
+</table>
+
+<h2>8. After a go decision</h2>
+<p>Extend to the division's other analytics teams in quarter one, with .pbip export from the dashboard studio and a link from
+the BI request portal. Each new division plugs in through its own catalogue file (KPI vocabulary, products, markets), with no
+change to the decision logic.</p>
+</body>
+</html>
